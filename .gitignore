@@ -101,20 +101,10 @@ lab/state/voice_steers/
 # Observability logs (runtime telemetry, regenerated on demand)
 state/observability/*.jsonl
 
-# abyssal build artifacts
-abyssal/node_modules/
-abyssal/v4/node_modules/
-abyssal/v4/dist/
-abyssal/v4/tsconfig.tsbuildinfo
 
 # Vite transient config-load timestamp files (regenerated each build)
 **/vite.config.*.timestamp-*.mjs
 
-# abyssal QA reports (test runs — keep latest only if needed)
-findings/abyssal_v4/qa_report_*.json
-findings/abyssal_v4/v4_*.png
-findings/abyssal_v4/v4_*.html
-findings/abyssal_v4/qa_*.png
 
 # Top-level npm (devDeps only — SBOM + license-checker)
 node_modules/
