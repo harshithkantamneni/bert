@@ -32,18 +32,13 @@ Those claims come from a benchmark program built to **falsify** them. The honest
 
 Full methodology, results, and limitations: [`benchmarks/BENCHMARK_SYNTHESIS.md`](benchmarks/BENCHMARK_SYNTHESIS.md).
 
-## Install (MCP server — you bring your own keys)
+## Install (MCP server)
 
-bert is a local stdio MCP server. It reads model/provider keys from **your own** `~/.bert-lab/credentials.json` (mode 600) or environment — no keys are bundled, and bert's keys never reach the host model (they stay in the server's HTTP calls).
+bert is a local stdio MCP server. **The retrieval layer needs no LLM and no API keys** — it embeds locally (`all-MiniLM-L6-v2`, 22 MB) + BM25 + a local cross-encoder reranker (`bge-reranker-v2-m3`, ~568 MB), both downloaded once by `pip`/HuggingFace. The *answering* is done by your **host model** (Claude Code / Cursor / Codex): the host calls `memory_search`, bert returns the relevant chunks, and the host's own model reasons over them. No Ollama, no llama — the free-tier llama in the benchmarks was only a controlled reader to isolate retrieval quality.
 
 ```bash
 git clone <your-fork-url> bert && cd bert
-python -m venv .venv && .venv/bin/pip install -e .
-# add your provider keys (any subset):
-mkdir -p ~/.bert-lab && cat > ~/.bert-lab/credentials.json <<'JSON'
-{ "GROQ_API_KEY": "...", "NVIDIA_API_KEY": "...", "GOOGLE_AI_API_KEY": "..." }
-JSON
-chmod 600 ~/.bert-lab/credentials.json
+python -m venv .venv && .venv/bin/pip install -e .     # pulls sentence-transformers, sqlite-vec, etc.
 ```
 
 Register with Claude Code:
@@ -59,7 +54,12 @@ Or in `claude_desktop_config.json` / Cursor (`mcpServers` block):
     "env": { "PYTHONPATH": "/abs/path/to/bert" } } } }
 ```
 
-The host then gets tools to create/inspect/run labs, **`memory_search`** (the retrieval layer), and proof-packet export. Labs live under `~/.bert/labs/<name>/`.
+The host then gets tools to ingest/inspect a project corpus, **`memory_search`** (the retrieval layer — the value), and proof-packet export. Labs live under `~/.bert/labs/<name>/`.
+
+**Optional — provider keys** (only for the autonomous lab-*cycle* feature, where bert dispatches its own model calls rather than letting the host reason): put any subset in **your own** `~/.bert-lab/credentials.json` (mode 600). Keys are never bundled and never reach the host model — they stay in bert's outbound HTTP calls. The core retrieval/memory product needs none of this.
+```bash
+mkdir -p ~/.bert-lab && printf '%s\n' '{ "GROQ_API_KEY": "...", "NVIDIA_API_KEY": "..." }' > ~/.bert-lab/credentials.json && chmod 600 ~/.bert-lab/credentials.json
+```
 
 ## Architecture
 
