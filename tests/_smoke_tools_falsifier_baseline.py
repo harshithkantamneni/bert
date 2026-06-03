@@ -1,4 +1,4 @@
-"""Smoke: tools/falsifier_baseline.py — A6 §9 calibration baseline (was 73%).
+"""Smoke: tools/falsifier_baseline.py — calibration baseline (was 73%).
 
 Every tN target reads OBS_DIR/*.jsonl (tolerant of missing/empty). We point
 OBS_DIR + FINDINGS_DIR at a temp tree and run the whole baseline: _read_jsonl,

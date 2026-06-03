@@ -1,10 +1,8 @@
-"""SKILL.md format support — L-11 / R9 G-6 (Anthropic Agent Skills).
-
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 Track D + R9 G-6.
+"""SKILL.md format support (Anthropic Agent Skills).
 
 Anthropic standardized SKILL.md format October 2025 with progressive
-disclosure: skills loaded only as needed. bert's `creator.py` (Phase E
-for autonomous skill self-modification) will produce SKILL.md-format
+disclosure: skills loaded only as needed. bert's `creator.py`
+(autonomous skill self-modification) will produce SKILL.md-format
 skills; this module provides the schema + loader.
 
 Skill directory layout (per Anthropic spec):

@@ -17,8 +17,9 @@ import os
 import socket
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
+
+import pytest
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
@@ -27,6 +28,24 @@ import tools.bert_doctor as doctor  # noqa: E402
 
 VENV_PY = LAB_ROOT / ".venv" / "bin" / "python"
 DOCTOR = LAB_ROOT / "tools" / "bert_doctor.py"
+
+# Canonical lab-runtime artifacts the doctor inspects but which are NOT
+# shipped in the public retrieval-MCP repo.
+PROOF_PACKET = LAB_ROOT / "findings" / "proof_packet"
+UI_DIST = LAB_ROOT / "bert" / "v4" / "dist" / "index.html"
+WEEKLY_TIMELINE = LAB_ROOT / "findings" / "weekly_history" / "timeline.json"
+
+
+def _require(*paths) -> None:
+    """Skip when a lab-runtime artifact (the lab .venv, proof packet,
+    UI build, compiled weekly timeline) is absent, as in the public repo.
+    Assertions still run in a full local lab where these exist."""
+    missing = [p for p in paths if not Path(p).exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
 
 
 def test_module_imports_clean() -> None:
@@ -66,6 +85,7 @@ def test_python_version_check_passes_on_modern_python() -> None:
 
 
 def test_venv_check_finds_real_venv() -> None:
+    _require(VENV_PY)
     result = doctor.check_venv_exists()
     assert result.level == "ok", "venv check should find .venv on this lab"
 
@@ -77,12 +97,14 @@ def test_required_deps_importable() -> None:
 
 
 def test_proof_packet_check_finds_canonical() -> None:
+    _require(PROOF_PACKET)
     result = doctor.check_proof_packet()
     assert result.level == "ok", \
         f"canonical proof packet check failed: {result.message}"
 
 
 def test_failures_md_check_finds_signed_failures() -> None:
+    _require(PROOF_PACKET)
     result = doctor.check_failures_md_in_packet()
     assert result.level == "ok", \
         f"failures.md check failed: {result.message}"
@@ -91,6 +113,7 @@ def test_failures_md_check_finds_signed_failures() -> None:
 
 
 def test_ui_build_check_finds_dist() -> None:
+    _require(UI_DIST)
     result = doctor.check_ui_build()
     assert result.level == "ok", \
         f"UI build check failed (need bert/v4/dist/index.html): {result.message}"
@@ -98,6 +121,7 @@ def test_ui_build_check_finds_dist() -> None:
 
 def test_weekly_timeline_check_finds_compiled_output() -> None:
     """T.1 should have produced weekly_history/timeline.{md,json}."""
+    _require(WEEKLY_TIMELINE)
     result = doctor.check_weekly_timeline()
     assert result.level == "ok", \
         f"weekly timeline check failed: {result.message}"
@@ -186,6 +210,7 @@ def test_run_all_checks_includes_network_when_flagged() -> None:
 
 def test_subprocess_no_keys_exits_2() -> None:
     """End-to-end: invoke as a CLI without keys → exit 2 (fail)."""
+    _require(VENV_PY)
     result = subprocess.run(
         [str(VENV_PY), str(DOCTOR), "--no-color"],
         capture_output=True, text=True, timeout=15,
@@ -200,6 +225,7 @@ def test_subprocess_no_keys_exits_2() -> None:
 
 def test_subprocess_with_groq_only_exits_1() -> None:
     """End-to-end: invoke with GROQ but no NVIDIA/MISTRAL → exit 1 (warn)."""
+    _require(VENV_PY)
     result = subprocess.run(
         [str(VENV_PY), str(DOCTOR), "--no-color"],
         capture_output=True, text=True, timeout=15,
@@ -214,6 +240,7 @@ def test_subprocess_with_groq_only_exits_1() -> None:
 
 def test_subprocess_all_keys_exits_0() -> None:
     """End-to-end: all 3 keys set → exit 0 (GO)."""
+    _require(VENV_PY)
     result = subprocess.run(
         [str(VENV_PY), str(DOCTOR), "--no-color"],
         capture_output=True, text=True, timeout=15,
@@ -233,6 +260,7 @@ def test_subprocess_all_keys_exits_0() -> None:
 
 def test_subprocess_json_output_well_formed() -> None:
     """--json must emit parseable JSON with documented top-level keys."""
+    _require(VENV_PY)
     result = subprocess.run(
         [str(VENV_PY), str(DOCTOR), "--json"],
         capture_output=True, text=True, timeout=15,
@@ -251,6 +279,7 @@ def test_subprocess_json_output_well_formed() -> None:
 
 def test_subprocess_help_works() -> None:
     """--help must print usage without running any checks."""
+    _require(VENV_PY)
     result = subprocess.run(
         [str(VENV_PY), str(DOCTOR), "--help"],
         capture_output=True, text=True, timeout=5,
@@ -265,6 +294,7 @@ def test_subprocess_help_works() -> None:
 def test_verbose_mode_shows_fix_hints_for_ok_checks() -> None:
     """In default mode, fix hints only show on fail. In --verbose,
     every check with a fix hint shows it."""
+    _require(VENV_PY)
     result_default = subprocess.run(
         [str(VENV_PY), str(DOCTOR), "--no-color"],
         capture_output=True, text=True, timeout=15,
@@ -284,6 +314,7 @@ def test_verbose_mode_shows_fix_hints_for_ok_checks() -> None:
 
 def test_no_color_disables_ansi() -> None:
     """--no-color must produce ANSI-free output."""
+    _require(VENV_PY)
     result = subprocess.run(
         [str(VENV_PY), str(DOCTOR), "--no-color"],
         capture_output=True, text=True, timeout=15,

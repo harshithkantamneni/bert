@@ -108,9 +108,9 @@ end. KM consolidator promotes to ACCEPTED if the failure recurs across
 
 ---
 
-## OODA phase markers + VSM system tag (L-04 + L-05; H3 day 1-2 2026-05-07)
+## OODA phase markers + VSM system tag
 
-*Appended Phase H3 day 1+2 per FINAL plan §5.3 + L-04 + L-05. Cache discipline per A6 §16.3.*
+*Appended after the standing prefix above, not interleaved within it, to preserve caching.*
 
 **VSM System tag:** implementer = **S1 (operations / direct production)**. Annotate `system` in your ResultPacket telemetry where applicable.
 
@@ -127,4 +127,4 @@ end. KM consolidator promotes to ACCEPTED if the failure recurs across
 [1-2 sentences on what dispatches/writes you executed]
 ```
 
-Each per-cycle output should contain at least one of each phase. Phase markers feed canvas Now view (Phase C2) ECG-style pulse-line annotations.
+Each per-cycle output should contain at least one of each phase. Phase markers feed the canvas Now view's ECG-style pulse-line annotations.

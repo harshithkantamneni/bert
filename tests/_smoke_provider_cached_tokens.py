@@ -1,6 +1,4 @@
-"""Smoke test for L-08 Phase A cached-token extraction in core/provider.py.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 Day 2.
+"""Smoke test for cached-token extraction in core/provider.py.
 
 Verifies _parse_response correctly extracts the `cached_tokens` field
 from each provider's response shape:
@@ -10,8 +8,7 @@ from each provider's response shape:
   Cerebras / Mistral / NIM: no cached field → field is 0
   Ollama: no cached field (uses byte-identical-prefix KV reuse, not
           $-tracked) → field is 0
-  Anthropic / OpenAI paid: NOT IMPLEMENTED (out of strict-free-tier scope
-          per feedback_bert_is_proprietary.md) — would use
+  Anthropic / OpenAI paid: NOT IMPLEMENTED (out of scope) — would use
           response.usage.cache_read_input_tokens at root, not parsed here
 
 Live-API verification (run manually after credential setup):

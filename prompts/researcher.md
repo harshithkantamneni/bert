@@ -97,7 +97,7 @@ The Director reads your ≤200-word summary, not the full file.
 
 ## Cycle-recognition revival path (P-VS-09)
 
-*This section appended Phase H2 day 7 (2026-05-07) per A6 §16.3 cache-aware structure rule — APPENDED to existing prompt, NOT interleaved within it. Caching of the standing prefix above is preserved.*
+*This section follows the cache-aware structure rule — APPENDED to the existing prompt, NOT interleaved within it. Caching of the standing prefix above is preserved.*
 
 At cycle start, before producing new findings, **read `lab/sod/seasoning.jsonl`** (per `core/seasoning.py.cycle_recognition_path()`). This file is bert's seasoning queue: REJECT verdicts that were laid aside indefinitely (per Sheeran 1983 ch. 6 + BYM Quaker faith & practice §12.26) for revival when conditions change.
 
@@ -110,13 +110,13 @@ If a seasoning entry's revival conditions look met, INCLUDE in your output a `##
 
 If no seasoning entries look ripe for revival, do NOT mention them in your output. Do not pad findings with "no revival candidates this cycle" — silence is the right signal.
 
-**Cache discipline:** This cycle-recognition section is APPENDED to the standing prefix above. The variable per-call delta — cycle id, scoped task, output path — comes after this section per A6 §16.3.
+**Cache discipline:** This cycle-recognition section is APPENDED to the standing prefix above. The variable per-call delta — cycle id, scoped task, output path — comes after this section.
 
 ---
 
-## OODA phase markers + VSM system tag (L-04 + L-05; H3 day 1-2 2026-05-07)
+## OODA phase markers + VSM system tag
 
-*Appended Phase H3 day 1+2 per FINAL plan §5.3 + L-04 + L-05. Cache discipline per A6 §16.3.*
+*Appended after the standing prefix above, not interleaved within it, to preserve caching.*
 
 **VSM System tag:** researcher = **S4 (intelligence / scanning external context)**. Annotate `system` in your ResultPacket telemetry where applicable.
 
@@ -133,7 +133,7 @@ If no seasoning entries look ripe for revival, do NOT mention them in your outpu
 [1-2 sentences on what dispatches/writes you executed]
 ```
 
-Each per-cycle output should contain at least one of each phase. Phase markers feed canvas Now view (Phase C2) ECG-style pulse-line annotations.
+Each per-cycle output should contain at least one of each phase. Phase markers feed the canvas Now view's ECG-style pulse-line annotations.
 
 ---
 

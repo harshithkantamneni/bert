@@ -16,6 +16,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
@@ -31,6 +33,19 @@ TIMELINE_JSON = LAB_ROOT / "findings" / "weekly_history" / "timeline.json"
 VENV_PY = LAB_ROOT / ".venv" / "bin" / "python"
 
 
+def _require(*paths) -> None:
+    """Skip the test when a lab-runtime artifact (findings/, compiled
+    timeline, investor handouts, the lab .venv) is not present, as is the
+    case in the public retrieval-MCP repo. Assertions still run in a full
+    local lab where these artifacts exist."""
+    missing = [p for p in paths if not Path(p).exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
+
+
 def test_compile_script_exists() -> None:
     assert (LAB_ROOT / "tools" / "weekly_history_compile.py").exists()
 
@@ -38,6 +53,7 @@ def test_compile_script_exists() -> None:
 def test_compile_runs_against_real_findings() -> None:
     """Running against the actual findings/ directory should discover
     at least one weekly report (we have 2026-05-13)."""
+    _require(VENV_PY, LAB_ROOT / "findings")
     result = subprocess.run(
         [str(VENV_PY), "tools/weekly_history_compile.py", "--dry-run"],
         capture_output=True, text=True, timeout=10,
@@ -54,6 +70,7 @@ def test_compile_runs_against_real_findings() -> None:
 
 def test_compile_writes_timeline_outputs() -> None:
     """Non-dry-run writes both timeline.md and timeline.json."""
+    _require(TIMELINE_MD, TIMELINE_JSON)
     assert TIMELINE_MD.exists(), "timeline.md must exist after compile"
     assert TIMELINE_JSON.exists(), "timeline.json must exist after compile"
 
@@ -61,6 +78,7 @@ def test_compile_writes_timeline_outputs() -> None:
 def test_timeline_json_well_formed() -> None:
     """timeline.json structure must be stable for downstream consumers
     (UI + ci tools + investor-facing scripts)."""
+    _require(TIMELINE_JSON)
     payload = json.loads(TIMELINE_JSON.read_text())
     required_top_level = ["ts", "expected_weeks", "weeks_recorded",
                           "weeks_remaining", "baseline_established", "weeks"]
@@ -83,6 +101,7 @@ def test_timeline_json_well_formed() -> None:
 
 def test_timeline_md_has_disclosure_for_current_state() -> None:
     """The disclosure must match the actual count of recorded weeks."""
+    _require(TIMELINE_MD, TIMELINE_JSON)
     md = TIMELINE_MD.read_text()
     assert "Disclosure" in md, "timeline.md must include the disclosure"
     payload = json.loads(TIMELINE_JSON.read_text())
@@ -171,6 +190,7 @@ def test_disclosure_consistent_across_handouts() -> None:
     """qa.md + anti_patterns.md + pitch_deck.md must all reflect the
     cadence-not-history honest disclosure, all pointing at the same
     auto-updating timeline file."""
+    _require(QA, ANTI, DECK)
     for path in (QA, ANTI, DECK):
         text = path.read_text()
         assert "week 1" in text.lower() or "one week" in text.lower(), \
@@ -183,6 +203,7 @@ def test_disclosure_consistent_across_handouts() -> None:
 def test_qa_q2_points_at_timeline_md() -> None:
     """Q2 in qa.md must specifically anchor the disclosure at the
     auto-generated timeline file so partners can verify."""
+    _require(QA)
     qa_text = QA.read_text()
     import re
     # Slice Q2
@@ -199,6 +220,7 @@ def test_anti_patterns_section_4_acknowledges_cadence() -> None:
     """Anti-pattern #4 (vague reliability claims) is the natural place
     for the cadence disclosure since that's where we cite the weekly
     grade as our reliability story."""
+    _require(ANTI)
     text = ANTI.read_text()
     import re
     m = re.search(r"^### 4\..*?(?=^### 5\.)", text, re.MULTILINE | re.DOTALL)
@@ -214,6 +236,7 @@ def test_deck_slide_9_includes_disclosure_footer() -> None:
     """Slide 9 makes the per-axis grade claim; it must include the
     cadence footer so the partner reading the deck sees the
     disclosure inline rather than only on follow-up."""
+    _require(DECK)
     text = DECK.read_text()
     # Slide 9 is bounded by the slide-9 kicker and the slide-10 kicker
     import re

@@ -28,7 +28,6 @@ sys.path.insert(0, str(LAB_ROOT))
 
 from core import subagent  # noqa: E402
 
-
 SPEC = {
     "dispatch_altitude": "INFRA",
     "role": "implementer",

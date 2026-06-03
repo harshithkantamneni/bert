@@ -17,8 +17,7 @@ import os
 import sys
 from pathlib import Path
 
-# L-08 Phase A: prefix-cache discipline + Ollama keep_alive.
-# Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 1.
+# Prefix-cache discipline + Ollama keep_alive.
 # Ollama auto-reuses prefix KV cache when a byte-identical prefix arrives;
 # keep_alive=24h keeps the model warm across cycles so the cache survives
 # the gap between dispatches. Without this, Ollama unloads the model after

@@ -20,11 +20,21 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import quality, skill_runner  # noqa: E402
 from core.types import ProviderResponse  # noqa: E402
+
+
+@pytest.fixture
+def tmp(tmp_path):
+    """Alias for pytest's tmp_path so the e2e test (which the file's own
+    main() runner drives with a self-managed temp dir) is also collectable
+    and runnable under bare pytest."""
+    return tmp_path
 
 
 def _stub_provider(mp, *, judge=4):

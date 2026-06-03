@@ -55,7 +55,7 @@ DISPATCH = {
         "11. README.md — title, screenshot placeholder, prereqs (Node 20+,\n"
         "    Ollama running locally with llama3.2:3b pulled), install\n"
         "    + dev commands, brief architecture note. End with 'Mission:\n"
-        "    `memories/mission.md`. Falsifiers: FALS-CANVASAGENT-{01,02,03}.'\n"
+        "    `memories/mission.md`.'\n"
         "12. .gitignore — node_modules, dist, .DS_Store.\n\n"
         "Constraints:\n"
         "- Total LoC across src/ + config files ≤500. Counts: rough wc -l.\n"

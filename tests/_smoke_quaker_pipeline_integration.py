@@ -1,7 +1,5 @@
-"""H2 day 8 — 4 multi-scenario dry-run integration tests for the full
-Quaker pipeline (per A6 §10).
-
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 8.
+"""4 multi-scenario dry-run integration tests for the full
+Quaker pipeline.
 
 Tests the COMPOSITION of the pipeline components (already unit-tested
 individually): threshing → clearness phase 1 → clearness phase 2 →
@@ -12,7 +10,7 @@ stage; they verify the orchestration logic + schema invariants at
 boundaries. Live model dispatches happen in days 10-15 calibration
 window (deferred to PI's actual API credentials).
 
-A6 §10 four scenarios:
+Four scenarios:
   Scenario A: contested PI-gate decision (cross-family judge fires)
   Scenario B: routine cycle-end Evaluator (no cross-family judge)
   Scenario C: REJECT-with-clear-revision → re-dispatch (no seasoning)
@@ -201,7 +199,7 @@ def main() -> int:
         except Exception as e:
             print(f"  ERROR {t.__name__}: {type(e).__name__}: {e}")
             return 1
-    print(f"\nAll {len(tests)} A6 §10 scenario tests passed.")
+    print(f"\nAll {len(tests)} scenario tests passed.")
     return 0
 
 

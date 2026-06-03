@@ -1,18 +1,18 @@
-"""Smoke test for H3 — L-04 VSM tags + L-05 OODA markers + L-06 /now page.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.3.
+"""Smoke test for VSM tags + OODA markers + /now page.
 """
 
 import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_oods_markers_appended_to_4_role_prompts() -> None:
-    """L-05: 4 of 5 role prompts gain OODA marker section (strategist
-    deactivated per H-BUILD-01)."""
+    """4 of 5 role prompts gain OODA marker section (strategist
+    deactivated)."""
     expected = ("director", "researcher", "implementer", "evaluator")
     for role in expected:
         text = (LAB_ROOT / "prompts" / f"{role}.md").read_text()
@@ -22,12 +22,12 @@ def test_oods_markers_appended_to_4_role_prompts() -> None:
     # Strategist should NOT have OODA additions (deactivated)
     strategist = (LAB_ROOT / "prompts" / "strategist.md").read_text()
     assert "OODA: observe" not in strategist, (
-        "Strategist should not have OODA section (deactivated per H-BUILD-01)"
+        "Strategist should not have OODA section (deactivated)"
     )
 
 
 def test_vsm_system_tags_in_role_prompts() -> None:
-    """L-04: each active role declares its VSM system tag."""
+    """Each active role declares its VSM system tag."""
     expected_systems = {
         "director": ("S3", "System 3"),
         "researcher": ("S4", "System 4", "S4 (intelligence"),
@@ -43,7 +43,9 @@ def test_vsm_system_tags_in_role_prompts() -> None:
 
 
 def test_now_page_generation() -> None:
-    """L-06: tools/generate_now_page.py produces lab/state/now.md."""
+    """tools/generate_now_page.py produces lab/state/now.md."""
+    if not (LAB_ROOT / ".venv" / "bin" / "python").exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
     result = subprocess.run(
         [str(LAB_ROOT / ".venv" / "bin" / "python"),
          str(LAB_ROOT / "tools" / "generate_now_page.py")],
@@ -61,7 +63,7 @@ def test_now_page_generation() -> None:
 
 
 def test_cycle_recognition_addition_in_researcher_prompt() -> None:
-    """Day 7 work — verify cycle-recognition section in researcher.md
+    """Verify cycle-recognition section in researcher.md
     is APPENDED (near end of file)."""
     text = (LAB_ROOT / "prompts" / "researcher.md").read_text()
     pos = text.find("## Cycle-recognition revival path")

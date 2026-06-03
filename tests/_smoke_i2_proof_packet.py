@@ -12,10 +12,23 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import proof_packet, signing
+
+
+def _require_cycle_events(cycle_id: int) -> None:
+    """Skip when the lab's event log (a runtime artifact not shipped in the
+    public repo) has no events for this cycle — build_packet() would raise
+    ValueError('no events'). Assertions still run on a full local lab."""
+    if not proof_packet._read_events_for_cycle(cycle_id):
+        pytest.skip(
+            f"requires lab runtime artifact: events for cycle {cycle_id} "
+            "(lab/sor/events.jsonl) not shipped in the public repo"
+        )
 
 
 def test_module_exports() -> None:
@@ -53,6 +66,7 @@ def test_empty_cycle_raises() -> None:
 
 
 def test_build_packet_produces_tarball_with_required_files() -> None:
+    _require_cycle_events(400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i2_"))
     try:
         # Build for a known real cycle (400) — assumes events.jsonl has it
@@ -89,6 +103,7 @@ def test_build_packet_produces_tarball_with_required_files() -> None:
 
 def test_slsa_envelope_well_formed() -> None:
     """The slsa.intoto.jsonl line is a valid DSSE envelope with SLSA v1 predicate."""
+    _require_cycle_events(400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i2_"))
     try:
         path = proof_packet.build_packet(cycle_id=400, output_dir=tmp)
@@ -110,6 +125,7 @@ def test_slsa_envelope_well_formed() -> None:
 
 def test_signatures_verify() -> None:
     """The Sigstore bundle signature must verify against the signed bytes."""
+    _require_cycle_events(400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i2_"))
     try:
         path = proof_packet.build_packet(cycle_id=400, output_dir=tmp)
@@ -163,6 +179,7 @@ def test_signatures_verify() -> None:
 
 def test_hashes_file_matches_actual_files() -> None:
     """Every file in the packet (except HASHES.*) must be in HASHES.txt with correct hash."""
+    _require_cycle_events(400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i2_"))
     try:
         path = proof_packet.build_packet(cycle_id=400, output_dir=tmp)
@@ -195,6 +212,7 @@ def test_hashes_file_matches_actual_files() -> None:
 
 def test_cycle_json_lineage_fields() -> None:
     """parentCycleId + parentDigest are present (may be null for first cycle)."""
+    _require_cycle_events(400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i2_"))
     try:
         path = proof_packet.build_packet(

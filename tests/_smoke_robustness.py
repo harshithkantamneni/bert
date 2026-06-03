@@ -27,8 +27,6 @@ Run: `.venv/bin/python tests/_smoke_robustness.py`
 
 from __future__ import annotations
 
-import json
-import os
 import sqlite3
 import sys
 import tempfile
@@ -289,6 +287,7 @@ def test_telegram_approver_timeout_returns_deny() -> None:
     indefinitely."""
     sys.path.insert(0, str(LAB_ROOT / "bot"))
     import approval  # type: ignore
+
     from core.types import PermissionDecision, ToolCall
 
     tmp = Path(tempfile.mkdtemp(prefix="bert_robust_approval_"))

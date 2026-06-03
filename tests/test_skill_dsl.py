@@ -13,7 +13,6 @@ Industry-standard coverage:
 from __future__ import annotations
 
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -21,8 +20,7 @@ import pytest
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import skill_dsl, skill_registry, skill_executor  # noqa: E402
-
+from core import skill_dsl, skill_executor, skill_registry  # noqa: E402
 
 # ── Helpers ─────────────────────────────────────────────────────────
 

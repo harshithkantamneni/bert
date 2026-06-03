@@ -1,9 +1,8 @@
-"""Smoke test for core/signing.py (G.4) — Agent Card + Merkle + skill
+"""Smoke test for core/signing.py — Agent Card + Merkle + skill
 signing with local ed25519, plus the local-Rekor append-only log."""
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 import tempfile

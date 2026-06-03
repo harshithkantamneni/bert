@@ -39,8 +39,8 @@ from pathlib import Path
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import outcome as oc  # noqa: E402
 from core import director as dir_mod  # noqa: E402
+from core import outcome as oc  # noqa: E402
 
 
 def _decision(shape: str, area: str, *, confidence: int = 7) -> dir_mod.Decision:
@@ -71,8 +71,8 @@ def test_outcome_labels_locked() -> None:
 
 
 def test_success_verdicts_locked() -> None:
-    assert oc.SUCCESS_VERDICTS == frozenset({
-        "APPROVE", "APPROVE_WITH_CAVEATS", "BUILD_PASS"})
+    assert frozenset({
+        "APPROVE", "APPROVE_WITH_CAVEATS", "BUILD_PASS"}) == oc.SUCCESS_VERDICTS
 
 
 # ─── EE.1 grade_immediate paths ────────────────────────────────────

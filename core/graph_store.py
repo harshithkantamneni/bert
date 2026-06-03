@@ -1,6 +1,5 @@
-"""Knowledge-graph store for bert (H4 Track C).
+"""Knowledge-graph store for bert.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 Track C — Layer 4 KG.
 Replaces the 10-LoC `# Implementation pending` stub with a functional
 typed-node + typed-edge graph backed by SQLite (chosen over FalkorDB /
 Apache AGE for zero-setup on bert's free-tier discipline; both
@@ -35,7 +34,7 @@ node_props as JSON column on nodes). Queries supported:
 
 These are the queries the Cathedral / Strata canvas surfaces need.
 
-Hybrid retrieval (L-22): callers combine a vector hit list (from
+Hybrid retrieval: callers combine a vector hit list (from
 core.memory.search) + this KG's neighborhood + KV-cache hint set;
 the merger lives in core/retrieval.py (separate operational PR).
 """

@@ -1,12 +1,12 @@
-"""Smoke test for FF-B — cross-lab supervisor signal.
+"""Smoke test for cross-lab supervisor signal.
 
-FF-B.1 — core/lab_aggregator.py reads every share-enabled lab in
+core/lab_aggregator.py reads every share-enabled lab in
 ~/.bert/labs/ and produces a CrossLabSignal with per-lab snapshots +
 cross-lab rollups.
-FF-B.2 — gather_observation for role:supervisor labs enriches the
+gather_observation for role:supervisor labs enriches the
 Observation with the aggregator output. Standard labs receive an
 empty cross_lab_signal (perfect isolation).
-FF-B.3 — t15_supervisor_pattern_evidence falsifier asserts every
+The t15_supervisor_pattern_evidence falsifier asserts every
 pattern_observed event in the supervisor's events.jsonl cites ≥2
 distinct evidence_labs.
 
@@ -36,11 +36,10 @@ from pathlib import Path
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import lab_aggregator as agg  # noqa: E402
 from core import director as dir_mod  # noqa: E402
+from core import lab_aggregator as agg  # noqa: E402
 
-
-# ─── FF-B.1 module shape ────────────────────────────────────────────
+# ─── Module shape ────────────────────────────────────────────
 
 
 def test_aggregator_module_exports() -> None:
@@ -49,7 +48,7 @@ def test_aggregator_module_exports() -> None:
         assert hasattr(agg, name), f"core.lab_aggregator missing {name!r}"
 
 
-# ─── FF-B.1 gather_cross_lab_signal paths ───────────────────────────
+# ─── gather_cross_lab_signal paths ───────────────────────────
 
 
 def test_aggregator_empty_root_returns_empty_signal() -> None:
@@ -177,7 +176,7 @@ def test_aggregator_malformed_lab_skipped_not_crashes() -> None:
         shutil.rmtree(tmp_root, ignore_errors=True)
 
 
-# ─── FF-B.2 director gather_observation integration ─────────────────
+# ─── Director gather_observation integration ─────────────────
 
 
 def test_observation_has_cross_lab_signal_field() -> None:
@@ -213,7 +212,7 @@ def test_supervisor_lab_observation_runs_aggregator() -> None:
     assert "rollups" in obs.cross_lab_signal
 
 
-# ─── FF-B.2 pattern_observed emission ──────────────────────────────
+# ─── pattern_observed emission ──────────────────────────────
 
 
 def test_emit_pattern_observed_event_writes_correct_shape() -> None:
@@ -257,7 +256,7 @@ def test_emit_pattern_observed_dedupes_evidence_count() -> None:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-# ─── FF-B.3 t15 falsifier ───────────────────────────────────────────
+# ─── t15 falsifier ───────────────────────────────────────────
 
 
 def test_t15_insufficient_when_no_pattern_observed_events() -> None:
@@ -269,6 +268,7 @@ def test_t15_insufficient_when_no_pattern_observed_events() -> None:
     # whether the repo's own events.jsonl has patterns yet. Patch
     # LAB_ROOT in the falsifier module to point at a tmp.
     import importlib
+
     from tools import falsifier_baseline as fb
     importlib.reload(fb)
 
@@ -291,6 +291,7 @@ def test_t15_insufficient_when_no_pattern_observed_events() -> None:
 
 def test_t15_passes_when_all_patterns_cite_two_or_more_labs() -> None:
     import importlib
+
     from tools import falsifier_baseline as fb
     importlib.reload(fb)
 
@@ -317,6 +318,7 @@ def test_t15_passes_when_all_patterns_cite_two_or_more_labs() -> None:
 
 def test_t15_fails_when_a_pattern_cites_only_one_lab() -> None:
     import importlib
+
     from tools import falsifier_baseline as fb
     importlib.reload(fb)
 
@@ -352,7 +354,7 @@ def test_t15_wired_into_run_all() -> None:
     assert len(results) == 15  # 14 prior + new t15
 
 
-# ─── FF-B.2 prompt content ──────────────────────────────────────────
+# ─── Prompt content ──────────────────────────────────────────
 
 
 def test_director_prompt_has_supervisor_cross_lab_section() -> None:

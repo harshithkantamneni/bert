@@ -1,7 +1,6 @@
-"""Empirical model-capability-per-role matrix (L-24).
+"""Empirical model-capability-per-role matrix.
 
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A4. Replaces
-the static EVAL_PROVIDER_PREFERENCE / MODEL_FAMILIES heuristic in
+Replaces the static EVAL_PROVIDER_PREFERENCE / MODEL_FAMILIES heuristic in
 core/subagent.py with measured per-role scores from
 `lab/state/capability_matrix.jsonl`.
 
@@ -28,9 +27,8 @@ the router reads the file each cycle into an in-memory dict keyed by
 `{role: [rows]}` and picks the max-score-within-headroom for the
 first attempt.
 
-Per FALS-L24-03, `pick_evaluator_model` must reference
-`capability_matrix` in its body — this module is the integration
-point for that constraint.
+`pick_evaluator_model` must reference `capability_matrix` in its
+body — this module is the integration point for that constraint.
 """
 
 from __future__ import annotations

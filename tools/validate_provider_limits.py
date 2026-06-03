@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Validate the static `PROVIDER_LIMITS` table in `core/quota.py` against
-live provider behaviour, per amendment §A5 acceptance criterion U-AC-Q2.
+live provider behaviour.
 
 For each provider with a non-`None` ceiling, this tool issues low-cost
 probes and verifies that the declared `rpm` / `rpd` / `daily_tokens` /
@@ -68,7 +68,7 @@ def _probe_provider(name: str, limits: ProviderLimits, cfg: config.Config) -> Pr
     a non-error response. Live RPM/RPD measurement is out of scope for a
     CI-runnable tool; we measure reachability + record the declared
     ceiling. The result is also written to the quota.db probes table so
-    L-24's empirical loop can read it later.
+    the empirical loop can read it later.
     """
     t0 = time.monotonic()
     spec = prov.PROVIDERS.get(name)
@@ -122,7 +122,7 @@ def _format_report(results: list[ProbeResult], since: str) -> str:
         f"**Since:** {since}",
         f"**Tolerance:** ±{TOLERANCE_PCT}% on declared ceilings",
         "",
-        "Per amendment §A5 U-AC-Q2 acceptance criterion.",
+        "Validates declared provider rate/token ceilings against live behaviour.",
         "",
         "| Provider | Reachable | Latency (ms) | Declared RPM | Declared RPD | Daily Tokens | Context Max | Status |",
         "|---|---|---|---|---|---|---|---|",
@@ -143,7 +143,7 @@ def _format_report(results: list[ProbeResult], since: str) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate provider limits per U-AC-Q2.")
+    parser = argparse.ArgumentParser(description="Validate provider limits against live behaviour.")
     parser.add_argument(
         "--since",
         default=datetime.now(UTC).date().isoformat(),

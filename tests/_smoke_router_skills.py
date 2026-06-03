@@ -1,4 +1,4 @@
-"""Smoke test for Track D — L-17 router + L-11 SKILL.md."""
+"""Smoke test for the router + SKILL.md loading."""
 
 import sys
 import tempfile
@@ -8,7 +8,6 @@ LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import router, skills  # noqa: E402
-
 
 # ── Router tests ────────────────────────────────────────────────────
 

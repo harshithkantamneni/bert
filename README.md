@@ -37,7 +37,7 @@ Full methodology, results, and limitations: [`benchmarks/BENCHMARK_SYNTHESIS.md`
 bert is a local stdio MCP server. **The retrieval layer needs no LLM and no API keys** — it embeds locally (`all-MiniLM-L6-v2`, 22 MB) + BM25 + a local cross-encoder reranker (`bge-reranker-v2-m3`, ~568 MB), both downloaded once by `pip`/HuggingFace. The *answering* is done by your **host model** (Claude Code / Cursor / Codex): the host calls `memory_search`, bert returns the relevant chunks, and the host's own model reasons over them. No Ollama, no llama — the free-tier llama in the benchmarks was only a controlled reader to isolate retrieval quality.
 
 ```bash
-git clone <your-fork-url> bert && cd bert
+git clone https://github.com/harshithkantamneni/bert && cd bert
 python -m venv .venv && .venv/bin/pip install -e .     # pulls sentence-transformers, sqlite-vec, etc.
 ```
 

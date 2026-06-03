@@ -1,4 +1,4 @@
-"""MCP tool-call replay protection (H.1).
+"""MCP tool-call replay protection.
 
 Closes the CVE-2026-3144 / CVE-2026-3199 class disclosed April 2026:
 MCP tool-call envelopes without nonce can be replayed by an attacker

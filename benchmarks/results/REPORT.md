@@ -116,9 +116,4 @@ Each summary `.md` is independently inspectable.
 
 ## What this report does NOT measure
 
-Following `project_bert_sota_positioning.md`: bert is NOT positioned as best-in-class on `SWE-bench Verified`, `OWASP-depth`, or `WebArena`. These are agent capability benchmarks where bert would lose by design (we don't optimize for code-execution autonomy). The benchmarks here are the ones where bert's wedge (free-tier autonomous lab + hybrid retrieval + adversarial-eval-by-design) is actually competitive.
-
-## Cross-references
-
-- `project_bert_sota_positioning.md` — 6 verified bert-firsts
-- `project_bert_production_test_suites.md` — 150-test ship gate   (different concern: correctness vs. quality)
+bert is NOT positioned as best-in-class on `SWE-bench Verified`, `OWASP-depth`, or `WebArena`. These are agent capability benchmarks where bert would lose by design (we don't optimize for code-execution autonomy). The benchmarks here are the ones where bert's wedge (free-tier autonomous lab + hybrid retrieval + adversarial-eval-by-design) is actually competitive.

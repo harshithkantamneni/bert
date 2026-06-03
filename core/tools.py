@@ -52,7 +52,7 @@ def _resolve_relative_path(file_path: str) -> Path:
 # Identify ourselves transparently — some servers will still block, in which
 # case the agent can use Bash + curl with custom headers as an escape hatch.
 _BERT_USER_AGENT = (
-    "bert-lab/0.1 (educational research; +https://github.com/bert-lab/bert-lab)"
+    "bert-lab/0.1 (educational research; +https://github.com/harshithkantamneni/bert)"
 )
 # DuckDuckGo HTML endpoint sniffs UAs; use a real-browser UA for search to
 # avoid empty-result pages.

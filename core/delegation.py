@@ -1,9 +1,7 @@
-"""Director delegation hooks (F.9).
+"""Director delegation hooks.
 
-Per amendment §A2 amendment_2026-05-13 ↔ "the Director needs to
-delegate more". Surfaces dispatch_load per role so a Director sub-
-agent can read its own load and proactively delegate work to specialists
-when overloaded.
+Surfaces `dispatch_load` per role so a Director sub-agent can read its
+own load and proactively delegate work to specialists when overloaded.
 
 Read patterns:
 

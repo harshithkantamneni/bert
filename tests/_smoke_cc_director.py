@@ -12,13 +12,13 @@ Covers:
 from __future__ import annotations
 
 import json
-import os
 import shutil
 import subprocess
 import sys
 import tempfile
-import time
 from pathlib import Path
+
+import pytest
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
@@ -296,10 +296,10 @@ def test_decide_next_cycle_returns_decision_on_clean_dispatch() -> None:
     tmp = Path(tempfile.mkdtemp())
     try:
         (tmp / "seed_brief.md").write_text("# Mission\n\nx")
-        # FF-A.2 — declare supervisor-style focus_areas so the
+        # Declare supervisor-style focus_areas so the
         # test's mocked decision (focus_area=discipline) is in the
-        # lab's declared set. Pre-FF this worked because the global
-        # VALID_AREAS was a fixed enum; post-FF each lab declares
+        # lab's declared set. Previously this worked because the global
+        # VALID_AREAS was a fixed enum; now each lab declares
         # its own.
         (tmp / "lab.yaml").write_text(
             "lab_schema_version: 1\n"
@@ -424,6 +424,8 @@ def test_emit_termination_event_records_reason() -> None:
 
 
 def test_bert_run_accepts_autonomous_flag() -> None:
+    if not VENV_PY.exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
     result = subprocess.run(
         [str(VENV_PY), str(LAB_ROOT / "tools" / "bert_run.py"),
          "--autonomous", "--dry-run", "--max-cycles", "2"],
@@ -437,6 +439,8 @@ def test_bert_run_accepts_autonomous_flag() -> None:
 
 
 def test_bert_run_autonomous_raises_default_max_cycles() -> None:
+    if not VENV_PY.exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
     result = subprocess.run(
         [str(VENV_PY), str(LAB_ROOT / "tools" / "bert_run.py"),
          "--autonomous", "--dry-run"],
@@ -452,6 +456,8 @@ def test_bert_run_autonomous_honors_explicit_max_cycles() -> None:
     even though it numerically matches DEFAULT_MAX_CYCLES. Pre-fix the
     argparse default was 3 (= DEFAULT_MAX_CYCLES), which the autonomous
     bump couldn't distinguish from 'user didn't pass --max-cycles'."""
+    if not VENV_PY.exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
     result = subprocess.run(
         [str(VENV_PY), str(LAB_ROOT / "tools" / "bert_run.py"),
          "--autonomous", "--dry-run", "--max-cycles", "3"],
@@ -464,6 +470,8 @@ def test_bert_run_autonomous_honors_explicit_max_cycles() -> None:
 
 
 def test_bert_run_help_documents_autonomous() -> None:
+    if not VENV_PY.exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
     result = subprocess.run(
         [str(VENV_PY), str(LAB_ROOT / "tools" / "bert_run.py"), "--help"],
         capture_output=True, text=True, timeout=5,

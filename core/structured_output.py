@@ -1,8 +1,5 @@
 """Provider-side structured-output enforcement matrix.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 2 + A6 §17.2
-(R9 G-3 amendment).
-
 Wraps a JSON Schema as the right per-provider config for response-shape
 enforcement at the model layer. Per TokenMix 2026 analysis: provider-side
 enforcement drops JSON parse failure rate from 8-15% → <0.1% via
@@ -18,8 +15,7 @@ Bert's free-tier provider matrix (May 2026 R12-validated):
   Ollama (local)    → format parameter (engine-specific: llama.cpp grammar,
                                          SGLang outlines, vLLM guided decoding)
 
-Out of scope (paid; bert is strict-free-tier per
-feedback_bert_is_proprietary.md):
+Out of scope (paid; bert is strict-free-tier):
   Anthropic         → tool_use schema (NOT IMPLEMENTED)
   OpenAI            → strict: true mode (NOT IMPLEMENTED)
 """

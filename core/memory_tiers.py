@@ -1,7 +1,6 @@
-"""L-10 MemGPT-style tiered memory function-calling API (H4 Track C).
+"""MemGPT-style tiered memory function-calling API.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 Track C. Bert's
-memory has three tiers per CoALA:
+Bert's memory has three tiers per CoALA:
 
   core      always-in-context (constitutional preamble, frozen patterns,
             heuristic recall) — under ~3K tokens

@@ -1,4 +1,4 @@
-"""A6 §9 falsifier baseline measurement framework.
+"""Falsifier baseline measurement framework.
 
 Reads existing observability data + result packets + seasoning queue,
 computes the 14 pre-committed numerical falsifier targets, and reports
@@ -18,9 +18,9 @@ Output:
   - findings/falsifier_baseline_C{cycle}.md (markdown report)
   - findings/falsifier_baseline_C{cycle}.json (machine-readable)
 
-Targets are pre-committed in A6 §9 §1058-1079; below-threshold
-sustained violation triggers revision before the patterns are
-promoted FROZEN per P-001 / P-VS-03.
+Targets are pre-committed; below-threshold sustained violation
+triggers revision before the patterns are promoted FROZEN per
+P-001 / P-VS-03.
 
 Usage:
   python tools/falsifier_baseline.py --cycle 99
@@ -576,7 +576,7 @@ def t14_seasoning_entry_well_formed() -> TargetResult:
 
 
 def t15_supervisor_pattern_evidence() -> TargetResult:
-    """FF-B.3 — 100% of pattern_observed events emitted by the
+    """100% of pattern_observed events emitted by the
     supervisor lab MUST cite ≥2 distinct evidence_labs. Single-lab
     "patterns" aren't patterns — they're observations. The falsifier
     fires the moment any pattern_observed event ships with
@@ -641,7 +641,7 @@ def run_all(window: int = 30) -> list[TargetResult]:
 
 def render_markdown(results: list[TargetResult], cycle: int) -> str:
     lines = [
-        f"# A6 §9 falsifier baseline — cycle {cycle}",
+        f"# Falsifier baseline — cycle {cycle}",
         "",
         f"_Generated {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())} via `tools/falsifier_baseline.py`._",
         "",
@@ -670,7 +670,7 @@ def render_markdown(results: list[TargetResult], cycle: int) -> str:
     lines.append("")
     lines.append("- `MECHANICAL` measurements parse observability JSONL or structured artifacts.")
     lines.append("- `TEXT_SCAN` measurements use substring presence and are approximate.")
-    lines.append("- `DEFERRED` targets need a concern-flow tracker (Phase H4 follow-up).")
+    lines.append("- `DEFERRED` targets need a concern-flow tracker (follow-up).")
     lines.append("- INSUFFICIENT_DATA on most targets is expected pre-calibration; run the orchestrated 30-dispatch window first.")
     lines.append("")
     return "\n".join(lines)

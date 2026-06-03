@@ -1,4 +1,4 @@
-"""Smoke test for core/graph_store.py (F.7)."""
+"""Smoke test for core/graph_store.py."""
 
 from __future__ import annotations
 
@@ -39,16 +39,16 @@ def test_unknown_node_type_raises() -> None:
 
 def test_add_edge_neighbors_both_directions() -> None:
     _isolate()
-    for nid in ("D-10", "FALS-A6-1", "P-001"):
-        kind = {"D-10": "Decision", "FALS-A6-1": "Falsifier", "P-001": "Heuristic"}[nid]
+    for nid in ("D-10", "FALS-9-1", "P-001"):
+        kind = {"D-10": "Decision", "FALS-9-1": "Falsifier", "P-001": "Heuristic"}[nid]
         graph_store.add_node(nid, kind, nid)
-    graph_store.add_edge("D-10", "FALS-A6-1", "EVIDENCED_BY")
+    graph_store.add_edge("D-10", "FALS-9-1", "EVIDENCED_BY")
     graph_store.add_edge("P-001", "D-10", "REFERENCES")
 
     out_d10 = graph_store.neighbors("D-10", direction="out")
     in_d10 = graph_store.neighbors("D-10", direction="in")
     both_d10 = graph_store.neighbors("D-10", direction="both")
-    assert len(out_d10) == 1 and out_d10[0].dst == "FALS-A6-1"
+    assert len(out_d10) == 1 and out_d10[0].dst == "FALS-9-1"
     assert len(in_d10) == 1 and in_d10[0].src == "P-001"
     assert len(both_d10) == 2
 

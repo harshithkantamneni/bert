@@ -15,8 +15,6 @@ Patterns:
 from __future__ import annotations
 
 import pytest
-from pathlib import Path
-
 
 pytestmark = pytest.mark.skipif(
     True,  # flip to False once core/agent.py is implemented
@@ -96,8 +94,8 @@ def test_subagent_returns_summary_not_full_history(mock_provider):
 
 
 def test_parallel_subagents_get_distinct_output_paths():
-    """a prior lab C3 lesson — `output_C{cycle}_P1.md` vs `_P2.md` for
-    parallel agents of same role."""
+    """Parallel agents of the same role must get distinct output paths
+    (`output_C{cycle}_P1.md` vs `_P2.md`)."""
     pass
 
 

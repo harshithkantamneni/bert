@@ -1,11 +1,8 @@
-"""Merkle hash tooling for L-01 pace-layered file integrity.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 4 + L-01.
+"""Merkle hash tooling for pace-layered file integrity.
 
 The pace-layered file structure (Gartner SoR / SoD / SoI) commits to
-*reproducibility-by-Merkle-hash* per bert's defining commitment #4 in
-FINAL §1.1: every decision is reproducible; the canvas time-machine
-mode replays any past lab state.
+*reproducibility-by-Merkle-hash*: every decision is reproducible; the
+canvas time-machine mode replays any past lab state.
 
 This module provides:
   - leaf_hash(content_bytes) → SHA-256 of content with a leaf-domain prefix

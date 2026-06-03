@@ -1,4 +1,4 @@
-"""A6 §9 falsifier calibration orchestrator.
+"""Falsifier calibration orchestrator.
 
 Reads `findings/falsifier_corpus.md` (10 hand-curated synthetic
 disagreements) and fires the full Quaker pipeline against each
@@ -135,7 +135,7 @@ def _build_dispatch_spec(
         "output_path": output_path,
         "model": model,
         "process_hygiene": (
-            "A6 §9 falsifier calibration run; no real research; "
+            "falsifier calibration run; no real research; "
             "minimal outputs; well-formed ResultPacket."
         ),
         "confidence_required": True,

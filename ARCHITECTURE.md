@@ -79,8 +79,6 @@ Per project, the host re-reads state via subsequent tool calls; nothing is held 
 | `memory_search` | hybrid search a lab's corpus | `core.memory.search` under `lab_context` |
 | `packet_export` | build a signed proof-packet `.tar.gz` | `proof_packet.build_packet` |
 
-> The current docstring (lines 4–14) and `tools/mcp/README.md` line 9 say "**six tools**" and list 6. **This is stale and must be fixed before publish** — the server registers 11. (See RELEASE_PLAN.md.)
-
 Beyond tools, `bert_lab` exposes **MCP resources** (each lab's `seed_brief.md` + `lab.yaml` as `bert://lab/<name>/<artifact>`) and **MCP prompts** (one per feature `.md` under `core/library/features/`, fetchable via `prompts/get(name,{topic})`).
 
 **`make_server()` vs `serve()`.** `make_server()` is deliberately **model-free** so tests can build a server without loading ML models. `serve()` is the `__main__` entry point: it first calls `core.prewarm.prewarm()` (background daemon pins embedder + reranker resident to move the cold-start tail off the first `memory_search`), then `make_server().serve_stdio()`.
@@ -99,7 +97,7 @@ Beyond tools, `bert_lab` exposes **MCP resources** (each lab's `seed_brief.md` +
 - **Tier-1b host default** (`_host_model_for_tier`, L253): when a Claude Code / Cursor host is attached, the host runs **every** reasoning role — **A→`claude-opus-4-7`, B→`claude-sonnet-4-6`, C→`claude-haiku-4-5`** via the `anthropic-cli/*` lane (verified `TIER_TO_PROVIDER_MODEL`, L139–151).
 - **Tier-2 BYO keys** and **Tier-3 free-tier matrix** (`resolve_tier`, L181) engage only headless; default fallback `nvidia/llama-3.3-70b`.
 - `BERT_FORCE_MODEL` is an escape hatch that pins a lane.
-- `select_first_attempt_provider` (L75) is a **separate** RouteLLM/L-17 heuristic stub, **distinct from and not yet wired into** the live tier path.
+- `select_first_attempt_provider` (L75) is a **separate** RouteLLM heuristic stub, **distinct from and not yet wired into** the live tier path.
 
 **Stage 3 — dispatch fork (`tools/bert_run._safe_dispatch`).** On the resolved model:
 - `anthropic-cli/*` → `_dispatch_via_claude_cli`: runs `claude -p --model {opus|sonnet|haiku} --output-format json --max-budget-usd 2.0` (900s timeout) against the **user's own OAuth session**, with a cached `--append-system-prompt`; `_grade_bridge_artifact` then grades the output with `verify_engine` → APPROVE / CHANGES_REQUESTED. On failure it falls through to the free-tier subagent loop.
@@ -143,7 +141,7 @@ Together: **0.10 → 0.85 accuracy, 0.125 → 0.783 recall**. The old BEIR bench
 
 `core/verify_engine.py` (above) is the runtime verification gate. At finalize, `lab_finalize` runs the 4-judge grader (`core/grader.py`), and `packet_export` builds a portable, verifiable `.tar.gz` (`core/proof_packet.py`): OCI 1.1 manifest + SLSA v1.1 in-toto DSSE + a Sigstore-shaped bundle (local-dev mode), a separately-signed `failures.md`, `reproduce.sh`, and `HASHES.txt`.
 
-> **Release-critical:** the proof schema strings in `core/proof_packet.py` are **load-bearing**, not cosmetic. `SCHEMA_VERSION = "bert.proof.v1"` (L90), `PREDICATE_TYPE = "https://bert.dev/cycle/v1"` (L91), and 10 more (`buildType` L435, `builder` L447, key hints L489/L946, `artifactType` + layer mediaTypes L517–525, annotation keys L533–534, trusted-root mediaType L944) are embedded in every emitted packet and are what `bert verify`/cosign match on. Renaming them is a **schema migration**, not a string scrub (see RELEASE_PLAN.md, blocker 1).
+> **Release-critical:** the proof schema strings in `core/proof_packet.py` are **load-bearing**, not cosmetic. `SCHEMA_VERSION = "bert.proof.v1"` (L90), `PREDICATE_TYPE = "https://bert.dev/cycle/v1"` (L91), and 10 more (`buildType` L435, `builder` L447, key hints L489/L946, `artifactType` + layer mediaTypes L517–525, annotation keys L533–534, trusted-root mediaType L944) are embedded in every emitted packet and are what `bert verify`/cosign match on. Renaming them is a **schema migration**, not a string scrub.
 
 ---
 
@@ -209,7 +207,7 @@ Raw: `benchmarks/results/b9_wall_20260602T173506.json`.
 
 ### B8 — Efficiency / effort-triage
 
-Trivia: **8.8× cheaper / 7× faster** with **no accuracy loss** (difficulty-gated short-circuit). Root-caused a 17–47× input-token inflation = mostly re-counted prompt-cache reads, not fresh compute.
+Trivia: **8.8× cheaper / 7× faster** with **no accuracy loss** (difficulty-gated short-circuit) — measured in an internal effort-triage run; the raw run JSON is not included in this public copy, so treat this as indicative, not a committed-artifact result like B7/B9/B2/B10. Separately, root-caused a 17–47× input-token inflation = mostly re-counted prompt-cache reads, not fresh compute.
 
 ### Standard-benchmark anchors (recognized, comparable to published)
 
@@ -253,17 +251,17 @@ Honest scope: **single-needle** (not RULER's multi-needle), and the full-context
 
 | Topic | Files / docs |
 |---|---|
-| **What a user actually gets (11 tools) + the README undercount** | `tools/mcp/bert_lab.py` (11 `register_tool` @ L673–970), `tools/mcp/README.md` (stale "six") |
+| **What a user actually gets (11 tools)** | `tools/mcp/bert_lab.py` (11 `register_tool` @ L673–970) |
 | **MCP transport / JSON-RPC framework / stdio loop / handshake / namespace / replay** | `core/mcp_server.py` (`serve_stdio`, `_qualified`/`_strip_ns` L104–108, `protocolVersion 2025-06-18`) |
 | **`make_server` (model-free) vs `serve` (prewarm-then-serve)** | `tools/mcp/bert_lab.py`, `core/prewarm.py` |
 | **MCP resources + prompts wiring** | `tools/mcp/bert_lab.py`, `core/mcp_server.py`, `core/library/features/` |
 | **`lab_cycle` subprocess + Opus-via-`claude` bridge + budget/saturation** | `tools/mcp/bert_lab.py`, `tools/bert_run.py` |
-| **Install recipes (Claude Desktop / Claude Code / Cursor)** | `tools/mcp/README.md` |
+| **Install recipes (Claude Desktop / Claude Code / Cursor)** | `README.md` (§ Install) |
 | **Legacy single-lab A2A inspection servers + `lab.py mcp` dispatcher** | `tools/mcp/bert_{orchestrator,memory,search,mission,evaluator}.py`, `core/mcp_server.py:run` |
 | **Permission-gated write/execute (`approver` / P-005)** | `tools/mcp/bert_queue.py`, `tools/mcp/bert_sandbox.py` |
 | **Effort triage / trivial short-circuit (253K-token fix)** | `core/effort_triage.py`, `core/library/effort_lexicon.yaml`, `tools/bert_run.py` |
 | **Tier resolution + host>BYO>free routing (live path)** | `core/router.py` (`resolve_model_for_dispatch` L270, `_host_model_for_tier` L253, `TIER_TO_PROVIDER_MODEL` L139), `core/role_registry.py`, `core/host_detector.py` |
-| **RouteLLM / L-17 stub (NOT wired live)** | `core/router.py` (`select_first_attempt_provider` L75) |
+| **RouteLLM stub (NOT wired live)** | `core/router.py` (`select_first_attempt_provider` L75) |
 | **`claude -p` host-Opus bridge (subprocess, cache prefix, grading)** | `tools/bert_run.py` (`_dispatch_via_claude_cli`, `_grade_bridge_artifact`) |
 | **Free-tier provider HTTP, quirks, retry/circuit-breaker** | `core/provider.py`, `core/provider_fallback.py`, `core/quota.py`, `core/cost_ledger.py` |
 | **9-step agent loop (call, shapers, tools, permission, stop, failover)** | `core/agent.py`, `core/compact.py`, `core/permission.py`, `core/tool_registry.py` |

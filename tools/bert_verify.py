@@ -71,7 +71,7 @@ def run(packets: list[str], *, chain: bool = False, fetch_rekor: bool = False,
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Verify a bert proof packet (I.4).")
+    ap = argparse.ArgumentParser(description="Verify a bert proof packet.")
     ap.add_argument("packets", nargs="+", help="proof packet .tar.gz file(s)")
     ap.add_argument("--chain", action="store_true",
                     help="verify packets as a lineage chain")

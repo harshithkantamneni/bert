@@ -10,10 +10,23 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import adversarial_eval, proof_packet, signing
+
+
+def _require_cycle_events(cycle_id: int) -> None:
+    """Skip when the lab's event log (a runtime artifact not shipped in the
+    public repo) has no events for this cycle — build_packet() would raise
+    ValueError('no events'). Assertions still run on a full local lab."""
+    if not proof_packet._read_events_for_cycle(cycle_id):
+        pytest.skip(
+            f"requires lab runtime artifact: events for cycle {cycle_id} "
+            "(lab/sor/events.jsonl) not shipped in the public repo"
+        )
 
 
 def test_adversarial_module_loads() -> None:
@@ -111,6 +124,7 @@ def test_failures_md_yellow_flag_when_empty() -> None:
 
 def test_packet_contains_failures_sigstore() -> None:
     """The packet must include both failures.md and failures.sigstore."""
+    _require_cycle_events(400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i3_"))
     try:
         path = proof_packet.build_packet(cycle_id=400, output_dir=tmp)
@@ -127,6 +141,7 @@ def test_packet_contains_failures_sigstore() -> None:
 def test_failures_signature_is_independently_verifiable() -> None:
     """failures.sigstore must verify against failures.md without needing
     any other packet artifact. CTO-friend test for failures alone."""
+    _require_cycle_events(400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i3_"))
     try:
         path = proof_packet.build_packet(cycle_id=400, output_dir=tmp)
@@ -158,6 +173,7 @@ def test_failures_signature_is_independently_verifiable() -> None:
 
 def test_adversarial_json_in_packet_is_real_not_placeholder() -> None:
     """eval/adversarial.json must have real attempts, not the I.2 placeholder."""
+    _require_cycle_events(400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i3_"))
     try:
         path = proof_packet.build_packet(cycle_id=400, output_dir=tmp)

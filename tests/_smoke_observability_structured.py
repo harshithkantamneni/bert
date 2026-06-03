@@ -1,6 +1,4 @@
-"""Smoke test for H2 day 2 — observability + structured_output.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 2.
+"""Smoke test for observability + structured_output.
 
 Verifies:
   observability:
@@ -26,7 +24,6 @@ LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import observability, structured_output  # noqa: E402
-
 
 # ── Observability tests ─────────────────────────────────────────────
 
@@ -72,7 +69,7 @@ def test_emit_appends_multiple() -> None:
 
 
 def test_calibration_count() -> None:
-    tmp = _isolated_obs_dir(("OBS_DIR",))
+    _isolated_obs_dir(("OBS_DIR",))
     try:
         observability.emit("verdict", {"verdict": "APPROVE", "role": "evaluator"})
         observability.emit("verdict", {"verdict": "SCOPE_STOP", "role": "threshing_pass"})
@@ -180,7 +177,7 @@ def test_rotation_archives_oversized_jsonl() -> None:
         assert not big.exists(), "live file should have been archived"
         # Archive directory created with today's date
         import datetime
-        today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+        today = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d")
         archived = tmp / "archive" / today
         files = list(archived.glob("model_call_*.jsonl"))
         assert len(files) == 1

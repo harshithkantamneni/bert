@@ -21,10 +21,10 @@ from __future__ import annotations
 
 import json
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")
 
 import logging
-import re
 import sqlite3
 import stat
 import subprocess
@@ -175,8 +175,9 @@ def test_resume_token_cannot_be_forged_without_hmac_key():
     """Construct a "valid-looking" token without the secret — verify
     rejected. (Without access to the HMAC key, an attacker can't
     produce a valid signature.)"""
-    from core import pause_resume
     import base64
+
+    from core import pause_resume
     # Forge a plausible-looking token: base64(json).base64(garbage_sig)
     payload = base64.urlsafe_b64encode(json.dumps({
         "lab": "victim", "cycle": 1, "step_id": "s",
@@ -190,8 +191,9 @@ def test_resume_token_cannot_be_forged_without_hmac_key():
 
 def test_resume_token_replay_does_not_extend_expiry():
     """Verifying a token doesn't reset its expiry."""
-    from core import pause_resume
     import time
+
+    from core import pause_resume
     st = pause_resume.PausedState(
         lab="x", cycle=1, step_id="s",
         expires_at_ts=time.time() + 0.5,  # ~500ms
@@ -317,7 +319,7 @@ def test_adapter_search_with_sql_injection_query():
         # Now try to search with injection
         evil_query = "x' OR 1=1 --"
         try:
-            results = ad.search(evil_query, k=5)
+            ad.search(evil_query, k=5)
             # Whatever it returns, it must not have dropped any tables
             with sqlite3.connect(lab / "memory" / "code_repo" / "code_repo.db") as con:
                 tables = [r[0] for r in con.execute(
@@ -359,7 +361,7 @@ def test_mcp_server_subprocess_doesnt_inherit_unrelated_env():
     env = {**os.environ, "BERT_TEST_SECRET": secret}
     cmd = [sys.executable, "-c",
            "import os; print('BERT_TEST_SECRET=' + os.environ.get('BERT_TEST_SECRET', 'MISSING'))"]
-    proc = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=5)
+    subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=5)
     # The var DID inherit (expected — env=env passes it through). The
     # test is: when we DON'T pass it (env={}), it does NOT inherit.
     proc_clean = subprocess.run(

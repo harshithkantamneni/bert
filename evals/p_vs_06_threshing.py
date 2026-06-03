@@ -1,6 +1,4 @@
-"""A6 §9 falsifier #1+#2 — threshing pass behavior.
-
-Per FINAL_implementation_plan_2026-05-07.md §11.3 + A6 §9.
+"""Falsifier #1+#2 — threshing pass behavior.
 
 Falsifier #1: Threshing fires on contested-decision dispatches at ≥80%
               rate when dispatch_altitude in {META, SPEC}
@@ -19,7 +17,7 @@ When Inspect AI is installed and the live-API window opens:
       --model nvidia/meta/llama-3.3-70b-instruct \
       --log-dir ./inspect_logs
 
-Expected output: 14 baseline numbers per A6 §9, this eval contributing
+Expected output: 14 baseline numbers, this eval contributing
 2 of them.
 """
 
@@ -36,31 +34,31 @@ from __future__ import annotations
 EVAL_SPEC = {
     "name": "p-vs-06-threshing",
     "description": (
-        "A6 §9 falsifier #1+#2: threshing fires on contested dispatches; "
+        "Falsifier #1+#2: threshing fires on contested dispatches; "
         "always produces SCOPE_STOP."
     ),
     "model_pool": [
-        # bert's free-tier reasoning models (per R12 May 2026 validated):
+        # bert's free-tier reasoning models (May 2026 validated):
         "nvidia/deepseek-ai/deepseek-r1",       # primary
         "cerebras/qwen-3-32b",                   # post-URGENT migration
         "ollama/deepseek-r1-distill-qwen-32b",  # local fallback
     ],
     "falsifiers": [
         {
-            "id": "FALS-A6-9-1",
+            "id": "FALS-9-1",
             "description": "Threshing fires on dispatch_altitude in {META, SPEC} contested decisions",
             "target": ">= 0.80",  # ≥80% fire rate
             "data_source": "core.observability.calibration_count('threshing_dispatch')",
         },
         {
-            "id": "FALS-A6-9-2",
+            "id": "FALS-9-2",
             "description": "Threshing produces verdict=SCOPE_STOP",
             "target": "== 1.00",  # 100% (schema-enforced)
             "data_source": "core.observability.calibration_count('verdict', {'role': 'threshing_pass', 'verdict': 'SCOPE_STOP'})",
         },
     ],
     "calibration_window": "30 dispatches",
-    "below_threshold_action": "P-001 three-strikes pivot per A6 §11",
+    "below_threshold_action": "P-001 three-strikes pivot",
 }
 
 
@@ -68,7 +66,7 @@ EVAL_SPEC = {
 #
 # @task
 # def p_vs_06_threshing():
-#     """Inspect AI Task for A6 falsifiers #1+#2."""
+#     """Inspect AI Task for falsifiers #1+#2."""
 #     return Task(
 #         dataset=_synthetic_contested_decisions(),
 #         solver=[

@@ -1,6 +1,4 @@
-"""Smoke test for tools/falsifier_baseline.py — A6 §9 measurement framework.
-
-Per FINAL_implementation_plan_2026-05-07.md §11.3 + A6 §9.
+"""Smoke test for tools/falsifier_baseline.py — measurement framework.
 
 Tests:
   1. Empty data → 14/14 INSUFFICIENT_DATA
@@ -142,16 +140,16 @@ def test_render_markdown_well_formed() -> None:
     _clear()
     results = fb.run_all(window=30)
     md = fb.render_markdown(results, cycle=42)
-    assert "# A6 §9 falsifier baseline — cycle 42" in md
-    # Post-FF-B.3: each of 15 targets gets a row (t1-t14 engine
-    # discipline + t15 supervisor_pattern_evidence).
+    assert "# Falsifier baseline — cycle 42" in md
+    # Each of 15 targets gets a row (t1-t14 engine discipline
+    # + t15 supervisor_pattern_evidence).
     for tid in range(1, 16):
         assert f"| {tid} |" in md, f"target {tid} missing from table"
 
 
 def test_run_all_returns_15() -> None:
-    """Post-FF-B.3 the registry has 15 targets (t1-t14 engine-discipline
-    + t15 supervisor_pattern_evidence). Pre-FF this asserted 14."""
+    """The registry has 15 targets (t1-t14 engine-discipline
+    + t15 supervisor_pattern_evidence)."""
     _clear()
     results = fb.run_all()
     assert len(results) == 15

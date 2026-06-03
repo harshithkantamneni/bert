@@ -17,7 +17,6 @@ from __future__ import annotations
 import os
 import sys
 import tempfile
-import time
 from pathlib import Path
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
@@ -64,7 +63,7 @@ def test_phase2_prompt_hoists_hard_requirement() -> None:
 
 
 def test_all_15_targets_run_without_error() -> None:
-    """Post-FF-B.3 — the full baseline driver should produce 15 results
+    """The full baseline driver should produce 15 results
     (t1-t14 engine discipline + t15 supervisor_pattern_evidence), none
     of which raise (some may be INSUFFICIENT_DATA — that's still a
     structured result)."""

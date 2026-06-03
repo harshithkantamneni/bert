@@ -41,7 +41,7 @@ def test_create_scopes_to_active_lab(tmp_path):
     assert (tmp_path / "findings" / "note.md").read_text() == "hello world"
     # It must NOT have written under the repo root.
     assert not (mem.LAB_ROOT / "findings" / "note.md").exists() or \
-        mem.LAB_ROOT == tmp_path
+        tmp_path == mem.LAB_ROOT
 
 
 def test_create_rejects_outside_active_lab(tmp_path):

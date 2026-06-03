@@ -6,7 +6,7 @@ keeps working standalone (current behavior); Electron just changes the
 shell.
 
 Why this dispatch matters:
-  - FALS-CANVASAGENT-01 (onboarding completion) is observable from a
+  - Onboarding completion is observable from a
     real downloadable .dmg / .exe, not from `npm run dev`. We need the
     binary to test fresh-install funnels at all.
   - The README currently says "set OLLAMA_ORIGINS=* or run browser with

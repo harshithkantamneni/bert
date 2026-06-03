@@ -1,6 +1,4 @@
-"""A6 §9 falsifier #11 — cache-aware token reduction on contested pipeline.
-
-Per FINAL_implementation_plan_2026-05-07.md §11.3 + A6 §9 + §16.2.
+"""Falsifier #11 — cache-aware token reduction on contested pipeline.
 
 Falsifier #11: ≥60% token reduction on contested-decision pipeline
 (threshing → clearness phase 1 → phase 2 → cross-family judge).
@@ -13,22 +11,22 @@ from __future__ import annotations
 EVAL_SPEC = {
     "name": "cache-token-reduction",
     "description": (
-        "A6 §9 falsifier #11: end-to-end token consumption on contested-"
+        "Falsifier #11: end-to-end token consumption on contested-"
         "decision pipeline shows ≥60% reduction vs cache-naive baseline "
-        "per A6 §16.2 projection (24K → 6.2K tokens = 75% reduction; "
+        "(24K → 6.2K tokens = 75% reduction; "
         "60% is the floor target)."
     ),
     "scenario": (
         "Synthetic contested decision dispatched through threshing → "
         "clearness phase 1 → clearness phase 2 (cross-family judge fires "
         "for META altitude). Compare token-count under three configurations: "
-        "(a) cache-naive baseline (no L-08 Phase A), "
+        "(a) cache-naive baseline (no provider-cache observability), "
         "(b) provider-side caching only (Gemini implicit + Groq automatic), "
-        "(c) full L-08 Phase A (provider cache + LLMLingua compression on "
+        "(c) full provider-cache observability (provider cache + LLMLingua compression on "
         "cross-family leg)."
     ),
     "falsifier": {
-        "id": "FALS-A6-9-11",
+        "id": "cache-token-reduction-11",
         "description": "Total input tokens (c) ≤ 0.40 × (a) on contested pipeline",
         "target": "(a - c) / a >= 0.60",
         "data_source": (
@@ -38,7 +36,7 @@ EVAL_SPEC = {
         ),
     },
     "live_API_required": True,
-    "calibration_window": "5 contested decisions (per A6 §10 dry-run scenarios)",
+    "calibration_window": "5 contested decisions (dry-run scenarios)",
 }
 
 

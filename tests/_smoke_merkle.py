@@ -1,7 +1,5 @@
 """Smoke test for core/merkle.py — Merkle hash tooling.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 4 + L-01.
-
 Verifies:
   1. Empty leaf list returns canonical empty-tree root
   2. Single leaf tree root is leaf-prefixed SHA-256

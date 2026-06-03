@@ -34,13 +34,14 @@ from __future__ import annotations
 
 import json
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")
 
 import random
 import statistics
 import sys
 import time
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
@@ -248,7 +249,6 @@ def retrieve_bert_hybrid(scenario: MemoryScenario, lab_path: Path | None = None)
         embedder = SentenceTransformer("all-MiniLM-L6-v2")
     else:
         embedder = memory._get_embedder()
-    import numpy as np
     q_emb = embedder.encode([scenario.question], normalize_embeddings=True)[0]
     d_embs = embedder.encode(texts, normalize_embeddings=True, show_progress_bar=False)
     v_scores = d_embs @ q_emb
@@ -300,10 +300,7 @@ def check_answer(retrieved: list[str], scenario: MemoryScenario) -> bool:
             return False
     # must_not_contain check: shouldn't be the OLD value in top-1
     top_1 = retrieved[0].lower() if retrieved else ""
-    for forbidden in scenario.must_not_contain:
-        if forbidden.lower() in top_1:
-            return False
-    return True
+    return all(forbidden.lower() not in top_1 for forbidden in scenario.must_not_contain)
 
 
 @dataclass
@@ -414,7 +411,7 @@ def main() -> int:
 
     scenarios = make_scenarios(DEFAULT_SEED)
     print(f"Scenarios: {len(scenarios)} across "
-          f"{len(set(s.category for s in scenarios))} categories", flush=True)
+          f"{len({s.category for s in scenarios})} categories", flush=True)
     print(flush=True)
 
     results = []

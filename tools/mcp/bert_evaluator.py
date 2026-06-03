@@ -114,7 +114,7 @@ def make_server() -> MCPServer:
     srv = MCPServer(name="bert-evaluator", version="0.1", namespace="bert.evaluator")
     srv.register_tool(
         "get_falsifier_baseline",
-        description="Return the latest falsifier baseline (A6 §9, 14 targets).",
+        description="Return the latest falsifier baseline (14 targets).",
         input_schema={"type": "object", "properties": {}},
         handler=_get_falsifier_baseline,
     )

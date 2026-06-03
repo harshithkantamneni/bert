@@ -1,16 +1,27 @@
-"""Smoke test for core/agntcy.py + the AGNTCY API endpoints (G.3)."""
+"""Smoke test for core/agntcy.py + the AGNTCY API endpoints."""
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import agntcy  # noqa: E402
+
+
+def _require_api() -> None:
+    """The A2A FastAPI app (`api.main`) is a live-lab runtime surface not
+    shipped in the public retrieval-MCP repo. Skip endpoint tests when it
+    is absent."""
+    if importlib.util.find_spec("api") is None:
+        pytest.skip("requires lab runtime artifact: api.main (FastAPI app not shipped in the public repo)")
 
 
 def test_agent_id_is_stable() -> None:
@@ -111,8 +122,9 @@ def test_emit_agntcy_event_writes_jsonl() -> None:
 
 
 def test_agent_card_endpoint_includes_agntcy_extensions() -> None:
-    from fastapi.testclient import TestClient
+    _require_api()
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.get("/.well-known/agent.json")
     assert r.status_code == 200
@@ -129,8 +141,9 @@ def test_agent_card_endpoint_includes_agntcy_extensions() -> None:
 
 
 def test_agntcy_directory_endpoint() -> None:
-    from fastapi.testclient import TestClient
+    _require_api()
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.get("/.well-known/agntcy-directory.json")
     assert r.status_code == 200
@@ -140,8 +153,9 @@ def test_agntcy_directory_endpoint() -> None:
 
 
 def test_observability_inbound_endpoint() -> None:
-    from fastapi.testclient import TestClient
+    _require_api()
     from api.main import app
+    from fastapi.testclient import TestClient
     # Isolate event log
     tmp = Path(tempfile.mkdtemp()) / "agntcy_event.jsonl"
     agntcy.AGNTCY_OBS_PATH = tmp

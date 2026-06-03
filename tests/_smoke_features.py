@@ -63,22 +63,22 @@ VALID_ARGS = {
 def test_four_seed_features_load_and_validate_against_real_skills():
     feature_registry.load_all(force_reload=True)
     skill_registry.load_all(force_reload=True)
-    assert EXPECTED <= feature_registry.all_names()
+    assert feature_registry.all_names() >= EXPECTED
     problems = feature_registry.validate_all(skill_registry.all_names())
     assert problems == {}, f"unresolved skill_plan refs: {problems}"
 
 
 def test_quality_contract_scores_a_real_midpoint():
     # uniform weights, every dim scored 3/5 → exactly 0.6 (not 0 or 1)
-    c = quality.QualityContract(**{d: 3 for d in quality.DIMENSIONS})
-    assert abs(c.weighted_score({d: 3 for d in quality.DIMENSIONS}) - 0.6) < 1e-9
-    assert c.passes({d: 4 for d in quality.DIMENSIONS}) is True   # 0.8 ≥ 0.7
-    assert c.passes({d: 3 for d in quality.DIMENSIONS}) is False  # 0.6 < 0.7
+    c = quality.QualityContract(**dict.fromkeys(quality.DIMENSIONS, 3))
+    assert abs(c.weighted_score(dict.fromkeys(quality.DIMENSIONS, 3)) - 0.6) < 1e-9
+    assert c.passes(dict.fromkeys(quality.DIMENSIONS, 4)) is True   # 0.8 ≥ 0.7
+    assert c.passes(dict.fromkeys(quality.DIMENSIONS, 3)) is False  # 0.6 < 0.7
 
 
 def test_labschema_v1_fields_roundtrip_through_dict():
     from core import lab_schema_io
-    qc = quality.QualityContract(**{d: 4 for d in quality.DIMENSIONS})
+    qc = quality.QualityContract(**dict.fromkeys(quality.DIMENSIONS, 4))
     s = schema_synthesizer.LabSchema(
         profile_id="p", rule_id="default",
         roster_core=("director",), roster_initial=("writer",),

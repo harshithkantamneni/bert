@@ -1,10 +1,8 @@
-"""L-24 Phase 2 measurement batteries.
-
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A4.
+"""Role-capability measurement batteries.
 
 Each module in this package defines a role-specific task battery that
 runs against every active model in the cascade. Results land in
-`lab/state/capability_matrix.jsonl`; the L-24 router (core/router.py,
+`lab/state/capability_matrix.jsonl`; the router (core/router.py,
 core/subagent.py:pick_evaluator_model via core/capability_matrix.py)
 reads that file each cycle for measurement-driven first-attempt
 provider selection.

@@ -1,14 +1,12 @@
 """Capability harness runner — measures per-role per-model scores.
 
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A4 L-24.
-
 Phase 1 deliverable. Writes one row per `{model, role, ts}` to
 `lab/state/capability_matrix.jsonl`. The core/router.py and
 core/subagent.py:pick_evaluator_model consult this file for first-
 attempt routing.
 
-The Phase 1 implementation seeds the matrix with the R12 May-2026
-heuristic baseline so that the router has *some* signal before the
+The Phase 1 implementation seeds the matrix with a heuristic
+baseline so that the router has *some* signal before the
 weekly cron has had a chance to run. As `evals/role_capability/*.py`
 batteries are wired up (Phase 2 — typically operational, not build),
 this runner orchestrates them and writes the measured rows over the
@@ -18,7 +16,7 @@ Usage:
 
   python tools/run_capability_harness.py                 # run all roles
   python tools/run_capability_harness.py --role evaluator # one role
-  python tools/run_capability_harness.py --seed          # write R12 baseline only
+  python tools/run_capability_harness.py --seed          # write heuristic baseline only
 """
 
 from __future__ import annotations
@@ -34,9 +32,9 @@ sys.path.insert(0, str(LAB_ROOT))
 
 from core import capability_matrix  # noqa: E402
 
-# R12 May-2026 heuristic baseline. One row per (role, provider, model)
-# representing the heuristic capability estimate from the FINAL plan §6.1
-# 5-tier cascade. Score is 0-1, derived from R12 validation notes
+# Heuristic baseline. One row per (role, provider, model)
+# representing the heuristic capability estimate from the
+# 5-tier cascade. Score is 0-1, derived from validation notes
 # (provider freshness, model size, role-stage match).
 #
 # When the Phase 2 batteries land, weekly cron overwrites these with
@@ -86,7 +84,7 @@ def now_iso() -> str:
 
 
 def seed_baseline() -> int:
-    """Write R12 baseline rows to lab/state/capability_matrix.jsonl.
+    """Write heuristic baseline rows to lab/state/capability_matrix.jsonl.
 
     Returns rows written. Each row's reference_set is 'r12_baseline_2026-05'
     so the Phase 2 batteries can identify and overwrite them.
@@ -106,7 +104,7 @@ def seed_baseline() -> int:
             quota_headroom_pct=entry["headroom"],
             task_count=0,  # baseline is a heuristic estimate, not a measured run
             reference_set="r12_baseline_2026-05",
-            notes="R12 heuristic baseline; replaced by measured score after Phase 2 batteries run",
+            notes="heuristic baseline; replaced by measured score after Phase 2 batteries run",
         )
         capability_matrix.append_row(row)
         written += 1
@@ -159,10 +157,10 @@ def run_battery(role: str, *, live: bool = False,
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="L-24 capability harness")
+    parser = argparse.ArgumentParser(description="capability harness")
     parser.add_argument("--role", help="run battery for one role only")
     parser.add_argument("--seed", action="store_true",
-                        help="write R12 heuristic baseline rows (skips battery dispatch)")
+                        help="write heuristic baseline rows (skips battery dispatch)")
     parser.add_argument("--live", action="store_true",
                         help="dispatch through core.provider.call (consumes quota); "
                              "default is offline deterministic scoring")
@@ -173,7 +171,7 @@ def main() -> int:
     start = time.time()
     if args.seed:
         n = seed_baseline()
-        print(f"seeded {n} R12 baseline rows to {capability_matrix.MATRIX_PATH.relative_to(LAB_ROOT)}")
+        print(f"seeded {n} baseline rows to {capability_matrix.MATRIX_PATH.relative_to(LAB_ROOT)}")
         return 0
 
     roles = ([args.role] if args.role

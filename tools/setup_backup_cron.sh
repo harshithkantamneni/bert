@@ -1,10 +1,6 @@
 #!/bin/bash
 # Install / verify the launchd plist that drives nightly bert backups.
 #
-# Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 5 acceptance
-# criterion: "(Gap 2) tools/nightly_backup.sh exists; cron entry
-# installed; first backup tar.gz under backup/state/ verified".
-#
 # On macOS we use launchd (the native scheduler) rather than cron.
 # This script writes ~/Library/LaunchAgents/com.bert-lab.backup.plist
 # and loads it. Runs nightly at 04:30 local time.

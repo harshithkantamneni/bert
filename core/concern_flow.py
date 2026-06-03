@@ -1,7 +1,6 @@
-"""Concern-flow lifecycle tracker for H2 falsifier targets T8/T9/T10/T13.
+"""Concern-flow lifecycle tracker for falsifier targets T8/T9/T10/T13.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 + A6 §9 falsifier
-baseline. Closes the 4 INSUFFICIENT targets in
+Closes the 4 INSUFFICIENT targets in
 findings/falsifier_baseline_C400_post-fix.json.
 
 What this tracks

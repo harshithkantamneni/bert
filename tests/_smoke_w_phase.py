@@ -11,12 +11,13 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+import pytest
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
@@ -26,6 +27,15 @@ import tools.bert_run as br  # noqa: E402
 VENV_PY = LAB_ROOT / ".venv" / "bin" / "python"
 BERT_RUN = LAB_ROOT / "tools" / "bert_run.py"
 BERT_INIT = LAB_ROOT / "tools" / "bert_init.py"
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
 
 
 # ── W.1 — bert_run.py core ──────────────────────────────────────────
@@ -54,7 +64,7 @@ def test_bert_run_read_seed_brief_raises_on_missing() -> None:
     try:
         try:
             br._read_seed_brief(tmp)
-            assert False, "should have raised on missing seed_brief.md"
+            raise AssertionError("should have raised on missing seed_brief.md")
         except FileNotFoundError as exc:
             assert "seed_brief.md" in str(exc), "error must mention seed_brief.md"
             assert "bert init" in str(exc), "error must hint to bert init"
@@ -166,6 +176,7 @@ def test_bert_run_seed_to_research_task_includes_context() -> None:
 def test_bert_run_dry_run_against_real_lab() -> None:
     """Use the repo's own findings/falsifier_corpus.md as a stand-in
     seed for the dry-run check — we just need any lab with a seed_brief."""
+    _require(VENV_PY)
     # Build a temp lab with a seed
     tmp = Path(tempfile.mkdtemp())
     try:
@@ -196,6 +207,7 @@ def test_bert_run_aborts_without_keys() -> None:
     file lookup misses. Pre-GG only env was checked, so PATH-only was
     enough to suppress keys.
     """
+    _require(VENV_PY)
     tmp = Path(tempfile.mkdtemp())
     try:
         (tmp / "seed_brief.md").write_text("# Mission\n\nTest abort.")
@@ -217,6 +229,7 @@ def test_bert_run_aborts_without_keys() -> None:
 
 def test_bert_run_aborts_on_missing_seed_brief() -> None:
     """A lab path without seed_brief.md must abort with rc=2."""
+    _require(VENV_PY)
     tmp = Path(tempfile.mkdtemp())
     try:
         result = subprocess.run(
@@ -234,6 +247,7 @@ def test_bert_run_aborts_on_missing_seed_brief() -> None:
 
 
 def test_bert_run_help_documents_flags() -> None:
+    _require(VENV_PY)
     result = subprocess.run(
         [str(VENV_PY), str(BERT_RUN), "--help"],
         capture_output=True, text=True, timeout=5,
@@ -260,6 +274,7 @@ def test_bert_init_accepts_run_first_cycle_flag() -> None:
 def test_bert_init_run_first_cycle_propagates_exit_code() -> None:
     """End-to-end: bert init --run-first-cycle on a clean home, no keys,
     must exit 2 (bert_run abort propagates back through bert_init)."""
+    _require(VENV_PY)
     tmp_home = Path(tempfile.mkdtemp())
     try:
         result = subprocess.run(
@@ -290,6 +305,7 @@ def test_bert_init_run_first_cycle_propagates_exit_code() -> None:
 def test_seed_overrides_template_seed_brief() -> None:
     """When --seed is given alongside --from-template, the user's mission
     must lead in seed_brief.md (with template content as appendix)."""
+    _require(VENV_PY)
     tmp_home = Path(tempfile.mkdtemp())
     try:
         result = subprocess.run(
@@ -323,6 +339,7 @@ def test_seed_overrides_template_seed_brief() -> None:
 def test_no_seed_uses_template_as_is() -> None:
     """When no --seed is given but --from-template is, the template's
     seed_brief.md should be used as-is (current behavior, preserved)."""
+    _require(VENV_PY)
     tmp_home = Path(tempfile.mkdtemp())
     try:
         result = subprocess.run(
@@ -348,6 +365,7 @@ def test_no_seed_uses_template_as_is() -> None:
 def test_seed_only_no_template_writes_minimal_seed_brief() -> None:
     """When --seed is given but NO --from-template, a minimal
     seed_brief.md should still be written so bert_run has something."""
+    _require(VENV_PY)
     tmp_home = Path(tempfile.mkdtemp())
     try:
         result = subprocess.run(

@@ -23,7 +23,7 @@ inputs:
   quality_contract: {type: dict,  required: false, description: "Mission QualityContract; auto-injected from the lab schema by skill_runner, or omitted -> balanced default"}
 outputs:
   artifact_path:   {type: string, description: "Path to the published artifact"}
-  gaps_path:       {type: string, description: "Path to gaps.md (honest disclosure, per project_bert_proof_packet)"}
+  gaps_path:       {type: string, description: "Path to gaps.md (honest disclosure)"}
   grade:           {type: string, description: "A | B | C | D | F"}
   signed_hash:     {type: string, description: "SHA-256 of (artifact + gaps + grade) — proof-packet anchor"}
   ready:           {type: bool,   description: "True iff grade >= B and gaps.md exists and ledger row was written"}

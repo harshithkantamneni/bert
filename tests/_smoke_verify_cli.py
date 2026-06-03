@@ -18,6 +18,8 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
@@ -25,8 +27,27 @@ import lab  # noqa: E402
 from core import proof_packet, verify_packet  # noqa: E402
 from tools import bert_verify  # noqa: E402
 
+EVENTS_PATH = LAB_ROOT / "lab" / "sor" / "events.jsonl"
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
+
 
 def _built_packet(tmp: Path) -> Path:
+    # build_packet attests cycle events from lab/sor/events.jsonl (lab runtime).
+    # The public repo ships no events for cycle 400 — skip when absent.
+    _require(EVENTS_PATH)
+    if not proof_packet._read_events_for_cycle(400):
+        pytest.skip(
+            "requires lab runtime artifact: cycle-400 events in "
+            "lab/sor/events.jsonl (not shipped in the public repo)"
+        )
     return proof_packet.build_packet(cycle_id=400, output_dir=tmp)
 
 

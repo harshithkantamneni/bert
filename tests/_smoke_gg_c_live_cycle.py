@@ -53,7 +53,6 @@ Covers:
 
 from __future__ import annotations
 
-import json
 import re
 import sys
 from pathlib import Path
@@ -99,8 +98,8 @@ def test_run_cycle_endpoint_raises_50_cap() -> None:
 
 
 def test_default_single_cycle_dry_run() -> None:
-    from fastapi.testclient import TestClient
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.post("/api/run-cycle", json={
         "lab": None, "max_cycles": 1, "dry_run": True,
@@ -114,8 +113,8 @@ def test_default_single_cycle_dry_run() -> None:
 
 
 def test_autonomous_3_cycle_dry_run() -> None:
-    from fastapi.testclient import TestClient
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.post("/api/run-cycle", json={
         "max_cycles": 3, "autonomous": True, "dry_run": True,
@@ -127,8 +126,8 @@ def test_autonomous_3_cycle_dry_run() -> None:
 
 
 def test_long_run_without_consent_returns_400() -> None:
-    from fastapi.testclient import TestClient
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.post("/api/run-cycle", json={
         "max_cycles": 10, "autonomous": True, "dry_run": True,
@@ -138,8 +137,8 @@ def test_long_run_without_consent_returns_400() -> None:
 
 
 def test_long_run_with_consent_succeeds() -> None:
-    from fastapi.testclient import TestClient
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.post("/api/run-cycle", json={
         "max_cycles": 10, "autonomous": True, "dry_run": True,
@@ -152,8 +151,8 @@ def test_long_run_with_consent_succeeds() -> None:
 
 
 def test_over_cap_returns_400_even_with_consent() -> None:
-    from fastapi.testclient import TestClient
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.post("/api/run-cycle", json={
         "max_cycles": 100, "autonomous": True, "dry_run": True,
@@ -164,8 +163,8 @@ def test_over_cap_returns_400_even_with_consent() -> None:
 
 
 def test_zero_cycles_returns_400() -> None:
-    from fastapi.testclient import TestClient
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.post("/api/run-cycle", json={
         "max_cycles": 0, "dry_run": True,

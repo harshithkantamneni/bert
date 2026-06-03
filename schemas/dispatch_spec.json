@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "bert-lab/dispatch_spec.json",
   "title": "DispatchSpec",
-  "description": "Director-to-Specialist dispatch packet. Validated before any sub-agent launch. Schema version 2 (Phase H2 day 1, 2026-05-07): adds threshing_input_paths for P-VS-06 + extends role enum with Quaker pipeline roles. Backward-compatible with v1 dispatches via schemas/migrations/v1_to_v2.py.",
+  "description": "Director-to-Specialist dispatch packet. Validated before any sub-agent launch. Schema version 2: adds threshing_input_paths for P-VS-06 + extends role enum with Quaker pipeline roles. Backward-compatible with v1 dispatches via schemas/migrations/v1_to_v2.py.",
   "schema_version": 2,
   "type": "object",
   "required": [

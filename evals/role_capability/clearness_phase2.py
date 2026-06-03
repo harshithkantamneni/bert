@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 
 from . import _common
-from ._common import Task, BatteryRunResult
+from ._common import BatteryRunResult, Task
 
 ROLE = "clearness_phase2"
 REFERENCE_SET = "clearness_phase2_battery_v1"
@@ -21,21 +21,21 @@ _TASKS_RAW = [
      "APPROVE_WITH_CAVEATS"),
     ("Decision: Ship Cathedral before KG migration.\nQueries: 1) Cathedral depends on KG? 2) Stub graph_store works?\nFalsifier: graph_store is 10-LoC stub; Cathedral needs Layer 4.",
      "REJECT"),
-    ("Decision: Lower falsifier T8 from 70% to 60% for 30 dispatches.\nQueries: 1) Sample size? 2) Drift risk?\nFalsifier: A6 §11 prescribes raising threshold under uncertainty, not lowering.",
+    ("Decision: Lower falsifier T8 from 70% to 60% for 30 dispatches.\nQueries: 1) Sample size? 2) Drift risk?\nFalsifier: policy prescribes raising threshold under uncertainty, not lowering.",
      "REJECT"),
     ("Decision: Add /summary command to bot.\nQueries: 1) Rate-limit? 2) Auth?\nFalsifier: existing /status pattern; same auth model.",
      "APPROVE"),
-    ("Decision: Allow Strategist during build phase.\nQueries: 1) H-BUILD-01 still applies? 2) Mission selection due?\nFalsifier: phase H1-C4 active; no mission selection till post-C4.",
+    ("Decision: Allow Strategist during build phase.\nQueries: 1) H-BUILD-01 still applies? 2) Mission selection due?\nFalsifier: build phase active; no mission selection until build completes.",
      "REJECT"),
     ("Decision: Cache LLMLingua results.\nQueries: 1) Hit rate? 2) Cache size?\nFalsifier: hit rate measurable, cache bounded.",
      "APPROVE"),
     ("Decision: Replace NVIDIA Qwen evaluator with Mistral.\nQueries: 1) Family diversity? 2) Score on evaluator battery?\nFalsifier: capability_matrix shows NVIDIA Qwen=0.88, Mistral=0.75.",
      "REJECT"),
-    ("Decision: Add Anthropic provider.\nQueries: 1) Free tier? 2) Mission alignment?\nFalsifier: Anthropic is paid; bert is strict-free-tier per feedback_bert_is_proprietary.md.",
+    ("Decision: Add Anthropic provider.\nQueries: 1) Free tier? 2) Mission alignment?\nFalsifier: Anthropic is paid; bert is strict-free-tier.",
      "REJECT"),
     ("Decision: Auto-merge skills/draft → active after 5 sandbox runs.\nQueries: 1) P-005 gate? 2) Falsifier coverage?\nFalsifier: P-005 requires PI permission; auto-merge bypasses.",
      "REJECT"),
-    ("Decision: Roll back to Cerebras qwen-3-32b on 404 resolve.\nQueries: 1) Detection? 2) Stability?\nFalsifier: R13 showed qwen-3-32b dropped; resolution would be Cerebras restoration.",
+    ("Decision: Roll back to Cerebras qwen-3-32b on 404 resolve.\nQueries: 1) Detection? 2) Stability?\nFalsifier: monitoring showed qwen-3-32b dropped; resolution would be Cerebras restoration.",
      "APPROVE_WITH_CAVEATS"),
 ]
 

@@ -28,7 +28,6 @@ sys.path.insert(0, str(LAB_ROOT))
 
 from core import adversarial_eval as ae  # noqa: E402
 
-
 SAMPLE_CLAIM = {
     "id": "C-1",
     "text": "bert routes across 8 free-tier providers with cross-family discipline",

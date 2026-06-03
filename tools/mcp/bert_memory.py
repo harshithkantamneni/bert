@@ -1,6 +1,5 @@
 """bert-memory MCP server — read-only access to bert's memory + event log.
 
-Per FINAL_implementation_plan_2026-05-07.md §1.5 + E.1 deferred scope.
 Exposes a few read tools so external A2A-speaking agents can query
 bert's state without poking at filesystem paths.
 

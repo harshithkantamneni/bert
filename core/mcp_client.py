@@ -1,6 +1,5 @@
 """Native MCP client (JSON-RPC 2.0).
 
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A1 E.1.
 Replaces the 10-LoC `# Implementation pending` stub.
 
 Supports stdio-launched MCP servers (the predominant transport). HTTP
@@ -213,7 +212,7 @@ class MCPClient:
         return self.proc.returncode or 0
 
 
-# ── HTTP transport (F.8) ─────────────────────────────────────────────
+# ── HTTP transport ─────────────────────────────────────────────
 
 
 @dataclass

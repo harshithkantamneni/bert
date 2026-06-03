@@ -1,4 +1,4 @@
-"""Smoke test for core/mcp_replay.py + MCPServer integration (H.1)."""
+"""Smoke test for core/mcp_replay.py + MCPServer integration."""
 
 from __future__ import annotations
 

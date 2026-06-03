@@ -39,12 +39,12 @@ EXPECTED_FINALIZE = {
 
 def test_tier_up_complete():
     found = {p.stem for p in TIER_UP_DIR.glob("*.md")}
-    assert EXPECTED_TIER_UP <= found, f"missing: {EXPECTED_TIER_UP - found}"
+    assert found >= EXPECTED_TIER_UP, f"missing: {EXPECTED_TIER_UP - found}"
 
 
 def test_finalize_complete():
     found = {p.stem for p in FINALIZE_DIR.glob("*.md")}
-    assert EXPECTED_FINALIZE <= found, f"missing: {EXPECTED_FINALIZE - found}"
+    assert found >= EXPECTED_FINALIZE, f"missing: {EXPECTED_FINALIZE - found}"
 
 
 @pytest.mark.parametrize(
@@ -98,7 +98,7 @@ def _full_fake_invoker():
     def invoke(tool_name, args):
         # Identity passthrough
         if tool_name == "identity":
-            return args["value"] if "value" in args else args
+            return args.get("value", args)
         # File ops
         if tool_name == "Read":
             return f"# stub content for {args.get('file_path', '?')}"

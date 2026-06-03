@@ -1,4 +1,4 @@
-"""MemoryAgentBench-shaped Inspect AI suite (H.7).
+"""MemoryAgentBench-shaped Inspect AI suite.
 
 Per MemoryAgentBench (ICLR 2026, Wang et al.), agent memory systems
 should be scored across four orthogonal capability axes:
@@ -28,7 +28,6 @@ from inspect_ai import Task, task  # noqa: E402
 from inspect_ai.dataset import MemoryDataset, Sample  # noqa: E402
 from inspect_ai.scorer import Score, Target, accuracy, mean, scorer  # noqa: E402
 from inspect_ai.solver import Generate, TaskState, solver  # noqa: E402
-
 
 # ── Shared structural scorer (PASS / FAIL on retrieved-fact match) ──
 

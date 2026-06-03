@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 
 from . import _common
-from ._common import Task, BatteryRunResult
+from ._common import BatteryRunResult, Task
 
 ROLE = "researcher"
 REFERENCE_SET = "researcher_battery_v1"

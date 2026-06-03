@@ -54,7 +54,7 @@ class SessionClass(StrEnum):
     PHASE_TRANSITION = "phase-transition"
     USER_ACTION = "user-action"
     POST_FAILURE = "post-failure"
-    # B4 — a prior lab-style extensions for data-shape-specific sessions.
+    # Data-shape-specific session extensions.
     # Surfaced when lab.yaml mission_profile gives us enough hints
     # to specialize the brief.
     POST_RESHAPE = "post-reshape"           # lab.yaml profile changed last cycle

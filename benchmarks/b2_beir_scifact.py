@@ -41,6 +41,7 @@ import argparse
 import json
 import math
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")
 
 import random
@@ -78,7 +79,7 @@ def load_beir_scifact(max_queries: int | None = None,
         queries[q.query_id] = q.text
         if max_queries is not None and len(queries) >= max_queries:
             break
-    print(f"  loading qrels…", flush=True)
+    print("  loading qrels…", flush=True)
     qrels: dict[str, dict[str, int]] = {}
     for r in ds.qrels_iter():
         if r.query_id not in queries or r.doc_id not in corpus:
@@ -130,8 +131,8 @@ def bootstrap_ci95(xs: list[float], n=1000, seed=42) -> tuple[float, float]:
 
 def index_vector(corpus: dict[str, str]):
     """One-time index build for vector-only baseline."""
-    from sentence_transformers import SentenceTransformer
     import numpy as np
+    from sentence_transformers import SentenceTransformer
     model = SentenceTransformer("all-MiniLM-L6-v2")
     doc_ids = list(corpus.keys())
     print(f"    encoding {len(doc_ids)} docs (vector)…", flush=True)
@@ -148,6 +149,7 @@ def index_bm25(corpus: dict[str, str]):
     """Use bert's actual tokenizer from core.bm25 so this benchmark
     measures the SYSTEM, not a naive inline impl."""
     from rank_bm25 import BM25Okapi
+
     from core.bm25 import tokenize as bert_tokenize
     doc_ids = list(corpus.keys())
     print(f"    tokenizing {len(doc_ids)} docs (BM25 via core.bm25.tokenize)…", flush=True)
@@ -164,7 +166,6 @@ def _query_tokens(query: str) -> list[str]:
 
 
 def retrieve_vector(query, model, doc_ids, embs, k):
-    import numpy as np
     q_emb = model.encode([query], normalize_embeddings=True)[0]
     sims = embs @ q_emb
     ranked = sorted(zip(doc_ids, sims, strict=False), key=lambda x: -x[1])
@@ -333,12 +334,12 @@ def main() -> int:
     }
 
     lines = [
-        f"# B2 (real) — BEIR scifact retrieval quality",
-        f"",
+        "# B2 (real) — BEIR scifact retrieval quality",
+        "",
         f"_Generated: {ts}_",
         f"_Dataset: BEIR scifact test split — {len(corpus)} docs, "
         f"{len(queries)} queries (with qrels)_",
-        f"",
+        "",
         "## Our results",
         "",
         "| Method | nDCG@10 [95% CI] | R@10 [95% CI] | MRR@10 | mean lat |",
@@ -367,12 +368,12 @@ def main() -> int:
     closest_pub = min(published.items(), key=lambda kv: abs(kv[1] - best.ndcg_at_10))
     lines += [
         "",
-        f"### Headline",
-        f"",
+        "### Headline",
+        "",
         f"- Our **best is `{best.method}`** at nDCG@10 = **{best.ndcg_at_10:.4f}**",
         f"- Closest published baseline: **{closest_pub[0]}** at {closest_pub[1]:.3f}",
         f"- Delta vs closest: **{best.ndcg_at_10 - closest_pub[1]:+.4f}**",
-        f"",
+        "",
     ]
     summary.write_text("\n".join(lines))
     print()

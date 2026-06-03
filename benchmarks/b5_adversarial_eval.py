@@ -1,6 +1,6 @@
 """B5 — Adversarial-eval-by-design benchmark.
 
-This IS bert's wedge per `project_bert_sota_positioning.md`. Where
+This IS bert's wedge. Where
 conventional RAG silently fails, bert should catch the failure and
 surface it via failures.md. We test the 4 RAG failure modes that
 kill conventional systems in production:
@@ -32,12 +32,13 @@ from __future__ import annotations
 
 import json
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")
 
 import statistics
 import sys
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
@@ -346,7 +347,6 @@ def retrieve_vector_only(query: str, corpus: dict[str, str], k: int) -> list[str
     else:
         from sentence_transformers import SentenceTransformer
         embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    import numpy as np
     q_emb = embedder.encode([query], normalize_embeddings=True)[0]
     doc_ids = list(corpus.keys())
     doc_embs = embedder.encode([corpus[d] for d in doc_ids],

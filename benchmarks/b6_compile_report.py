@@ -21,7 +21,6 @@ Run: .venv/bin/python benchmarks/b6_compile_report.py
 from __future__ import annotations
 
 import json
-import os
 import sys
 import time
 from pathlib import Path
@@ -68,11 +67,11 @@ def main() -> int:
     report = RESULTS_DIR / "REPORT.md"
     ts = time.strftime("%Y-%m-%d")
     lines: list[str] = [
-        f"# bert-lab — Benchmark Report",
+        "# bert-lab — Benchmark Report",
         "",
         f"_Generated: {ts}_",
-        f"_Platform: M3 Pro 18 GB unified memory, Python 3.13, "
-        f"warm-cache after first run_",
+        "_Platform: M3 Pro 18 GB unified memory, Python 3.13, "
+        "warm-cache after first run_",
         "",
         "## Executive summary",
         "",
@@ -81,7 +80,6 @@ def main() -> int:
     # Find headline numbers
     findings: list[str] = []
     if b1:
-        per = b1.get("per_signal", {})
         h_rr = b1.get("hybrid_end_to_end", {}).get("hybrid_with_rerank", {})
         h_no = b1.get("hybrid_end_to_end", {}).get("hybrid_no_rerank", {})
         if h_no:
@@ -329,24 +327,18 @@ def main() -> int:
         "",
         "## What this report does NOT measure",
         "",
-        "Following `project_bert_sota_positioning.md`: bert is NOT positioned "
+        "bert is NOT positioned "
         "as best-in-class on `SWE-bench Verified`, `OWASP-depth`, or `WebArena`. "
         "These are agent capability benchmarks where bert would lose by design "
         "(we don't optimize for code-execution autonomy). The benchmarks here "
         "are the ones where bert's wedge (free-tier autonomous lab + hybrid "
         "retrieval + adversarial-eval-by-design) is actually competitive.",
         "",
-        "## Cross-references",
-        "",
-        "- `project_bert_sota_positioning.md` — 6 verified bert-firsts",
-        "- `project_bert_production_test_suites.md` — 150-test ship gate "
-        "  (different concern: correctness vs. quality)",
-        "",
     ]
 
     report.write_text("\n".join(lines))
     print(f"Wrote: {report}", flush=True)
-    print(f"All benchmark phases compiled.", flush=True)
+    print("All benchmark phases compiled.", flush=True)
     return 0
 
 

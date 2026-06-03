@@ -1,15 +1,9 @@
 """Observability layer — bert-specific JSONL + OTel GenAI dual-emission.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 2 + A6 §17.3
-(R9 G-4 amendment) + P-VS-12 (OpenTelemetry dual-emission, pending
-D-10 ratification).
-
 Two emission paths, both optional and lazy:
 
   1. bert-specific JSONL at state/observability/{event_class}.jsonl
-     — rich per-event detail for in-lab calibration queries (P-003,
-     P-VS-03 falsifiers, A6 §9 14 numerical targets, Lighthouse view
-     signal classes per Phase C2)
+     — rich per-event detail for in-lab calibration queries
 
   2. OpenTelemetry GenAI semantic-convention spans per the official
      spec at https://opentelemetry.io/docs/specs/semconv/gen-ai/ —
@@ -20,8 +14,8 @@ The two emit-paths are non-redundant: OTel spans use the standardized
 gen_ai.* namespace (gen_ai.system, gen_ai.request.model,
 gen_ai.usage.input_tokens, gen_ai.operation.name, ...) which is enough
 for vendor dashboards but doesn't carry bert-specific calibration
-state. The JSONL has the richer fields (P-VS-10 position_swap_delta,
-P-VS-08 severity_grade, threshing summaries, etc.) that bert's own
+state. The JSONL has the richer fields (position_swap_delta,
+severity_grade, threshing summaries, etc.) that bert's own
 calibration queries need.
 
 Emission is best-effort: a write failure logs a warning and continues
@@ -216,7 +210,7 @@ def emit(event_class: str, payload: dict[str, Any]) -> None:
     """Append `payload` to state/observability/{event_class}.jsonl with a
     UTC timestamp prefix.
 
-    event_class is one of the 14 enum values from §6.7 of FINAL plan:
+    event_class is one of the 14 enum values:
 
       Wired and live (13 of 14):
         tool_call                       — agent.py per tool_call
@@ -390,8 +384,7 @@ def emit_model_call(
     cycle: int | None = None,
 ) -> None:
     """Helper: emit both bert-JSONL and OTel-span for a single model_call
-    event. Use from core/agent.py + core/subagent.py per A6 §17.3
-    instrumentation pattern.
+    event. Use from core/agent.py + core/subagent.py.
     """
     emit("model_call", {
         "provider": provider,
@@ -517,7 +510,7 @@ def rotate_all(threshold_bytes: int | None = None) -> dict:
 def calibration_count(event_class: str, predicate: dict[str, Any] | None = None) -> int:
     """Count events of a class matching simple key=value predicates.
 
-    Used by A6 §9 falsifier checks. e.g.,
+    Used by falsifier checks. e.g.,
       calibration_count('threshing_dispatch')  # how many threshing dispatches?
       calibration_count('verdict', {'verdict': 'SCOPE_STOP'})  # how many SCOPE_STOPs?
     """

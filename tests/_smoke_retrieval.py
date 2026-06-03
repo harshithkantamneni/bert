@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import sys
-import tempfile
 from pathlib import Path
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
@@ -61,8 +60,9 @@ def test_empty_lists_return_empty() -> None:
 def test_hybrid_retrieve_with_seed_includes_graph() -> None:
     """With seed_ids, _graph_candidates fires off the local KG.
     Vector + cache adapters are bypassed to avoid live Ollama calls."""
-    from core import graph_store
     import tempfile as _tf
+
+    from core import graph_store
     tmp = Path(_tf.mkdtemp()) / "graph.db"
     graph_store.DB_PATH = tmp
     # Seed a tiny graph

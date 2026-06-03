@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import json
 import os
-import re
 import shutil
 import sys
 import tempfile
@@ -14,6 +12,7 @@ LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 import importlib.util
+
 spec = importlib.util.spec_from_file_location(
     "bert_init", LAB_ROOT / "tools" / "bert_init.py",
 )

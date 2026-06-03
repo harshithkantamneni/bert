@@ -20,7 +20,6 @@ Run: `.venv/bin/python tests/_smoke_schema_correction.py`
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 from unittest import mock
@@ -29,7 +28,6 @@ LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import subagent  # noqa: E402
-
 
 _INVALID_PACKET = {
     "role": "researcher",

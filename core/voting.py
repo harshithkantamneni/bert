@@ -1,7 +1,6 @@
-"""Majority voting (EMS) verdict path — L-13 / R9 G-8.
+"""Majority voting (EMS) verdict path.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 Track A + R9 finding
-G-8 (EMS arxiv 2604.02863, Ranked Voting arxiv 2505.10772).
+Based on EMS (arxiv 2604.02863) and Ranked Voting (arxiv 2505.10772).
 
 Cross-family judges (P-VS-02) are bias-resistant but expensive
 (different provider, often paid tier, breaks KV-cache reuse). For
@@ -148,7 +147,7 @@ def should_use_majority_vote(
 ) -> bool:
     """Heuristic: when should bert use majority-vote vs cross-family vs unite?
 
-    Per L-13: borderline-stakes verdicts where one-shot judgment is borderline.
+    For borderline-stakes verdicts where one-shot judgment is borderline.
     NOT for PI-gate decisions (those require cross-family per P-VS-02).
     NOT for trivial cycle-end Evaluator (unite is sufficient).
 

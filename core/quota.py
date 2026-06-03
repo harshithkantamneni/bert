@@ -1,13 +1,12 @@
 """Per-provider quota tracking with SQLite-backed event log.
 
-Used by the L-17 router cascade and by core/agent.py before each provider
+Used by the router cascade and by core/agent.py before each provider
 call to decide whether to dispatch or fall back. Each provider has a
 declared free-tier ceiling (RPM, RPD, daily token cap, request-context
 cap); this module records every dispatch and answers `check_quota` in
 ~1ms by counting events in a rolling window.
 
-Free-tier ceilings come from R12 May 2026 validation (see findings/
-researcher_engineering_gaps_R9-R12.md). Update via D-N entry when
+Free-tier ceilings come from May 2026 validation. Update when
 provider-side ceilings change. The quota check is advisory — if a
 provider returns 429 anyway, core/provider.py's retry-with-backoff
 handles it; quota.py just minimizes 429s by pre-checking.
@@ -64,7 +63,7 @@ class ProviderLimits:
     context_max: int | None = None
 
 
-# Free-tier ceilings per R12 (May 2026). Update via D-N entry when changed.
+# Free-tier ceilings (May 2026). Update when changed.
 PROVIDER_LIMITS: dict[str, ProviderLimits] = {
     "nvidia":     ProviderLimits(rpm=40),
     "cerebras":   ProviderLimits(rpm=30, daily_tokens=1_000_000, context_max=8192),

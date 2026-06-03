@@ -1,8 +1,5 @@
 """Smoke test for core/brief_assembler.py — Layer 5 context brief.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 + bert memory
-architecture (saved as `project_bert_memory_architecture.md`).
-
 Tests:
   1. classify_session: post-failure when session_exit.md head is CATASTROPHIC
   2. classify_session: user-action when pi_notes mtime newer than session_exit
@@ -82,7 +79,7 @@ def test_classify_user_action() -> None:
 def test_classify_phase_transition() -> None:
     _clear()
     _touch(STATE_DIR / "session_exit.md", "GRACEFUL_CHECKPOINT\n")
-    _touch(MEMORIES_DIR / "current.md", "# Phase H4 ready\n\nMoving to H4 wiring round.")
+    _touch(MEMORIES_DIR / "current.md", "# Phase 2 ready\n\nMoving to the next wiring round.")
     c = ba.classify_session()
     assert c.classification == ba.SessionClass.PHASE_TRANSITION, c
 
@@ -99,7 +96,7 @@ def test_assemble_brief_runs_under_budget() -> None:
     _clear()
     _touch(STATE_DIR / "session_exit.md", "GRACEFUL_CHECKPOINT\n")
     _touch(MEMORIES_DIR / "current.md",
-           "## §Current Program\n\nbert-lab Phase H4 self-correction.\n")
+           "## §Current Program\n\nbert-lab self-correction.\n")
     _touch(MEMORIES_DIR / "log.md", "\n".join([
         "## D-100 — Recent decision A",
         "Confidence: 8. Reasoning: " + "x" * 100,
@@ -110,7 +107,7 @@ def test_assemble_brief_runs_under_budget() -> None:
     ]))
     _touch(MEMORIES_DIR / "procedures.md",
            "## P-001\n**STATUS:** FROZEN on 2026-05-07\nDetails")
-    _touch(STATE_DIR / "cycle_queue.md", "1. Wire H4 modules\n2. Verify")
+    _touch(STATE_DIR / "cycle_queue.md", "1. Wire pending modules\n2. Verify")
     t0 = time.monotonic()
     path, stats = ba.assemble_brief()
     elapsed = time.monotonic() - t0

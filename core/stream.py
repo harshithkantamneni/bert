@@ -1,6 +1,5 @@
 """Canonical event-stream emitter for the C0 canvas surface.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.5 Phase C0 + §6.7.
 Closes the long-standing 10-LoC `# Implementation pending` stub.
 
 The canvas reads `lab/sor/events.jsonl` as the single source of truth.
@@ -63,7 +62,7 @@ EVENT_CLASS_ENUM = frozenset({
     # Dispatch / agent lifecycle
     "subagent_spawn", "subagent_finish",
     "dispatch_result", "tool_call", "model_call",
-    # Verdicts + threshing/clearness/seasoning (A6 Quaker pipeline)
+    # Verdicts + threshing/clearness/seasoning (Quaker pipeline)
     "verdict", "stand_aside_verdict",
     "threshing_dispatch",
     "clearness_phase1_dispatch", "clearness_phase2_dispatch",

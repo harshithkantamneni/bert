@@ -1,7 +1,7 @@
 """Bert's 14 pre-registered falsifier targets as Inspect AI eval cases.
 
-Per FINAL plan §11.3 acceptance criterion. Each target from
-`tools/falsifier_baseline.py:run_all()` becomes one Inspect AI task.
+Each target from `tools/falsifier_baseline.py:run_all()` becomes one
+Inspect AI task.
 
 Why this matters
 ================
@@ -37,16 +37,17 @@ Run:
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 LAB_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from inspect_ai import Task, task  # noqa: E402
-from inspect_ai.dataset import Sample, MemoryDataset  # noqa: E402
+from inspect_ai.dataset import MemoryDataset, Sample  # noqa: E402
 from inspect_ai.scorer import Score, Target, accuracy, mean, scorer  # noqa: E402
 from inspect_ai.solver import Generate, TaskState, solver  # noqa: E402
+
 
 # Lazy import to keep startup fast and isolate failures
 def _falsifier_module():
@@ -179,7 +180,6 @@ def all_14():
     @solver
     def run_all_solver():
         async def run(state: TaskState, generate: Generate) -> TaskState:
-            target_id = state.metadata["target_id"]
             fn_name = state.metadata["fn_name"]
             takes_window = state.metadata.get("takes_window", True)
             fn = getattr(fb, fn_name)

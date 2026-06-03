@@ -16,9 +16,9 @@ sys.path.insert(0, str(LAB_ROOT))
 
 
 def test_finding_emits_candidate_and_mission_nodes() -> None:
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
-    from core.tools import _write
     from core import graph_store
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
+    from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
         lab = Path(td) / "scratch-lab"
@@ -43,9 +43,9 @@ def test_finding_emits_candidate_and_mission_nodes() -> None:
 
 
 def test_finding_emits_evidenced_by_edge() -> None:
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
-    from core.tools import _write
     from core import graph_store
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
+    from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
         lab = Path(td) / "scratch-lab"
@@ -65,9 +65,9 @@ def test_finding_emits_evidenced_by_edge() -> None:
 
 
 def test_finding_with_arxiv_link_creates_source_node() -> None:
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
-    from core.tools import _write
     from core import graph_store
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
+    from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
         lab = Path(td) / "scratch-lab"
@@ -93,9 +93,9 @@ def test_finding_with_arxiv_link_creates_source_node() -> None:
 def test_graph_store_routes_per_lab() -> None:
     """Two different active-lab contexts must yield two different
     graph.db files — no cross-lab contamination."""
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
-    from core.tools import _write
     from core import graph_store
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
+    from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
         lab_a = Path(td) / "lab-a"
@@ -123,9 +123,9 @@ def test_graph_store_routes_per_lab() -> None:
 
 def test_extractor_idempotent_on_same_finding_id() -> None:
     """Re-writing the same finding path should not duplicate nodes."""
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
-    from core.tools import _write
     from core import graph_store
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
+    from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
         lab = Path(td) / "scratch-lab"

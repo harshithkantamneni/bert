@@ -258,7 +258,7 @@ def classify_tier(*, source: str = "lab", needs_network: bool = False) -> Tier:
     return Tier.RESTRICTED  # paranoid default
 
 
-# ── L-23 / E.3 skill validation hook ───────────────────────────────────
+# ── Skill validation hook ──────────────────────────────────────────────
 
 
 def validate_skill(
@@ -270,15 +270,14 @@ def validate_skill(
 ) -> SandboxResult:
     """Validate a draft skill in the appropriate sandbox tier.
 
-    Per FINAL_implementation_plan_amendment_2026-05-13.md §A3 step 3:
-    "Sandbox validation: the candidate skill runs in core/sandbox.py
-    against a held-out trace pair; falsifier must pass."
+    Sandbox validation: the candidate skill runs in core/sandbox.py
+    against a held-out trace pair; the falsifier must pass.
 
     Default tier is TRUSTED for the smoke shape — the validation we
     perform here is a *protocol* check ("does the test_command exit
     0?"), not a hostile-code containment test. Hostile-code runs go
     via run_network_isolated directly with full Docker isolation
-    (operational hardening pass, not part of the L-23 promotion gate).
+    (operational hardening pass, not part of the promotion gate).
 
     Callers that DO want hardened isolation pass tier=Tier.RESTRICTED
     or tier=Tier.NETWORK_ISOLATED explicitly.

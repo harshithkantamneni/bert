@@ -1,6 +1,5 @@
 """Smoke test for core/stream.py — canonical canvas event emitter.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.5 Phase C0 + §6.7.
 Closes the 10-LoC stub and proves the schema is enforced.
 
 Tests:
@@ -16,7 +15,6 @@ Tests:
 
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 from pathlib import Path
@@ -35,7 +33,7 @@ def _isolate() -> Path:
 
 
 def test_emit_appends_valid_event() -> None:
-    p = _isolate()
+    _isolate()
     eid = stream.emit(
         "verdict",
         agent="evaluator",

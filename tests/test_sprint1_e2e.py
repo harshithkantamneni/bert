@@ -18,11 +18,7 @@ from __future__ import annotations
 
 import json
 import multiprocessing
-import os
-import shutil
-import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 from unittest.mock import patch
@@ -34,17 +30,15 @@ LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import (  # noqa: E402
-    lab_schema_io,
-    verify_engine,
     host_detector,
-    model_cards,
-    role_registry,
-    router,
+    lab_schema_io,
     mission_profile,
-    schema_synthesizer,
+    model_cards,
     observability,
+    router,
+    schema_synthesizer,
+    verify_engine,
 )
-
 
 # ── Fixtures ─────────────────────────────────────────────────────────
 

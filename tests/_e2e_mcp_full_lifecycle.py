@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")  # tests: no 568MB cold-start
 
 import subprocess
@@ -35,7 +36,6 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))

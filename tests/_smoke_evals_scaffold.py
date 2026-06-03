@@ -10,22 +10,35 @@ import importlib.util
 import sys
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
 
 
 def test_evals_dir_exists() -> None:
     evals = LAB_ROOT / "evals"
     assert evals.is_dir()
+    _require(evals / "README.md")
     assert (evals / "README.md").exists()
 
 
 def test_readme_documents_both_frameworks() -> None:
+    _require(LAB_ROOT / "evals" / "README.md")
     readme = (LAB_ROOT / "evals" / "README.md").read_text()
     assert "Inspect AI" in readme
     assert "deepeval" in readme
-    assert "A6 §9" in readme
+    assert "falsifier" in readme.lower()
     assert "P-VS-12" in readme  # OTel cross-reference
-    assert "reward-hacking" in readme.lower()  # UC Berkeley caveat per L-14
+    assert "reward-hacking" in readme.lower()  # UC Berkeley caveat
 
 
 def test_three_sample_evals_load() -> None:
@@ -46,7 +59,7 @@ def test_three_sample_evals_load() -> None:
 
 
 def test_falsifier_ids_match_a6_pattern() -> None:
-    """A6 §9 falsifier IDs follow FALS-A6-9-{N} pattern."""
+    """Falsifier IDs follow FALS-9-{N} pattern."""
     import importlib.util
     for fname in ("p_vs_06_threshing", "p_vs_07_clearness_phase1"):
         path = LAB_ROOT / "evals" / f"{fname}.py"
@@ -54,7 +67,7 @@ def test_falsifier_ids_match_a6_pattern() -> None:
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         for f in mod.EVAL_SPEC.get("falsifiers", []):
-            assert f["id"].startswith("FALS-A6-9-"), (
+            assert f["id"].startswith("FALS-9-"), (
                 f"{fname} falsifier id {f['id']} doesn't match pattern"
             )
 

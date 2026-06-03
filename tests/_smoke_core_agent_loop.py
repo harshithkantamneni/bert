@@ -15,11 +15,20 @@ import inspect
 import sys
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import agent  # noqa: E402
 from core.types import ProviderResponse, ToolCall  # noqa: E402
+
+_CONSTITUTIONAL = LAB_ROOT / "memories" / "governance" / "constitutional.md"
+
+
+def _require_constitutional():
+    if not _CONSTITUTIONAL.exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
 
 
 class _MP:
@@ -57,6 +66,7 @@ def _silence(monkeypatch):
 
 
 def test_stop_immediately(monkeypatch):
+    _require_constitutional()
     _silence(monkeypatch)
     monkeypatch.setattr(agent.provider, "call", _scripted([_resp(finish="stop", text="done")]))
     sink: dict = {}
@@ -67,6 +77,7 @@ def test_stop_immediately(monkeypatch):
 
 
 def test_tool_use_then_stop(monkeypatch):
+    _require_constitutional()
     _silence(monkeypatch)
     monkeypatch.setattr(agent.provider, "call", _scripted([
         _resp(finish="tool_use",
@@ -91,6 +102,7 @@ def test_provider_error_is_catastrophic(monkeypatch):
 def test_quota_error_fails_over_then_stops(monkeypatch):
     # A 429/quota error fails OVER to another lane instead of dying.
     from core import provider_fallback
+    _require_constitutional()
     _silence(monkeypatch)
     monkeypatch.setattr(provider_fallback, "_has_credential", lambda p: True)
     monkeypatch.setattr(agent.provider, "call", _scripted([
@@ -105,6 +117,7 @@ def test_unknown_provider_fails_over(monkeypatch):
     # The writer scenario: router resolves to anthropic-cli (host tier1) which the
     # standard executor can't call -> "unknown provider" -> must fail OVER, not die.
     from core import provider_fallback
+    _require_constitutional()
     _silence(monkeypatch)
     monkeypatch.setattr(provider_fallback, "_has_credential", lambda p: True)
     monkeypatch.setattr(agent.provider, "call", _scripted([
@@ -127,6 +140,7 @@ def test_quota_error_no_fallback_is_catastrophic(monkeypatch):
 
 
 def test_max_iterations_exhausted(monkeypatch):
+    _require_constitutional()
     _silence(monkeypatch)
     # always tool_use → loop never hits a stop → exhausts max_iterations
     def _always_tool(provider_name, messages, **kw):
@@ -161,6 +175,7 @@ def test_stop_without_deliverable_nudges_then_accepts_after_write(monkeypatch):
     import tempfile
 
     from core import lab_context
+    _require_constitutional()
     _silence(monkeypatch)
     calls = {"n": 0}
 
@@ -193,6 +208,7 @@ def test_undersized_deliverable_nudges_with_verification_failures(monkeypatch):
     import tempfile
 
     from core import lab_context
+    _require_constitutional()
     _silence(monkeypatch)
     long = "# Heading\n" + ("words " * 40)   # >50 chars, has a header
     seq = [
@@ -223,6 +239,7 @@ def test_stop_with_deliverable_present_accepts_immediately(monkeypatch):
     import tempfile
 
     from core import lab_context
+    _require_constitutional()
     _silence(monkeypatch)
     calls = {"n": 0}
 
@@ -250,6 +267,7 @@ def test_completion_nudge_is_bounded(monkeypatch):
     import tempfile
 
     from core import lab_context
+    _require_constitutional()
     _silence(monkeypatch)
     calls = {"n": 0}
 

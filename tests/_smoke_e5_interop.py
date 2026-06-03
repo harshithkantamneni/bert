@@ -1,6 +1,4 @@
-"""Smoke test for E.5 — Playwright MCP + A2A Agent Card.
-
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A1 E.5 + §A2.
+"""Smoke test for Playwright MCP + A2A Agent Card.
 
 Tests:
   1. state/mcp_servers.json contains playwright + fetch entries
@@ -11,18 +9,31 @@ Tests:
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
+
+import pytest
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import mcp_installer  # noqa: E402
 
+REGISTRY_PATH = LAB_ROOT / "state" / "mcp_servers.json"
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
+
 
 def test_playwright_registered_in_default_registry() -> None:
     """state/mcp_servers.json should contain a playwright entry."""
+    _require(REGISTRY_PATH)
     configured = mcp_installer.list_configured()
     assert "playwright" in configured, f"missing playwright; got {configured}"
     spec = mcp_installer.load_spec("playwright")
@@ -34,6 +45,7 @@ def test_playwright_registered_in_default_registry() -> None:
 
 def test_fetch_registered_in_default_registry() -> None:
     """state/mcp_servers.json should contain a fetch entry."""
+    _require(REGISTRY_PATH)
     configured = mcp_installer.list_configured()
     assert "fetch" in configured
     spec = mcp_installer.load_spec("fetch")
@@ -43,8 +55,12 @@ def test_fetch_registered_in_default_registry() -> None:
 
 def test_agent_card_endpoint_returns_valid_shape() -> None:
     """A2A Agent Card endpoint exists and returns the required fields."""
-    from fastapi.testclient import TestClient
+    pytest.importorskip(
+        "api.main",
+        reason="requires the FastAPI api/ surface not shipped in the public repo",
+    )
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     r = client.get("/.well-known/agent.json")
     assert r.status_code == 200
@@ -63,8 +79,13 @@ def test_agent_card_endpoint_returns_valid_shape() -> None:
 
 def test_agent_card_exposes_registered_mcp_servers_as_skills() -> None:
     """Skills array should mirror what's in state/mcp_servers.json."""
-    from fastapi.testclient import TestClient
+    pytest.importorskip(
+        "api.main",
+        reason="requires the FastAPI api/ surface not shipped in the public repo",
+    )
+    _require(REGISTRY_PATH)
     from api.main import app
+    from fastapi.testclient import TestClient
     client = TestClient(app)
     card = client.get("/.well-known/agent.json").json()
     skill_ids = {s["id"] for s in card["skills"]}

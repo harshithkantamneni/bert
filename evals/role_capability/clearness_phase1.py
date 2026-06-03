@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 
 from . import _common
-from ._common import Task, BatteryRunResult
+from ._common import BatteryRunResult, Task
 
 ROLE = "clearness_phase1"
 REFERENCE_SET = "clearness_phase1_battery_v1"
@@ -18,7 +18,7 @@ REFERENCE_SET = "clearness_phase1_battery_v1"
 
 _TOPICS = [
     "Adopt FalkorDB over Apache AGE for bert's KG layer",
-    "Ship a Cathedral surface before the L-22 KG migration completes",
+    "Ship a Cathedral surface before the KG migration completes",
     "Lower the falsifier T8 threshold from 70% to 60% for the next 30 dispatches",
     "Replace OpenRouter with HF Router as the universal escape hatch",
     "Allow the Director to dispatch Strategist during the build phase",

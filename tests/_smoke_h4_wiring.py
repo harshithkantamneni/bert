@@ -1,6 +1,4 @@
-"""Smoke test for H4 Track D wiring into core/agent.py + core/provider.py.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 Track D wiring round.
+"""Smoke test for wiring into core/agent.py + core/provider.py.
 
 Tests:
   1. core/agent.py imports quota, watchdog, evaluator
@@ -13,7 +11,6 @@ Run: `.venv/bin/python tests/_smoke_h4_wiring.py`
 
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 from pathlib import Path
@@ -22,7 +19,7 @@ from unittest import mock
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import agent, provider, quota, watchdog  # noqa: E402
+from core import provider, quota, watchdog  # noqa: E402
 
 
 def test_agent_imports_h4_modules() -> None:
@@ -70,7 +67,8 @@ def test_provider_call_records_quota_on_success() -> None:
 
 def test_watchdog_session_records_on_run_role() -> None:
     """A direct watchdog test — verify record_start + record_end give a closed row."""
-    import os, sqlite3
+    import os
+    import sqlite3
     tmp = Path(tempfile.mkdtemp(prefix="bert_h4_watchdog_"))
     watchdog.WATCHDOG_DB = tmp / "watchdog.db"
 

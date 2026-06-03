@@ -131,7 +131,7 @@ def run_walkthrough(base_url: str) -> int:
             page = context.new_page()
             page.set_viewport_size({"width": width, "height": 900})
             console: list[dict] = []
-            page.on("console", lambda m: console.append({"type": m.type, "text": m.text}))
+            page.on("console", lambda m, console=console: console.append({"type": m.type, "text": m.text}))
 
             try:
                 page.goto(f"{base_url}{path}", wait_until="networkidle", timeout=15000)

@@ -1,6 +1,4 @@
-"""Smoke test for core/kv_sharing.py — L-08 Phases B-D routing scaffold.
-
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A1 E.4.
+"""Smoke test for core/kv_sharing.py — routing scaffold.
 
 Tests the 3-route decision tree and the telemetry-emission hook.
 The KV-pass operational backend is deferred; this smoke confirms the

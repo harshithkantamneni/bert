@@ -1,6 +1,4 @@
-"""Smoke test for the MCP layer (E.1) — client + installer + server.
-
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A1 E.1.
+"""Smoke test for the MCP layer — client + installer + server.
 
 End-to-end: spawns bert's own echo MCP server, runs the initialize
 handshake, lists tools, calls echo, closes cleanly. Plus unit tests
@@ -9,7 +7,6 @@ for the installer's JSON config schema.
 
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 from pathlib import Path

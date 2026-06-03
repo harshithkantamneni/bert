@@ -18,6 +18,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
@@ -28,6 +30,13 @@ BERT_RUN  = LAB_ROOT / "tools" / "bert_run.py"
 API       = LAB_ROOT / "api" / "main.py"
 CTRL      = LAB_ROOT / "bert" / "v4" / "src" / "components" / "RunCycleControls.tsx"
 CLIENT    = LAB_ROOT / "bert" / "v4" / "src" / "api" / "client.ts"
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip("requires lab runtime artifact(s) not shipped in the public "
+                    "repo: " + ", ".join(str(m) for m in missing))
 
 
 # ─── Director: mission-complete cycle shape ───────────────────────
@@ -110,6 +119,7 @@ def test_bert_run_still_handles_idle_separately() -> None:
 
 
 def test_run_status_exposes_cycles_completed() -> None:
+    _require(API)
     text = API.read_text()
     assert '"cycles_completed":' in text
     # Derive from stdout markers
@@ -117,12 +127,14 @@ def test_run_status_exposes_cycles_completed() -> None:
 
 
 def test_run_status_exposes_mission_complete_flag() -> None:
+    _require(API)
     text = API.read_text()
     assert '"mission_complete":' in text
     assert '"MISSION COMPLETE" in ln' in text
 
 
 def test_client_type_includes_new_status_fields() -> None:
+    _require(CLIENT)
     text = CLIENT.read_text()
     assert "cycles_completed?:" in text
     assert "mission_complete?:" in text
@@ -134,6 +146,7 @@ def test_client_type_includes_new_status_fields() -> None:
 def test_controls_default_to_safety_cap_not_slider() -> None:
     """No cycle slider; the user just clicks Start. Cap matches
     the API's hard ceiling at 50."""
+    _require(CTRL)
     text = CTRL.read_text()
     assert "SAFETY_CAP = 50" in text
     # No num input for cycle count
@@ -143,24 +156,28 @@ def test_controls_default_to_safety_cap_not_slider() -> None:
 
 
 def test_controls_render_start_mission_button() -> None:
+    _require(CTRL)
     text = CTRL.read_text()
     assert "start mission" in text
     assert 'aria-label="start mission"' in text
 
 
 def test_controls_render_stop_button_when_running() -> None:
+    _require(CTRL)
     text = CTRL.read_text()
     assert 'aria-label="stop the autonomous loop"' in text
     assert 'method: "DELETE"' in text
 
 
 def test_controls_poll_run_status() -> None:
+    _require(CTRL)
     text = CTRL.read_text()
     assert "POLL_MS = 2000" in text
     assert "/api/run-cycle/${" in text
 
 
 def test_controls_show_live_cycle_counter() -> None:
+    _require(CTRL)
     text = CTRL.read_text()
     # The "running · cycle N" header uses phase.cycles
     assert "cycles_completed ?? 0" in text
@@ -170,6 +187,7 @@ def test_controls_show_live_cycle_counter() -> None:
 def test_controls_show_cost_delta() -> None:
     """Cost shown is the delta since this run started, not the
     daily total — so the PI sees what THIS mission cost."""
+    _require(CTRL)
     text = CTRL.read_text()
     assert "costAtStart" in text
     assert "_costDelta" in text
@@ -177,6 +195,7 @@ def test_controls_show_cost_delta() -> None:
 
 
 def test_controls_render_mission_complete_receipt() -> None:
+    _require(CTRL)
     text = CTRL.read_text()
     assert "✓ mission complete" in text
     assert "phase.kind === \"complete\"" in text or \
@@ -184,6 +203,7 @@ def test_controls_render_mission_complete_receipt() -> None:
 
 
 def test_controls_render_stopped_receipt() -> None:
+    _require(CTRL)
     text = CTRL.read_text()
     assert "stopped" in text
     assert 'kind === "cancelled"' in text or 'kind: "cancelled"' in text
@@ -192,6 +212,7 @@ def test_controls_render_stopped_receipt() -> None:
 def test_controls_send_consent_long_run_true() -> None:
     """Safety cap = 100 implicitly requires consent_long_run; we
     send true so the API doesn't reject the run."""
+    _require(CTRL)
     text = CTRL.read_text()
     assert "consent_long_run: true" in text
 
@@ -199,12 +220,14 @@ def test_controls_send_consent_long_run_true() -> None:
 def test_controls_invalidate_caches_on_complete() -> None:
     """When a mission completes, the manuscript / findings / letter
     queries must refetch so the PI sees the new artifacts."""
+    _require(CTRL)
     text = CTRL.read_text()
     for key in ('"events"', '"findings"', '"lab-status"', '"director-letter"'):
         assert f'queryKey: [{key}]' in text, f"missing invalidate for {key}"
 
 
 def test_controls_dev_single_cycle_hidden_in_demo_mode() -> None:
+    _require(CTRL)
     text = CTRL.read_text()
     assert "dev · single cycle" in text
     assert "!isDemo" in text

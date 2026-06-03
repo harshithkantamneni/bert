@@ -1,6 +1,4 @@
-"""Smoke test for H2 day 7 — seasoning routing FM-Se1..FM-Se6.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 7 + A6 §8.
+"""Smoke test for seasoning routing FM-Se1..FM-Se6.
 
 FM-Se1 REJECT routes to seasoning when revision path unclear: VERIFY
 FM-Se2 REJECT does NOT route to seasoning when revision is clear: VERIFY
@@ -8,7 +6,7 @@ FM-Se3 Non-REJECT verdicts never route to seasoning: VERIFY
 FM-Se4 Seasoning instructions populate revival_conditions: VERIFY
 FM-Se5 Seasoning instructions include altitude when packet has it: VERIFY
 FM-Se6 Cycle-recognition section appended (not interleaved) to
-       researcher.md per A6 §16.3: VERIFY (file-level check)
+       researcher.md: VERIFY (file-level check)
 """
 
 import sys
@@ -93,7 +91,7 @@ def test_FM_Se5_altitude_propagated() -> None:
 def test_FM_Se6_cycle_recognition_appended_not_interleaved() -> None:
     """The cycle-recognition section in researcher.md must be at the END
     of the file (appended), not interleaved within the standing prefix.
-    Per A6 §16.3 cache-aware structure rule."""
+    This is the cache-aware structure rule."""
     researcher_md = (LAB_ROOT / "prompts" / "researcher.md").read_text()
     # Find position of the addition
     addition_marker = "## Cycle-recognition revival path (P-VS-09)"
@@ -102,14 +100,14 @@ def test_FM_Se6_cycle_recognition_appended_not_interleaved() -> None:
 
     # Verify it's in the back half of the file (i.e., appended to the
     # standing prefix, not interleaved within it). Originally 60% but
-    # H3 day 1+2 appended OODA section after this one; cycle-recognition
+    # a later OODA section was appended after this one; cycle-recognition
     # is now at ~59% post-OODA-append; both sections are still in the
     # appended-suffix region, which is what cache discipline requires.
     relative_pos = pos / len(researcher_md)
     assert relative_pos > 0.4, (
         f"cycle-recognition section at {relative_pos:.0%} of file; expected "
         f"≥40% (i.e., back half = appended-suffix region). If interleaved "
-        f"within the cacheable prefix, discipline is violated per A6 §16.3."
+        f"within the cacheable prefix, cache discipline is violated."
     )
 
 
@@ -118,6 +116,7 @@ def test_seasoning_instructions_pass_schema() -> None:
     valid input to core.seasoning.season() — i.e., its fields satisfy
     seasoning_entry.json schema."""
     import tempfile
+
     from core import seasoning
 
     p = _packet("REJECT", caveats=[

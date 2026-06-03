@@ -17,9 +17,20 @@ import tempfile
 import types
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 sys.path.insert(0, str(LAB_ROOT / "tools"))
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
 
 
 class _MP:
@@ -99,6 +110,12 @@ def test_explainer_html_builders():
 
 def test_explainer_text_and_segments(monkeypatch):
     rx = importlib.import_module("record_explainer")
+    # the table/snippet builders directly read findings/* lab runtime artifacts
+    _require(
+        LAB_ROOT / "findings" / "weekly_quality_report_2026-05-13.md",
+        LAB_ROOT / "findings" / "falsifier_corpus.md",
+        LAB_ROOT / "findings" / "daily_history" / "timeline.json",
+    )
     # mock every subprocess-backed reader so no real packet/verify is needed
     monkeypatch.setattr(rx.subprocess, "run", _fake_run)
     assert isinstance(rx._scorecard_table_html(), str)

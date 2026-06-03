@@ -61,7 +61,7 @@ Helps the clearness committee judge altitude (META / SPEC / IMPL).
 Examples:
   - If Position A: bert's strict-free-tier-only is preserved at cost of
     KV-cache reuse savings
-  - If Position B: bert can capture L-08 Phase B savings but with
+  - If Position B: bert can capture the KV-reuse savings but with
     architectural deviation from P-VS-02 cross-family rule
 
 ## What is NOT being threshed (deliberate)
@@ -113,9 +113,9 @@ Whether bert can capture KVComm's 70% KV-cache-reuse savings on
 high-altitude pipeline dispatches, given that P-VS-02 requires the
 cross-family judge step within those same dispatches.
 
-## Position A — R8 §2.2: same-family chains can use KVComm
+## Position A — same-family chains can use KVComm
 
-R8 Option 2 reports KVComm achieves 70%+ KV reuse and 7.8× TTFT
+KVComm achieves 70%+ KV reuse and 7.8× TTFT
 speedup on same-family multi-agent chains (arxiv 2510.12872, Oct
 2025). The technique is training-free and the model is open-source.
 On bert's local Ollama path with same-model dispatches, this would
@@ -126,14 +126,14 @@ apply directly.
 P-VS-02 mandates cross-family Evaluator on PI-gate dispatches (mission
 close, candidate commit, PHASE_TRANSITION). KVComm requires the
 producer and consumer to share the same model architecture; cross-
-family arbitration breaks that requirement. R8 §3 surfaces this
+family arbitration breaks that requirement. The research surfaces this
 directly: "Three of the techniques (KVComm, single-shared-context,
 LatentMAS) require same-model. P-VS-02 requires different-model. This
 is a real architectural tension."
 
 ## What's at stake
 
-Whether L-08 Phase B (KVComm prototyping) can target the high-altitude
+Whether KVComm prototyping can target the high-altitude
 Quaker pipeline (which IS where the savings would matter most) or
 must restrict to same-family same-altitude chains (where savings are
 real but lower-leverage).
@@ -141,7 +141,7 @@ real but lower-leverage).
 ## What is NOT being threshed
 
 Whether LLMLingua compression on cross-family judge legs partially
-closes the gap — that's a separate downstream proposal in R8 §3.3
+closes the gap — that's a separate downstream proposal
 that the clearness committee can consider after deciding the primary
 question.
 ```
@@ -149,7 +149,7 @@ question.
 ### Example 2 — calibration window length
 
 **Inputs:**
-- A6 §9 (14 numerical falsifier targets, 30-dispatch calibration window)
+- The calibration plan (14 numerical falsifier targets, 30-dispatch calibration window)
 - An evaluator finding suggesting 30 dispatches is too few to cleanly distinguish signal from noise on the position-bias falsifier (P-VS-10 ≤15% delta)
 
 **Threshing output:**
@@ -157,24 +157,24 @@ question.
 ```markdown
 ## The disagreement
 
-Whether 30 dispatches is sufficient to validate A6's 14 falsifier
+Whether 30 dispatches is sufficient to validate the 14 falsifier
 targets, particularly the position-swap-delta target which depends on
 multiple cross-family judge dispatches firing within the window.
 
-## Position A — A6 §9: 30 dispatches is the bar
+## Position A — calibration plan: 30 dispatches is the bar
 
-A6 §9 commits to 30-dispatch calibration. The bar is set
+The calibration plan commits to a 30-dispatch window. The bar is set
 deliberately: a P-001 three-strikes pivot fires if any target
 misses within the window, so the window must be short enough to
-trigger pivots when patterns are wrong. Per A6 §11 day 11-15 soak
-plan, daily calibration tracking surfaces drift quickly.
+trigger pivots when patterns are wrong. Daily calibration tracking
+during the soak plan surfaces drift quickly.
 
 ## Position B — Evaluator pushback: 30 is too few for delta-based targets
 
-The evaluator finding observes that A6 §9 falsifier #6 (P-VS-10
+The evaluator finding observes that falsifier #6 (P-VS-10
 position-swap delta ≤15%) requires multiple cross-family judge
 dispatches in the window. Cross-family fires only on contested-
-decision dispatches (estimated 5-10% of cycles per A6 §14). 30
+decision dispatches (estimated 5-10% of cycles). 30
 dispatches × 7.5% = ~2.25 cross-family judge events, which is not
 enough N for a delta-based statistic.
 
@@ -188,7 +188,7 @@ accept that some targets calibrate slowly while others fire quickly.
 ## What is NOT being threshed
 
 Whether the broader 14-falsifier set is correctly chosen — that's
-A6 §9's load-bearing assumption and is out of scope for this pass.
+the calibration plan's load-bearing assumption and is out of scope for this pass.
 ```
 
 ## Standing context (cacheable prefix ends here)

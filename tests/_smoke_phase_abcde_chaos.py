@@ -18,9 +18,9 @@ What this layer covers that tier-1/tier-2 don't:
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")  # tests: no 568MB cold-start
 
 import sqlite3

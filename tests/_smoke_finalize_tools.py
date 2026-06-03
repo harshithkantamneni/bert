@@ -17,10 +17,19 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 import core.tools  # noqa: E402,F401 — registers the full tool suite
+
+
+@pytest.fixture
+def tmp(tmp_path: Path) -> Path:
+    """Per-test temp lab dir. Named `tmp` to match the standalone main()
+    runner below, which injects a fresh tempdir under the same name."""
+    return tmp_path
 from core import (  # noqa: E402  # noqa: E402
     finalize_tools,
     lab_context,

@@ -1,4 +1,4 @@
-"""Smoke test for H2 day 1 schema v1→v2 migration + cross-field invariants.
+"""Smoke test for schema v1→v2 migration + cross-field invariants.
 
 Verifies:
   1. New v2 schemas (seasoning_entry, concern_entry, clearness_query) load
@@ -21,8 +21,11 @@ LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 import jsonschema  # noqa: E402
+
 from schemas.migrations.v1_to_v2 import (  # noqa: E402
-    upgrade_dispatch_spec, upgrade_result_packet, detect_version, upgrade,
+    detect_version,
+    upgrade,
+    upgrade_dispatch_spec,
 )
 
 
@@ -42,7 +45,7 @@ def _resolver():
     }
     # jsonschema 4.x uses RefResolver (deprecated) or Registry (modern).
     # Use a simple base_uri-store pattern.
-    store = {sid: s for sid, s in schemas.items()}
+    store = dict(schemas.items())
     # Add filename keys too so relative $ref like "concern_entry.json" resolve
     for f in ("concern_entry.json", "clearness_query.json", "seasoning_entry.json"):
         store[f] = json.loads((schemas_dir / f).read_text())

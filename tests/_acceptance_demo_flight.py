@@ -1,10 +1,10 @@
 """Investor-demo acceptance test — scripts the 5-min flight plan.
 
-Per `project_bert_investor_demo_flight_plan.md`, the demo is the pitch.
-This test makes that flight plan a hard contract: each beat is a
-timed test that validates the demoable surface still works.
+The demo is the pitch. This test makes that flight plan a hard
+contract: each beat is a timed test that validates the demoable
+surface still works.
 
-Flight plan beats (timestamped per memory):
+Flight plan beats:
 
   0:00–0:25  Signed proof packet open on screen — partner sees the
              cryptographic hash + can re-verify it.
@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")
 
 import subprocess
@@ -327,8 +328,7 @@ def beat6_reproduce_sh_in_packet():
 def beat7_demo_mode_toggle():
     """Beat — BERT_DEMO_MODE=on hides developer surfaces.
 
-    Per memory `project_bert_demo_mode_and_polish.md`, this toggle is
-    the highest-leverage trust intervention. Verify it doesn't crash
+    This toggle is the highest-leverage trust intervention. Verify it doesn't crash
     anything when set — actual UI gating is exercised by playwright,
     which isn't in this acceptance suite."""
     env = {**os.environ, "HOME": str(D.home), "BERT_DEMO_MODE": "on"}
@@ -387,7 +387,7 @@ def main() -> int:
     print(f"Demo: pass={passed} fail={failed}")
     print(f"Script time: {total:.1f}s / budget {SCRIPT_TIME_BUDGET:.0f}s")
     if total > SCRIPT_TIME_BUDGET:
-        print(f"OVER SCRIPT BUDGET — live demo would feel sluggish")
+        print("OVER SCRIPT BUDGET — live demo would feel sluggish")
         failed_with_budget = failed + 1
     else:
         failed_with_budget = failed

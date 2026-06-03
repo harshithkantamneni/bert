@@ -1,4 +1,4 @@
-"""Smoke test for core/delegation.py (F.9)."""
+"""Smoke test for core/delegation.py."""
 
 from __future__ import annotations
 

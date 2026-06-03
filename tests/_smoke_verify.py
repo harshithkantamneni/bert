@@ -1,8 +1,5 @@
 """Smoke test for core/verify.py — ResultPacket signature-forgery checks.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 Track D
-(AGI D-110 anti-forgery).
-
 Tests:
   1. Genuine packet (matching log + output file) → no forgery
   2. Packet for cycle with no log → forgery (no_cycle_log)

@@ -1,4 +1,4 @@
-"""Smoke test for the Inspect AI integration (G.1).
+"""Smoke test for the Inspect AI integration.
 
 Tests that the 14 falsifier targets register as Inspect AI tasks +
 that the falsifier-status scorer correctly translates PASS/FAIL/
@@ -38,8 +38,10 @@ def test_all_14_aggregate_task_has_14_samples() -> None:
 def test_scorer_maps_pass_to_one() -> None:
     """Direct unit test on the scorer's value mapping."""
     import asyncio
-    from inspect_ai.solver import TaskState
+
     from inspect_ai.scorer import Target
+    from inspect_ai.solver import TaskState
+
     import tools.falsifier_baseline as fb
 
     # Build a fake state with a synthetic PASS result
@@ -63,8 +65,10 @@ def test_scorer_maps_pass_to_one() -> None:
 
 def test_scorer_maps_fail_to_zero() -> None:
     import asyncio
-    from inspect_ai.solver import TaskState
+
     from inspect_ai.scorer import Target
+    from inspect_ai.solver import TaskState
+
     import tools.falsifier_baseline as fb
 
     result = fb.TargetResult(
@@ -86,8 +90,10 @@ def test_scorer_maps_fail_to_zero() -> None:
 
 def test_scorer_maps_insufficient_to_half() -> None:
     import asyncio
-    from inspect_ai.solver import TaskState
+
     from inspect_ai.scorer import Target
+    from inspect_ai.solver import TaskState
+
     import tools.falsifier_baseline as fb
 
     result = fb.TargetResult(

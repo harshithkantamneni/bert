@@ -1,4 +1,4 @@
-"""Tailored sandbox-exec profile generator from SKILL.md frontmatter (F.8).
+"""Tailored sandbox-exec profile generator from SKILL.md frontmatter.
 
 Per E.3 deferred scope. The base sandbox.py builds a generic
 deny-by-default profile; this module reads a skill's `needs_*`

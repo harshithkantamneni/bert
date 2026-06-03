@@ -1,4 +1,4 @@
-"""Smoke test for evals/role_capability batteries (F.4).
+"""Smoke test for evals/role_capability batteries.
 
 Each battery exposes TASKS + score + run; this suite confirms the
 contract is honored across all 7 roles, and that offline run() writes
@@ -38,7 +38,7 @@ def test_each_battery_has_tasks() -> None:
 def test_each_battery_role_constant_matches() -> None:
     for role in ROLES:
         mod = _import_role(role)
-        assert mod.ROLE == role
+        assert role == mod.ROLE
         assert role in mod.REFERENCE_SET
 
 

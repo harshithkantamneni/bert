@@ -89,7 +89,7 @@ KNOWN_ROLES = frozenset({
     # Original v0 set
     "researcher", "strategist", "implementer", "evaluator",
     "reflector", "consolidator",
-    # Quaker pipeline roles per A6 (P-VS-06..09; pending D-10 ratification).
+    # Quaker pipeline roles (P-VS-06..09; pending D-10 ratification).
     # threshing_pass: surfaces disagreement, MUST produce SCOPE_STOP verdict.
     # clearness_phase1: open-query phase, MUST produce SCOPE_STOP + clearness_queries.
     # clearness_phase2: verdict pass with phase-1 queries as context.
@@ -192,8 +192,7 @@ def validate_result_packet(packet: dict) -> tuple[bool, list[str]]:
     """Validate a ResultPacket dict against schemas/result_packet.json.
 
     Uses a referencing.Registry to resolve relative $refs to sibling
-    schema files (concern_entry.json, clearness_query.json) per
-    Phase H2 day 1 v2 schema additions.
+    schema files (concern_entry.json, clearness_query.json).
     """
     errors: list[str] = []
     try:
@@ -428,7 +427,7 @@ def pick_evaluator_model(producer_model: str) -> str:
     family differs from `producer_model`'s family. Per P-VS-02
     (cross-family adversarial review for high-stakes verdicts).
 
-    Selection priority (FINAL plan amendment §A4, L-24):
+    Selection priority:
     1. Consult `capability_matrix` for the highest-scoring evaluator
        model not in the producer's family (with quota headroom). This
        is the measurement-driven path.
@@ -438,7 +437,7 @@ def pick_evaluator_model(producer_model: str) -> str:
     3. Universal escape to OpenRouter Gemma (different family from
        most producers, free tier).
 
-    Per FALS-L24-03 the function body must reference `capability_matrix`
+    The function body must reference `capability_matrix`
     so the static analyzer can verify the matrix is consulted.
     """
     producer_provider, producer_model_part = _parse_provider_model(producer_model)
@@ -452,7 +451,7 @@ def pick_evaluator_model(producer_model: str) -> str:
             producer_family = slot_family
             break
 
-    # L-24 capability_matrix consult — preferred path when seeded.
+    # capability_matrix consult — preferred path when seeded.
     # Use slot_family_of (provider, model) so a Qwen-via-NVIDIA row is
     # correctly classified as Qwen family, not Llama.
     try:
@@ -718,7 +717,7 @@ def run_subagent(spec: dict) -> dict:
     cycle = int(spec["cycle"])
     provider_name, model = _parse_provider_model(spec["model"])
 
-    # A6 §9 observability — emit subagent_spawn + role-specific dispatch event.
+    # Observability — emit subagent_spawn + role-specific dispatch event.
     try:
         observability.emit("subagent_spawn", {
             "role": role, "cycle": cycle, "provider": provider_name,
@@ -1042,7 +1041,7 @@ def run_subagent(spec: dict) -> dict:
     LOG.info("spawn: %s/%s returned %s (confidence=%d) in %.1fs",
              role, cycle, packet.get("verdict"), packet.get("confidence_1to10", 0), elapsed)
 
-    # A6 §9 observability — emit verdict + subagent_finish + (when applicable)
+    # Observability — emit verdict + subagent_finish + (when applicable)
     # stand_aside_verdict for the falsifier baseline.
     try:
         verdict_str = packet.get("verdict", "OTHER")
@@ -1089,7 +1088,7 @@ def run_subagent(spec: dict) -> dict:
                 pass
         elif verdict_str == Verdict.APPROVE.value:
             # I.1 — APPROVE on a shippable role auto-accepts the artifact.
-            # The §9 north-star metric counts this as a "build privately,
+            # The north-star metric counts this as a "build privately,
             # prove publicly" output the lab stands behind.
             try:
                 from core import artifact_acceptance
@@ -1149,7 +1148,7 @@ def _summary_from_packet(packet: dict) -> dict:
     }
 
 
-# ── ConcernEntry forward-flow propagation (H2 day 6) ────────────────
+# ── ConcernEntry forward-flow propagation ───────────────────────────
 
 
 def propagate_concerns_to_next_dispatch(
@@ -1159,9 +1158,8 @@ def propagate_concerns_to_next_dispatch(
     """Propagate APPROVE_WITH_CAVEATS concerns from a prior ResultPacket
     forward into the next dispatch's caveats_embedded.
 
-    Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 6 + A6 §16.3
-    (cache-aware structure rule: concerns flow AFTER cacheable prefix,
-    not interleaved within it).
+    Cache-aware structure rule: concerns flow AFTER the cacheable prefix,
+    not interleaved within it.
 
     Behavior:
       - If prior_packet.verdict ≠ APPROVE_WITH_CAVEATS, returns next_spec
@@ -1173,7 +1171,7 @@ def propagate_concerns_to_next_dispatch(
         dispatch's cacheable prefix structure.
       - Returns a NEW dict (does not mutate inputs).
 
-    A6 §16.3 cache-aware structure rule: when concerns propagate to next
+    Cache-aware structure rule: when concerns propagate to next
     dispatch's caveats_embedded, the propagation goes AFTER any cacheable
     prefix in the dispatch's prompt, not interleaved. This preserves
     cacheability of the standing portion. The dispatch_spec construction
@@ -1305,15 +1303,12 @@ def dispatch_chain(specs: list[dict]) -> list[dict]:
     return results
 
 
-# ── Seasoning routing (H2 day 7) ────────────────────────────────────
+# ── Seasoning routing ───────────────────────────────────────────────
 
 
 def classify_verdict_for_seasoning(packet: dict) -> dict | None:
     """Classify a ResultPacket's REJECT verdict for routing to the
-    seasoning queue (P-VS-09).
-
-    Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 7 + A6 §4.4
-    + Sheeran 1983 ch. 6.
+    seasoning queue (P-VS-09; lay-aside-for-revival, per Sheeran 1983 ch. 6).
 
     Routing rules:
       - verdict ≠ REJECT → returns None (no seasoning)

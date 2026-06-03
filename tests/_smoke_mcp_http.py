@@ -1,4 +1,4 @@
-"""Smoke test for MCPHttpClient (F.8).
+"""Smoke test for MCPHttpClient.
 
 We can't easily spin up a real HTTP MCP server in the smoke (would need
 an aiohttp/Starlette dependency for the test). Instead we verify the

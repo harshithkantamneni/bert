@@ -1,7 +1,4 @@
-"""Smoke test for H2 day 6 — ConcernEntry forward-flow propagation.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 6 + A6 §16.3.
-"""
+"""Smoke test for ConcernEntry forward-flow propagation."""
 
 import sys
 from pathlib import Path

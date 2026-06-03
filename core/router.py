@@ -1,15 +1,13 @@
-"""Smart routing layer underneath P-009 cascade — L-17 / RouteLLM integration.
+"""Smart routing layer underneath P-009 cascade — RouteLLM integration.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 Track D.
-
-L-17 supersedes the static cascade-only routing in core/provider.py
+This layer supersedes the static cascade-only routing in core/provider.py
 with a smart-routing layer: RouteLLM (LM-SYS, open-source) analyzes
 the prompt and selects the optimal model from bert's free-tier matrix
 before P-009 cascade kicks in. RouteLLM achieves 85% cost reduction
 maintaining 95% GPT-4 performance on MT Bench.
 
-Composition (per L-17 + v2.1 amendment §3):
-  L-17 picks first-attempt model
+Composition:
+  smart routing picks first-attempt model
   → P-009 static cascade is the FALLBACK chain when smart-routed model
     unhealthy (per P-023 circuit-breaker open state)
   → P-VS-02 (cross-family rule) OVERRIDES smart-routed selection on
@@ -43,7 +41,7 @@ SMART_ROUTABLE_PROVIDERS = [
     "ollama",      # local qwen3:8b
 ]
 
-# Out-of-scope per strict-free-tier (feedback_bert_is_proprietary.md):
+# Out-of-scope per strict-free-tier:
 # anthropic, openai paid — never routed to.
 OUT_OF_SCOPE_PROVIDERS = {"anthropic", "openai"}
 

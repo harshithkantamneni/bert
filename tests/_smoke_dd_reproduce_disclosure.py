@@ -26,8 +26,17 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
+
+
+def _require(*paths):
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip("requires lab runtime artifact(s): "
+                    + ", ".join(str(m) for m in missing))
 
 
 def test_build_reproduce_sh_function_exists() -> None:
@@ -118,6 +127,7 @@ def test_reproduce_sh_body_includes_cycle_id() -> None:
 
 
 def test_qa_q5_references_dd3() -> None:
+    _require(LAB_ROOT / "findings" / "investor" / "qa.md")
     text = (LAB_ROOT / "findings" / "investor" / "qa.md").read_text()
     # Find Q5 section
     m = re.search(r"## 5\.\s+\"(.+?)\"(.*?)(?=^## )", text,
@@ -130,6 +140,7 @@ def test_qa_q5_references_dd3() -> None:
 
 
 def test_anti_patterns_ladder_references_dd3() -> None:
+    _require(LAB_ROOT / "findings" / "investor" / "anti_patterns.md")
     text = (LAB_ROOT / "findings" / "investor" / "anti_patterns.md").read_text()
     m = re.search(r"## The reproducibility ladder.*?(?=^## )", text,
                     re.MULTILINE | re.DOTALL)
@@ -141,6 +152,7 @@ def test_anti_patterns_ladder_references_dd3() -> None:
 
 
 def test_glossary_references_dd3() -> None:
+    _require(LAB_ROOT / "findings" / "architecture" / "14_glossary.md")
     text = (LAB_ROOT / "findings" / "architecture" / "14_glossary.md").read_text()
     assert "DD.3" in text
     assert "structurally impossible" in text.lower()
@@ -158,6 +170,7 @@ def test_no_surface_still_promises_i4_reproduce_sh() -> None:
         "findings/investor/anti_patterns.md",
         "findings/architecture/14_glossary.md",
     ]
+    _require(*(LAB_ROOT / rel for rel in surfaces))
     forbidden_phrases = [
         "Milestone I.4 (re-execution layer)",
         "reproduce.sh ships in I.4",

@@ -1,4 +1,4 @@
-"""Smoke tests for the 7 bert-* custom MCP servers (F.1).
+"""Smoke tests for the 7 bert-* custom MCP servers.
 
 Per E.1 deferred scope. Each server has a make_server() factory; this
 suite confirms each one builds, registers its tools, and handles the

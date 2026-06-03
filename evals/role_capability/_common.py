@@ -1,4 +1,4 @@
-"""Shared scaffolding for L-24 Phase 2 role-capability batteries.
+"""Shared scaffolding for role-capability batteries.
 
 Each role battery imports from here so the battery files stay short
 and focused on their specific task corpus + scoring.
@@ -22,10 +22,10 @@ from __future__ import annotations
 
 import hashlib
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
 
 LAB_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -52,7 +52,7 @@ class BatteryRunResult:
 
 
 def now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _seeded_score(role: str, provider: str, model: str, task_id: str) -> float:
@@ -60,7 +60,7 @@ def _seeded_score(role: str, provider: str, model: str, task_id: str) -> float:
 
     Used in offline mode to populate matrix with reproducible values.
     Bias: model size proxy (param count in name) nudges score up; this
-    keeps the L-24 router sensible during offline warm-up.
+    keeps the router sensible during offline warm-up.
     """
     seed = f"{role}|{provider}|{model}|{task_id}"
     h = hashlib.sha256(seed.encode()).digest()

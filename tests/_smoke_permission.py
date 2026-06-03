@@ -1,7 +1,5 @@
 """Smoke test for core/permission.py — destructive-op gate + Telegram hook.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 + P-005 / P-011.
-
 Tests:
   1. Destructive Bash patterns flagged
   2. Destructive path fragments flagged on Write/Edit
@@ -24,7 +22,7 @@ from pathlib import Path
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import permission, agent  # noqa: E402
+from core import agent, permission  # noqa: E402
 from core.types import PermissionDecision, PermissionMode, ToolCall  # noqa: E402
 
 

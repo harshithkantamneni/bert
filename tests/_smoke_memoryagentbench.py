@@ -1,4 +1,4 @@
-"""Smoke test for memoryagentbench Inspect AI suite (H.7)."""
+"""Smoke test for memoryagentbench Inspect AI suite."""
 
 from __future__ import annotations
 

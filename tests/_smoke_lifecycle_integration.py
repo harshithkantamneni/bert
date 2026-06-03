@@ -21,11 +21,9 @@ Run: `.venv/bin/python tests/_smoke_lifecycle_integration.py`
 from __future__ import annotations
 
 import json
-import os
 import sqlite3
 import sys
 import tempfile
-import time
 from pathlib import Path
 from unittest import mock
 
@@ -33,11 +31,20 @@ LAB_ROOT_REAL = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT_REAL))
 
 from core import (  # noqa: E402
-    agent, brief_assembler, consolidator, hooks, indexer,
-    observability, permission, quota, session as session_mod, watchdog,
+    agent,
+    brief_assembler,
+    consolidator,
+    hooks,
+    observability,
+    quota,
+    watchdog,
+)
+from core import (
+    session as session_mod,
 )
 from core.types import (  # noqa: E402
-    AgentMessage, PermissionMode, ProviderResponse, ToolCall,
+    PermissionMode,
+    ProviderResponse,
 )
 
 

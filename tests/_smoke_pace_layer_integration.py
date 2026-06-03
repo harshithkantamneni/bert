@@ -1,8 +1,6 @@
-"""Smoke test for L-01 pace-layer integration: verify Merkle round-trip on
+"""Smoke test for pace-layer integration: verify Merkle round-trip on
 events.jsonl + the migration script's dry-run + the backup script's tar
 contains expected paths.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 5 acceptance.
 
 Run: `.venv/bin/python tests/_smoke_pace_layer_integration.py`
 """
@@ -12,13 +10,30 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import merkle  # noqa: E402
 
 
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
+
+
 def test_lab_directories_exist() -> None:
+    _require(
+        LAB_ROOT / "lab" / "sod",
+        LAB_ROOT / "lab" / "soi",
+        LAB_ROOT / "lab" / "stream",
+        LAB_ROOT / "lab" / "sor" / ".gitkeep",
+    )
     for tier in ("sor", "sod", "soi", "stream"):
         d = LAB_ROOT / "lab" / tier
         assert d.is_dir(), f"lab/{tier}/ missing"
@@ -61,6 +76,7 @@ def test_merkle_round_trip_on_synthetic_events() -> None:
 
 def test_migrate_dry_run_runs_cleanly() -> None:
     """The migration script's dry-run mode must complete without error."""
+    _require(LAB_ROOT / ".venv" / "bin" / "python")
     result = subprocess.run(
         [str(LAB_ROOT / ".venv" / "bin" / "python"),
          str(LAB_ROOT / "tools" / "migrate_to_pace_layers.py")],
@@ -82,6 +98,7 @@ def test_backup_script_executable_and_creates_archive() -> None:
     # Don't run it again — we already ran it in Day 5 setup; verify the
     # archive exists.
     backup_dir = LAB_ROOT / "backup" / "state"
+    _require(backup_dir)
     archives = list(backup_dir.glob("state_*.tar.gz"))
     assert len(archives) >= 1, (
         f"No backup archives found in {backup_dir}; nightly_backup.sh "
@@ -101,6 +118,7 @@ def test_strategist_deactivated_in_director_prompt() -> None:
 def test_heuristic_h_build_01_present() -> None:
     """H-BUILD-01 documenting Strategist deactivation must be in heuristics.md."""
     heuristics_md = LAB_ROOT / "memories" / "heuristics.md"
+    _require(heuristics_md)
     text = heuristics_md.read_text()
     assert "H-BUILD-01" in text
     assert "Strategist deactivated" in text
@@ -109,6 +127,7 @@ def test_heuristic_h_build_01_present() -> None:
 def test_private_md_exists() -> None:
     """lab/PRIVATE.md privacy boundary doc must exist."""
     private_md = LAB_ROOT / "lab" / "PRIVATE.md"
+    _require(private_md)
     assert private_md.exists()
     text = private_md.read_text()
     assert "Privacy Boundary" in text

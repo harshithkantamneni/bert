@@ -136,12 +136,12 @@ class Observation:
     # of a fresh lab; populated as outcomes accumulate.
     recent_outcomes: list[dict] = field(default_factory=list)
     calibration_stats: dict = field(default_factory=dict)
-    # FF-A.2 — per-lab configuration. `lab_config` is the full
+    # Per-lab configuration. `lab_config` is the full
     # LabConfig.to_dict() snapshot; `focus_areas` is the bounded set
     # the director must pick from for THIS lab.
     lab_config: dict = field(default_factory=dict)
     focus_areas: list[str] = field(default_factory=list)
-    # FF-B.2 — cross-lab signal (populated ONLY for role:supervisor
+    # Cross-lab signal (populated ONLY for role:supervisor
     # labs). Empty dict for standard labs — they don't see other labs.
     cross_lab_signal: dict = field(default_factory=dict)
     # GG-B — PI talk-to-lab messages since the last director cycle.
@@ -284,12 +284,12 @@ def _last_director_decisions(events: list[dict], *, n: int = 3) -> list[dict]:
 def gather_observation(lab_path: Path, *, iteration: int) -> Observation:
     """Read the lab's state into a structured observation for the director.
 
-    FF-A.2 — reads `lab.yaml` via `core.lab_config.load()` and surfaces
+    Reads `lab.yaml` via `core.lab_config.load()` and surfaces
     per-lab `focus_areas` + `role` + `mission` to the Observation so
     the director's decision is bounded to the lab's declared areas
     (not bert-internal routing/memory/discipline/ux verbatim).
 
-    FF-B.2 — when `role: supervisor`, also reads cross-lab telemetry
+    When `role: supervisor`, also reads cross-lab telemetry
     via `core.lab_aggregator.gather_cross_lab_signal()`. Standard labs
     skip the aggregator entirely (zero cost, perfect isolation).
     """
@@ -304,7 +304,7 @@ def gather_observation(lab_path: Path, *, iteration: int) -> Observation:
     stats = out_mod.compute_calibration_stats(recent_outcomes)
     cfg = lc_mod.load(lab_path)
 
-    # FF-B.2 — supervisor-only cross-lab read
+    # Supervisor-only cross-lab read
     cross_lab_signal: dict = {}
     if cfg.is_supervisor:
         try:
@@ -382,8 +382,8 @@ def parse_decision_text(raw: str, *,
     validates the shape, and returns (Decision, errors). On any failure
     returns (None, errors).
 
-    FF-A.2 — `valid_focus_areas` is now per-lab. When None (legacy
-    callers, smoke tests pre-FF), falls back to the global VALID_AREAS
+    `valid_focus_areas` is now per-lab. When None (legacy
+    callers, older smoke tests), falls back to the global VALID_AREAS
     so backwards-compat smoke tests still pass.
     """
     errors: list[str] = []
@@ -626,7 +626,7 @@ def decide_next_cycle(
         # Synthesize from summary if the file wasn't written
         raw = (summary or {}).get("calibration_reasoning", "")
 
-    # FF-A.2 — validate focus_area against THIS lab's declared set
+    # Validate focus_area against THIS lab's declared set
     lab_focus_areas = set(obs.focus_areas) if obs.focus_areas else None
     decision, errors = parse_decision_text(raw, valid_focus_areas=lab_focus_areas)
     if decision is None:
@@ -681,9 +681,9 @@ def emit_pattern_observed_event(
     iteration: int,
     related_event_classes: list[str] | None = None,
 ) -> dict:
-    """FF-B.2 — emit a `pattern_observed` event when the supervisor's
+    """Emit a `pattern_observed` event when the supervisor's
     researcher/strategist surfaces a cross-lab pattern. The
-    `supervisor_pattern_evidence` falsifier (FF-B.3) asserts
+    `supervisor_pattern_evidence` falsifier asserts
     len(evidence_labs) >= 2.
 
     Returns the emitted event dict so the caller can verify or log it.

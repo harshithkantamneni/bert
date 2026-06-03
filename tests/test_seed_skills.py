@@ -23,7 +23,7 @@ import pytest
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import skill_dsl, skill_registry, skill_executor  # noqa: E402
+from core import skill_dsl, skill_executor  # noqa: E402
 
 SKILLS_CORE_DIR = LAB_ROOT / "core" / "library" / "skills" / "core"
 EXPECTED_SKILLS = {
@@ -61,8 +61,7 @@ def test_skill_parses_cleanly(skill_file):
 
 @pytest.mark.parametrize("skill_file", sorted(SKILLS_CORE_DIR.glob("*.md")))
 def test_skill_declares_quality_bar(skill_file):
-    """Per project_bert_quality_always_first feedback: every skill
-    should have a 'Quality bar' line in its markdown body."""
+    """Every skill should have a 'Quality bar' line in its markdown body."""
     body = skill_file.read_text()
     assert "Quality bar" in body, f"{skill_file.name} missing **Quality bar** statement"
 
@@ -230,9 +229,9 @@ steps:
     capture: signed_hash
 ---
 """
-        import tempfile, os
+        import os
+        import tempfile
         # Parse the stub
-        import io
         tmpfile = Path(tempfile.gettempdir()) / f"_stub_{name}.md"
         tmpfile.write_text(stub_content)
         try:

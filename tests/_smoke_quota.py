@@ -1,7 +1,5 @@
 """Smoke test for core/quota.py — RPM/RPD/daily-tokens windowed checks.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 Track D.
-
 Tests:
   1. Empty DB → check_quota returns ok for every provider
   2. record_call within RPM window → still ok until limit hit
@@ -26,6 +24,7 @@ sys.path.insert(0, str(LAB_ROOT))
 
 # Use a temp DB so the smoke doesn't pollute lab state.
 import tempfile
+
 TMP_DB = Path(tempfile.mkdtemp(prefix="bert_quota_smoke_")) / "quota.db"
 
 from core import quota as quota_mod  # noqa: E402
@@ -100,7 +99,7 @@ def test_probe_recorded_in_stats() -> None:
 
 
 def test_cached_tokens_recorded_and_surfaced() -> None:
-    """H1 day 2 acceptance: cached_tokens flow record_call → stats."""
+    """cached_tokens flow record_call → stats."""
     _reset()
     # Simulate two Gemini dispatches: first cold (cached=0), second warm (cached=900).
     quota_mod.record_call("gemini", prompt_tokens=1000, completion_tokens=100, cached_tokens=0)

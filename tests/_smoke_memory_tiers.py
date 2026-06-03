@@ -1,4 +1,4 @@
-"""Smoke test for core/memory_tiers.py (F.7)."""
+"""Smoke test for core/memory_tiers.py."""
 
 from __future__ import annotations
 

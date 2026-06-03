@@ -1,7 +1,5 @@
 """Smoke test for core/indexer.py — fs-watcher + re-embed daemon.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4.
-
 Tests:
   1. _is_indexable: only .md files in non-hidden dirs
   2. _DebouncedHandler delays reindex until burst settles
@@ -19,7 +17,6 @@ from __future__ import annotations
 import json
 import sys
 import tempfile
-import threading
 import time
 from pathlib import Path
 

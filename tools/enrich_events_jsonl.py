@@ -1,8 +1,5 @@
 """LLM enrichment pass for the canonical event stream.
 
-Step 1.2 of canvas v2 phase 1 (per
-findings/canvas_v2_phase1_plan_2026-05-07.md §6 step 1):
-
 For each event in lab/sor/events.jsonl, run a Cerebras llama3.1-8b
 free-tier extraction call against the event's source_path content
 to populate two semantic fields the Trail renderer needs:

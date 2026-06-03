@@ -1,10 +1,10 @@
 """MemoryAdapter — abstract base for all data-shape adapters.
 
-Phase B1 of the v3 plan. Every data shape (document_corpus,
+Every data shape (document_corpus,
 code_repo, time_series, tabular, conversational, knowledge_graph,
 multimodal, numeric_simulation) implements this contract.
 
-Locked-in contract (L-10 per plan v3 §11):
+Locked-in contract:
   - All adapters store under `lab_path/memory/<adapter_name>/`
   - All adapters own migrations under `core/migrations/<adapter_name>/`
   - All search() returns SearchResult objects (uniform host rendering)

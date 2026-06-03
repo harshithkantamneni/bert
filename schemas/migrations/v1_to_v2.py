@@ -1,8 +1,6 @@
 """DispatchSpec + ResultPacket schema migration v1 → v2.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 1.
-
-v1 (pre-2026-05-07) schemas didn't include the Quaker pipeline fields
+v1 schemas didn't include the Quaker pipeline fields
 introduced by A6 (P-VS-06..09). v2 adds:
 
   DispatchSpec:

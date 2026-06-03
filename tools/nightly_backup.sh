@@ -1,14 +1,13 @@
 #!/bin/bash
-# Nightly backup of bert state per P-015 (Disk-growth + state-backup discipline).
+# Nightly backup of bert state (disk-growth + state-backup discipline).
 #
-# Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 5 (Gap 2 closure).
 # Per docs/ARCHITECTURE.md key-files inventory:
 #   "backup/state/state_YYYY-MM-DD.tar.gz nightly state backup"
 #
 # What gets backed up:
 #   - state/ (cycle queue, results, session state, lab-org queue)
-#   - lab/sor/ (canonical events, log, findings, results — append-only;
-#     Merkle-hashed in Phase H1 day 4)
+#   - lab/sor/ (canonical events, log, findings, results — append-only,
+#     Merkle-hashed)
 #   - lab/sod/ (procedures, mission, governance — ratification-edit-only)
 #   - memories/ (current, log, heuristics, killed, mission, procedures,
 #     governance, programs, glossary, INDEX, shared)
@@ -18,7 +17,7 @@
 #   - findings/ (currently top-level; will be in lab/sor/ after migration)
 #   - drafts/ (mutable; recreate-from-source if lost)
 #   - memory.db (rebuildable from markdown sources via core/memory._index_corpus)
-#   - graph.kuzu/ (rebuildable from KG-extractor; not yet built per L-22)
+#   - graph.kuzu/ (rebuildable from KG-extractor; not yet built)
 #   - logs/ (operational, not state)
 #   - .venv/, node_modules/, .git/ (vendor / VCS)
 #
@@ -71,7 +70,7 @@ if [ "${PRUNED}" -gt 0 ]; then
 fi
 
 # Compute Merkle roots over append-only files for verifiability
-# (per L-01 + Phase H1 day 4 core/merkle.py).
+# (via core/merkle.py).
 if [ -f "${LAB_DIR}/lab/sor/events.jsonl" ]; then
   ROOT=$(cd "${LAB_DIR}" && .venv/bin/python -m core.merkle lab/sor/events.jsonl 2>/dev/null || echo "<merkle-unavailable>")
   echo "[${TIMESTAMP}] lab/sor/events.jsonl Merkle root: ${ROOT}"

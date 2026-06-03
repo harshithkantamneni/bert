@@ -1,7 +1,7 @@
 """Verify bert's OpenTelemetry GenAI-conventions emission path.
 
-Per H2 §5.2 acceptance: "OTel emission verified in standard tooling
-(Datadog or Grafana sample import)". This script:
+Acceptance: OTel emission verified in standard tooling
+(Datadog or Grafana sample import). This script:
 
   1. Reports whether the OTel SDK is importable.
   2. Probes the configured OTLP endpoint (env: OTEL_EXPORTER_OTLP_ENDPOINT).

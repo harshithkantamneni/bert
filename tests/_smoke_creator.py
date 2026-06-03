@@ -1,6 +1,4 @@
-"""Smoke test for core/creator.py — L-23 agent upskilling.
-
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A3.
+"""Smoke test for core/creator.py — agent upskilling.
 
 Tests the AutoSkill-shaped mining → drafting → propose-promotion →
 promote pipeline. The mining heuristic is contiguous-subsequence

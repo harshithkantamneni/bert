@@ -1,6 +1,4 @@
-"""Smoke test for H2 day 3 — core/seasoning.py P-VS-09 queue.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 3.
+"""Smoke test for core/seasoning.py P-VS-09 queue.
 
 Verifies:
   1. season() validates against schema before write

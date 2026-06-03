@@ -134,7 +134,7 @@ def make_server() -> MCPServer:
     )
     srv.register_tool(
         "validate_skill",
-        description="Run L-23 skill validation (sandbox.validate_skill) on a skill manifest.",
+        description="Run skill validation (sandbox.validate_skill) on a skill manifest.",
         input_schema={
             "type": "object",
             "properties": {

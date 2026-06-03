@@ -1,7 +1,5 @@
 """Smoke test for core/session.py — append-only JSONL session log.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4.
-
 Tests:
   1. start_session creates a file with session_start record
   2. append adds events with auto-stamped _ts + session_id
@@ -74,7 +72,7 @@ def test_read_session_round_trip() -> None:
 
 def test_list_sessions_filter() -> None:
     h_d = session_mod.start_session(role="director", cycle=99)
-    h_r = session_mod.start_session(role="researcher", cycle=99)
+    session_mod.start_session(role="researcher", cycle=99)
     session_mod.start_session(role="director", cycle=100)
     matches_director_99 = session_mod.list_sessions(role="director", cycle=99)
     assert len(matches_director_99) == 1
@@ -87,7 +85,6 @@ def test_session_isolation() -> None:
     session_mod.append(h_a, {"kind": "x", "tag": "a"})
     session_mod.append(h_b, {"kind": "x", "tag": "b"})
     a_events = session_mod.read_session(h_a.session_id)
-    b_events = session_mod.read_session(h_b.session_id)
     assert any(e.get("tag") == "a" for e in a_events)
     assert all(e.get("tag") != "b" for e in a_events)
 

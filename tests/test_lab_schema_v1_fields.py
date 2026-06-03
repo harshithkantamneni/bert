@@ -16,7 +16,7 @@ import pytest
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import schema_synthesizer, lab_schema_io, mission_profile, quality  # noqa: E402
+from core import lab_schema_io, mission_profile, quality, schema_synthesizer  # noqa: E402
 
 
 def test_labschema_has_v1_fields_with_safe_defaults():
@@ -45,7 +45,7 @@ def test_synthesize_populates_classifier_confidence_from_profile():
 
 
 def test_to_dict_includes_v1_fields():
-    qc = quality.QualityContract(**{d: 3 for d in quality.DIMENSIONS})
+    qc = quality.QualityContract(**dict.fromkeys(quality.DIMENSIONS, 3))
     s = schema_synthesizer.LabSchema(
         profile_id="x", rule_id="default",
         roster_core=("director",), roster_initial=("writer",),
@@ -79,7 +79,7 @@ def test_from_dict_old_schema_backward_compatible():
 
 
 def test_from_dict_new_schema_rehydrates_quality_contract():
-    qc = quality.QualityContract(**{d: 4 for d in quality.DIMENSIONS})
+    qc = quality.QualityContract(**dict.fromkeys(quality.DIMENSIONS, 4))
     s = schema_synthesizer.LabSchema(
         profile_id="x", rule_id="default",
         roster_core=("director",), roster_initial=("writer",),

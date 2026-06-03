@@ -6,7 +6,7 @@
 #   tmux new-session -d -s bert-lab './run.sh'
 #   tmux attach -t bert-lab
 #
-# Adapted from a prior lab/AGI patterns — six exit reasons, three-layer rate-limit
+# Adapted from earlier autonomous-lab patterns — six exit reasons, three-layer rate-limit
 # handling, holding-loop detector, watchdog, signature verifier.
 
 set -uo pipefail
@@ -23,9 +23,9 @@ MAX_CONSECUTIVE_FAILS="${BERT_MAX_CONSECUTIVE_FAILS:-5}"
 HEARTBEAT_INTERVAL_MIN="${BERT_HEARTBEAT_INTERVAL_MIN:-240}"  # 4h default
 STABLE_WINDOW_MIN="${BERT_STABLE_WINDOW_MIN:-30}"
 
-# L-08 Phase A: keep Ollama models warm across cycles for prefix-cache
-# reuse on local dispatches. 24h survives a tmux session of typical work;
-# Ollama unloads after this idle. Per FINAL plan §5.1 H1 day 1.
+# Keep Ollama models warm across cycles for prefix-cache reuse on local
+# dispatches. 24h survives a tmux session of typical work; Ollama unloads
+# after this idle.
 export OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:-24h}"
 
 SESSION_EXIT="$LAB_DIR/state/session_exit.md"

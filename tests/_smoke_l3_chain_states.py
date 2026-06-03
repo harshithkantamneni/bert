@@ -22,10 +22,39 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import proof_packet, verify_packet
+
+# These tests build proof packets for synthetic cycles 99 and 400, which
+# requires the active lab's events.jsonl to contain events for those cycles.
+# That events.jsonl is a live-lab runtime artifact and is NOT shipped/tracked
+# in the public repo, so the packet build raises "cycle N has no events".
+_REQUIRED_CYCLES = (99, 400)
+
+
+def _require_cycle_events(*cycle_ids: int) -> None:
+    events_path, _, _ = proof_packet._active_lab_paths()
+    if not events_path.exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
+    present: set[int] = set()
+    with events_path.open() as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                ev = json.loads(line)
+            except ValueError:
+                continue
+            if "cycle" in ev:
+                present.add(ev["cycle"])
+    missing = [c for c in cycle_ids if c not in present]
+    if missing:
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
 
 
 def _build_two_packets(tmp: Path, link_state: str) -> tuple[Path, Path]:
@@ -62,6 +91,7 @@ def _build_two_packets(tmp: Path, link_state: str) -> tuple[Path, Path]:
 
 
 def test_linked_chain_returns_ok() -> None:
+    _require_cycle_events(*_REQUIRED_CYCLES)
     tmp = Path(tempfile.mkdtemp(prefix="bert_l3_linked_"))
     try:
         pa, pb = _build_two_packets(tmp, "linked")
@@ -77,6 +107,7 @@ def test_linked_chain_returns_ok() -> None:
 
 def test_unlinked_chain_is_not_broken() -> None:
     """No declared parent → state=unlinked, NOT mismatch. exit 1, not 2."""
+    _require_cycle_events(*_REQUIRED_CYCLES)
     tmp = Path(tempfile.mkdtemp(prefix="bert_l3_unlinked_"))
     try:
         pa, pb = _build_two_packets(tmp, "unlinked")
@@ -92,6 +123,7 @@ def test_unlinked_chain_is_not_broken() -> None:
 
 def test_mismatch_chain_is_broken() -> None:
     """Wrong parent declared → state=mismatch. exit 2 (integrity failure)."""
+    _require_cycle_events(*_REQUIRED_CYCLES)
     tmp = Path(tempfile.mkdtemp(prefix="bert_l3_mismatch_"))
     try:
         pa, pb = _build_two_packets(tmp, "mismatch")
@@ -108,6 +140,7 @@ def test_mismatch_chain_is_broken() -> None:
 
 def test_cli_exit_code_0_on_linked() -> None:
     """`bert verify --chain` exits 0 when fully linked."""
+    _require_cycle_events(*_REQUIRED_CYCLES)
     tmp = Path(tempfile.mkdtemp(prefix="bert_l3_cli_linked_"))
     try:
         pa, pb = _build_two_packets(tmp, "linked")
@@ -126,6 +159,7 @@ def test_cli_exit_code_0_on_linked() -> None:
 
 def test_cli_exit_code_1_on_unlinked() -> None:
     """`bert verify --chain` exits 1 (informational) when unlinked, not 2."""
+    _require_cycle_events(*_REQUIRED_CYCLES)
     tmp = Path(tempfile.mkdtemp(prefix="bert_l3_cli_unlinked_"))
     try:
         pa, pb = _build_two_packets(tmp, "unlinked")
@@ -145,6 +179,7 @@ def test_cli_exit_code_1_on_unlinked() -> None:
 
 def test_cli_exit_code_2_on_mismatch() -> None:
     """`bert verify --chain` exits 2 when there's a real integrity failure."""
+    _require_cycle_events(*_REQUIRED_CYCLES)
     tmp = Path(tempfile.mkdtemp(prefix="bert_l3_cli_mismatch_"))
     try:
         pa, pb = _build_two_packets(tmp, "mismatch")

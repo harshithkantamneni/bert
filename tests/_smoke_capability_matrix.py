@@ -1,6 +1,4 @@
-"""Smoke test for core/capability_matrix.py (L-24).
-
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A4 + FALS-L24-03.
+"""Smoke test for core/capability_matrix.py.
 
 Tests:
   1. load_rows on empty/missing file returns []
@@ -9,7 +7,7 @@ Tests:
   4. best_for_role returns highest-score row with headroom filter
   5. best_for_role excludes by family
   6. best_for_role returns None when no row satisfies constraints
-  7. FALS-L24-03: pick_evaluator_model body references capability_matrix
+  7. pick_evaluator_model body references capability_matrix
 
 Run: `.venv/bin/python tests/_smoke_capability_matrix.py`
 """
@@ -17,7 +15,6 @@ Run: `.venv/bin/python tests/_smoke_capability_matrix.py`
 from __future__ import annotations
 
 import ast
-import json
 import sys
 import tempfile
 from pathlib import Path
@@ -103,7 +100,8 @@ def test_best_for_role_excludes_family() -> None:
         cm.CapabilityRow("2026-05-13T00:00:00Z", "evaluator", "mistral", "mistral-small", 0.7, 0, 0, 0, 90, 30, ""),
     ]:
         cm.append_row(r, p)
-    family_of = lambda prov: {"nvidia": "llama", "mistral": "mistral"}.get(prov, "?")
+    def family_of(prov):
+        return {"nvidia": "llama", "mistral": "mistral"}.get(prov, "?")
     best = cm.best_for_role(
         "evaluator",
         exclude_family="llama",
@@ -126,7 +124,7 @@ def test_best_for_role_returns_none_when_no_match() -> None:
 
 
 def test_fals_l24_03_pick_evaluator_model_references_matrix() -> None:
-    """FALS-L24-03: pick_evaluator_model body must reference capability_matrix."""
+    """pick_evaluator_model body must reference capability_matrix."""
     src = (LAB_ROOT / "core" / "subagent.py").read_text()
     tree = ast.parse(src)
     fn = next(

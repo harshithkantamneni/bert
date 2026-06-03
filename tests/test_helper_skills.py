@@ -73,7 +73,7 @@ def test_full_registry_no_recursion():
 def _helper_invoker():
     def invoke(tool_name, args):
         if tool_name == "identity":
-            return args["value"] if "value" in args else args
+            return args.get("value", args)
         if tool_name == "Read":
             return f"# stub for {args.get('file_path', '?')}"
         if tool_name == "Write":

@@ -17,7 +17,6 @@ sys.path.insert(0, str(LAB_ROOT))
 
 from core import feature_dsl, quality  # noqa: E402
 
-
 _MINIMAL = """---
 name: literature_survey
 display_name: "Literature Survey"

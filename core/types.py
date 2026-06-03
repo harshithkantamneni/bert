@@ -142,7 +142,7 @@ class ProviderResponse:
     usage_prompt_tokens: int
     usage_completion_tokens: int
     usage_thinking_tokens: int = 0  # Gemini 2.5 / DeepSeek R1 reasoning models
-    # Cached prompt tokens (L-08 Phase A observability per FINAL plan §5.1 day 2).
+    # Cached prompt tokens (cache observability).
     # Only populated by providers that surface cache metadata in their
     # OpenAI-compatible response: Gemini 2.5+ implicit caching reports
     # `usage.prompt_tokens_details.cached_content_token_count`; Groq GPT-OSS
@@ -219,7 +219,7 @@ class Telemetry:
 
 @dataclass
 class Falsifier:
-    id: str             # FALS-{role}-C{N}-{nn}
+    id: str             # stable falsifier id, e.g. {role}-C{N}-{nn}
     text: str           # >30 chars
 
 

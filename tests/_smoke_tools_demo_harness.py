@@ -18,9 +18,22 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 sys.path.insert(0, str(LAB_ROOT / "tools"))
+
+FALSIFIER_CORPUS = LAB_ROOT / "findings" / "falsifier_corpus.md"
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
 
 
 class _MP:
@@ -51,6 +64,8 @@ def test_bert_demo_cycle(monkeypatch):
     monkeypatch.setattr(bdc.os, "environ", {"GROQ_API_KEY": "gsk_x"})
     ok2, _ = bdc._ensure_keys_present()
     assert ok2 is True
+    # dry-run reads findings/falsifier_corpus.md (lab runtime artifact)
+    _require(FALSIFIER_CORPUS)
     # dry-run: validates plumbing, never calls a model
     assert _quiet(bdc.run_demo_cycle, scenario_number=1, dry_run=True) == 0
     assert _quiet(bdc.run_demo_cycle, scenario_number=999, dry_run=True) == 2  # out of corpus

@@ -1,6 +1,6 @@
 """Export bert state for the static web companion (F.10).
 
-Per C4 §5.9 days 13-18. Produces:
+Produces:
   web/data/atlas.json     — single-lab Atlas summary
   web/data/cathedral.json — PI-curated page exports
 

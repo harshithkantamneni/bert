@@ -1,4 +1,4 @@
-"""Smoke test for tools/measure_token_redundancy.py (H.8)."""
+"""Smoke test for tools/measure_token_redundancy.py."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 import importlib.util
+
 spec = importlib.util.spec_from_file_location(
     "measure_token_redundancy",
     LAB_ROOT / "tools" / "measure_token_redundancy.py",
@@ -91,7 +92,6 @@ def test_render_markdown_has_required_sections() -> None:
 
 def test_main_writes_outputs(tmp_path=None) -> None:
     """Top-to-bottom: tiny events file → main() produces JSON + md."""
-    import tempfile
     tmp = Path(tempfile.mkdtemp(prefix="bert_h8_"))
     ev_path = tmp / "events.jsonl"
     with ev_path.open("w") as f:

@@ -17,7 +17,6 @@ sys.path.insert(0, str(LAB_ROOT))
 
 from core import host_detector, model_cards, role_registry, router  # noqa: E402
 
-
 # ── host_detector ────────────────────────────────────────────────────
 
 

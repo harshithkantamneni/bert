@@ -1,8 +1,5 @@
 """Smoke test that observability.emit fires at the right points.
 
-Per FINAL_implementation_plan_2026-05-07.md §6 + A6 §9 falsifier
-observability instrumentation round (post-H4 wiring).
-
 Verifies emit() is called from:
   1. core/seasoning.season() → seasoning_entry event
   2. core/seasoning.revive() → seasoning_revive event
@@ -20,7 +17,6 @@ Run: `.venv/bin/python tests/_smoke_observability_wiring.py`
 from __future__ import annotations
 
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path

@@ -1,4 +1,4 @@
-"""Smoke test for tools/migrate_resultpackets_to_events.py (F.5)."""
+"""Smoke test for tools/migrate_resultpackets_to_events.py."""
 
 from __future__ import annotations
 

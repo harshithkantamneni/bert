@@ -1,6 +1,5 @@
 """MCP server scaffolding for bert's custom servers.
 
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A1 E.1.
 Replaces the 10-LoC `# Implementation pending` stub.
 
 bert hosts a small set of custom MCP servers that expose lab
@@ -44,7 +43,7 @@ INVALID_REQUEST = -32600
 METHOD_NOT_FOUND = -32601
 INVALID_PARAMS = -32602
 INTERNAL_ERROR = -32603
-# bert-defined: replay-protection rejection (H.1)
+# bert-defined: replay-protection rejection
 REPLAY_REJECTED = -32004
 
 

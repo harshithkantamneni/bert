@@ -1,7 +1,5 @@
 """Smoke test for core/watchdog.py — holding-loop + hang detection.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 Track D.
-
 Tests:
   1. Empty DB → no triggers
   2. 5 short sessions in window → holding-loop fires

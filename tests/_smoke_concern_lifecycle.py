@@ -1,9 +1,8 @@
 """Smoke test for core/concern_flow.py — concern lifecycle event emission.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 + A6 §9 falsifier
-baseline targets T8/T9/T10/T13. Verifies that concern_raised /
-concern_propagated / concern_addressed / revival_proposed events fire
-correctly, and that derive_concern_id is deterministic.
+Verifies that concern_raised / concern_propagated / concern_addressed /
+revival_proposed events fire correctly, and that derive_concern_id is
+deterministic.
 
 Tests:
   1. derive_concern_id is stable across identical inputs

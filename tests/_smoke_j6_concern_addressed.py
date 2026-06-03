@@ -16,7 +16,6 @@ to disk + returns summaries; no live model calls.
 from __future__ import annotations
 
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path
@@ -120,7 +119,6 @@ def test_dispatch_chain_emits_concern_addressed() -> None:
         if propagated:
             propagated_seen.append({"spec_role": role, "ids": propagated})
             if packet["verdict"] != "APPROVE_WITH_CAVEATS":
-                from core import concern_flow
                 src_cycle = int(spec.get("_propagated_concern_source_cycle") or 0)
                 for cid in propagated:
                     addressed_events.append({

@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")  # tests: no 568MB cold-start
 
 import sqlite3
@@ -31,7 +32,6 @@ import subprocess
 import sys
 import tempfile
 import threading
-import time
 from pathlib import Path
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
@@ -270,7 +270,7 @@ def test_profile_yaml_roundtrip():
 
 def test_promotion_when_role_dir_already_exists():
     """If agents/<role>/ already exists, promotion should be no-op."""
-    from core import roster, consolidator
+    from core import consolidator, roster
     with tempfile.TemporaryDirectory() as tmp:
         labs_dir = Path(tmp)
         lab = labs_dir / "x"
@@ -292,7 +292,7 @@ def test_promotion_when_role_dir_already_exists():
 
 
 def test_promotion_idempotent_across_consolidator_runs():
-    from core import roster, consolidator
+    from core import consolidator, roster
     with tempfile.TemporaryDirectory() as tmp:
         labs_dir = Path(tmp)
         lab = labs_dir / "y"

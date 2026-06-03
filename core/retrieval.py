@@ -1,4 +1,4 @@
-"""Hybrid retrieval merger — vector + KG + semantic cache (H.4).
+"""Hybrid retrieval merger — vector + KG + semantic cache.
 
 Per Zep Graphiti's 63.8% vs Mem0 49.0% on LongMemEval (Mem0 State of
 Agent Memory 2026): 15pp uplift from hybrid vs vector-only. The

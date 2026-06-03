@@ -1,6 +1,6 @@
 """Smoke test for tools/run_falsifier_calibration.py — corpus parser + orchestrator.
 
-Per A6 §9 falsifier baseline Round 2.
+Part of the falsifier baseline calibration (Round 2).
 
 Tests:
   1. parse_corpus extracts 10 scenarios
@@ -21,13 +21,27 @@ import tempfile
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 import tools.run_falsifier_calibration as fc  # noqa: E402
 
+CORPUS_PATH = LAB_ROOT / "findings" / "falsifier_corpus.md"
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
+
 
 def test_parse_corpus_returns_10_scenarios() -> None:
+    _require(CORPUS_PATH)
     scenarios = fc.parse_corpus()
     assert len(scenarios) == 10, f"expected 10 scenarios; got {len(scenarios)}"
 
@@ -41,6 +55,7 @@ def test_each_scenario_has_required_fields() -> None:
 
 
 def test_scenario_numbers_contiguous() -> None:
+    _require(CORPUS_PATH)
     nums = sorted(s.number for s in fc.parse_corpus())
     assert nums == list(range(1, 11)), f"unexpected scenario numbers: {nums}"
 
@@ -73,6 +88,7 @@ def test_safe_dispatch_passes_through_summary() -> None:
 
 
 def test_run_one_scenario_fires_5_dispatches() -> None:
+    _require(CORPUS_PATH)
     scenarios = fc.parse_corpus()
     s = scenarios[0]
     fake = mock.MagicMock()
@@ -97,6 +113,7 @@ def test_run_one_scenario_fires_5_dispatches() -> None:
 
 def test_run_one_scenario_partial_failure_doesnt_abort() -> None:
     """If one dispatch returns invalid, the remaining still fire."""
+    _require(CORPUS_PATH)
     scenarios = fc.parse_corpus()
     s = scenarios[0]
     fake = mock.MagicMock()

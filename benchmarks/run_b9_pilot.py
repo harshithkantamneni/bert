@@ -17,7 +17,6 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
 from benchmarks import b9_rag_runner as RR  # noqa: E402
-from benchmarks import b9_rag_stats as st  # noqa: E402
 
 READER = [("nvidia", "meta/llama-3.3-70b-instruct"),
           ("groq", "llama-3.3-70b-versatile")]

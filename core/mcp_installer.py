@@ -1,6 +1,5 @@
 """MCP server installer + config loader.
 
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A1 E.1.
 Replaces the 10-LoC `# Implementation pending` stub.
 
 Reads MCP server configuration from `state/mcp_servers.json`. The

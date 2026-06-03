@@ -23,7 +23,6 @@ sys.path.insert(0, str(LAB_ROOT / "tools"))
 
 from core import role_registry, skill_registry  # noqa: E402
 
-
 ROLES_WITH_SKILL_PLANS = ["writer", "analyst", "researcher", "evaluator", "engineer"]
 
 

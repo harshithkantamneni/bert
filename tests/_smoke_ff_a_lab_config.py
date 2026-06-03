@@ -1,10 +1,10 @@
-"""Smoke test for FF-A — multi-lab as product.
+"""Smoke test for multi-lab as product.
 
-FF-A.1 added `core/lab_config.py` (lab.yaml reader + LabConfig
+Added `core/lab_config.py` (lab.yaml reader + LabConfig
 dataclass + schema validation + graceful fallback).
-FF-A.2 wired the director to consume per-lab `focus_areas` via
+Wired the director to consume per-lab `focus_areas` via
 `gather_observation` and `parse_decision_text(valid_focus_areas=...)`.
-FF-A.3 added `focus_areas` declarations to the 4 templates plus a
+Added `focus_areas` declarations to the 4 templates plus a
 new `lab/lab.yaml` for the repo's own self-improvement lab with
 `role: supervisor`.
 
@@ -33,14 +33,24 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import lab_config as lc  # noqa: E402
 from core import director as dir_mod  # noqa: E402
+from core import lab_config as lc  # noqa: E402
 
 
-# ─── FF-A.1 module shape ───────────────────────────────────────────
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
+
+# ─── Module shape ───────────────────────────────────────────
 
 
 def test_lab_config_module_exports() -> None:
@@ -61,10 +71,10 @@ def test_default_focus_areas_locked() -> None:
 
 
 def test_valid_roles_locked() -> None:
-    assert lc.VALID_ROLES == frozenset({"standard", "supervisor"})
+    assert frozenset({"standard", "supervisor"}) == lc.VALID_ROLES
 
 
-# ─── FF-A.1 load() paths ───────────────────────────────────────────
+# ─── load() paths ───────────────────────────────────────────
 
 
 def test_load_missing_yaml_for_customer_lab_uses_standard_defaults() -> None:
@@ -80,11 +90,11 @@ def test_load_missing_yaml_for_customer_lab_uses_standard_defaults() -> None:
 
 
 def test_load_missing_yaml_for_repo_lab_uses_supervisor_defaults() -> None:
-    """Pre-FF-A.3 the repo's lab/ had no lab.yaml. The loader treated
-    that location as supervisor by default; FF-A.3 ships a lab.yaml
+    """Previously the repo's lab/ had no lab.yaml. The loader treated
+    that location as supervisor by default; the repo now ships a lab.yaml
     that makes this explicit but the FALLBACK behavior must still be
     supervisor when reading the repo's own lab dir specifically."""
-    # We can't easily simulate "repo lab without lab.yaml" since FF-A.3
+    # We can't easily simulate "repo lab without lab.yaml" since the repo
     # ships one. But we can verify the lab.yaml exists AND declares
     # role:supervisor (test_repo_lab_yaml_declares_supervisor below).
     # This test confirms the FALLBACK code-path treats LAB_ROOT/lab
@@ -95,7 +105,7 @@ def test_load_missing_yaml_for_repo_lab_uses_supervisor_defaults() -> None:
     # Simpler approach: directly inspect the loader's defaults-branch
     # logic via the parse_warnings field.
     cfg = lc.load(LAB_ROOT / "lab")
-    # If lab.yaml exists (FF-A.3), this returns the file's contents
+    # If lab.yaml exists, this returns the file's contents
     # — role should still be supervisor. If lab.yaml doesn't exist,
     # the fallback code path kicks in and role should also be
     # supervisor (because the path matches LAB_ROOT/lab).
@@ -103,10 +113,11 @@ def test_load_missing_yaml_for_repo_lab_uses_supervisor_defaults() -> None:
 
 
 def test_repo_lab_yaml_declares_supervisor() -> None:
-    """FF-A.3 — lab/lab.yaml must exist and declare role:supervisor +
+    """lab/lab.yaml must exist and declare role:supervisor +
     the bert-internal focus areas."""
     yaml_path = LAB_ROOT / "lab" / "lab.yaml"
-    assert yaml_path.exists(), "lab/lab.yaml missing (FF-A.3 didn't ship it)"
+    _require(yaml_path)
+    assert yaml_path.exists(), "lab/lab.yaml missing"
     cfg = lc.load(LAB_ROOT / "lab")
     assert cfg.role == "supervisor"
     assert cfg.name == "bert-self"
@@ -245,7 +256,7 @@ def test_load_schema_version_newer_than_engine_warns_but_loads() -> None:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-# ─── FF-A.1 privacy default ────────────────────────────────────────
+# ─── Privacy default ────────────────────────────────────────
 
 
 def test_share_with_supervisor_default_true() -> None:
@@ -290,7 +301,7 @@ def test_supervisor_never_shares_with_itself() -> None:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-# ─── FF-A.3 templates ──────────────────────────────────────────────
+# ─── Templates ──────────────────────────────────────────────
 
 
 def test_all_templates_declare_focus_areas() -> None:
@@ -323,11 +334,11 @@ def test_strategy_template_focus_areas_match_design() -> None:
         assert area in text, f"strategy template missing {area}"
 
 
-# ─── FF-A.2 director integration ───────────────────────────────────
+# ─── Director integration ───────────────────────────────────
 
 
 def test_observation_has_focus_areas_field() -> None:
-    """Observation gains focus_areas + lab_config fields per FF-A.2."""
+    """Observation gains focus_areas + lab_config fields."""
     assert "focus_areas" in dir_mod.Observation.__dataclass_fields__
     assert "lab_config" in dir_mod.Observation.__dataclass_fields__
 
@@ -419,7 +430,7 @@ def test_parse_decision_text_backwards_compat_no_areas_arg() -> None:
     assert decision.focus_area == "routing"
 
 
-# ─── FF-A.4 director prompt update ─────────────────────────────────
+# ─── Director prompt update ─────────────────────────────────
 
 
 def test_director_prompt_documents_per_lab_focus_areas() -> None:

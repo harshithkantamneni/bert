@@ -1,4 +1,4 @@
-"""Token redundancy measurement (H.8) — the closing measurement piece.
+"""Token redundancy measurement — the closing measurement piece.
 
 Goal: For each role bert dispatches (threshing / clearness phase 1 /
 clearness phase 2 / seasoning / judge), measure the gap between what
@@ -17,11 +17,10 @@ Strategy:
      fragment).
   2. Reconstruct prompt-like text from the event's `content` field.
      This is a proxy — bert doesn't currently persist rendered prompts.
-     Per H.6 weekly report we already flagged this as a gap; the H.8
-     pass closes it for the major roles by inspecting the role-specific
-     event signatures.
+     An earlier weekly report flagged this as a gap; this pass closes it
+     for the major roles by inspecting the role-specific event signatures.
   3. Compress each via core.llmlingua_compress.compress_for_cross_family
-     at target_ratio=5.0 (the production default per A6 §16.1).
+     at target_ratio=5.0 (the production default).
   4. Aggregate by role + judge_provider; emit per-role redundancy %.
   5. Compressor degradation: if LLMLingua-2 can't load (offline or
      model download blocked), fall back to a structural token-count
@@ -99,7 +98,7 @@ def _role_of(event: dict) -> str:
 
 def _approx_tokens(text: str) -> int:
     """Cheap token estimator: 4 chars/token (same heuristic used in
-    core.memory_tiers and matches H.2's budget math)."""
+    core.memory_tiers)."""
     return max(1, len(text) // 4)
 
 
@@ -205,9 +204,9 @@ def _aggregate_by_role(by_role: dict, *, method: str) -> dict:
 
 
 def grade_token_waste(report: dict) -> str:
-    """Translate overall mean redundancy → letter grade per H.8 rubric.
+    """Translate overall mean redundancy → letter grade per the rubric.
 
-    Production rubric (per FINAL plan amendment §A1):
+    Production rubric:
       <30%  redundancy → A   (lean prompts; compression won't help much)
       30-50% redundancy → A-  (room to compress; cost-impact moderate)
       50-70% redundancy → B   (significant slack; should run compression in path)
@@ -277,7 +276,7 @@ def render_markdown(report: dict, *, sample_size: int, grade: str) -> str:
         "default on cross-family judge dispatches.",
         "",
         f"Current state: **{grade}**. Read in conjunction with the weekly "
-        "quality report (H.6) for the full A-grade picture.",
+        "quality report for the full A-grade picture.",
         "",
     ]
     return "\n".join(lines)

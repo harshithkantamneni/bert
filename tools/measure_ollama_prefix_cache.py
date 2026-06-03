@@ -1,9 +1,9 @@
 """Measure Ollama's built-in prefix-cache effectiveness on bert's
 dispatch patterns.
 
-Per L-08 / E.4 follow-up: before assuming we need true KVComm
-(multi-week custom Ollama build), find out how much speedup
-Ollama's *automatic* prefix cache already delivers.
+Before assuming we need true KVComm (multi-week custom Ollama
+build), find out how much speedup Ollama's *automatic* prefix
+cache already delivers.
 
 Method (per call pair):
   1. Fire a long stable prefix + per-call delta A
@@ -74,7 +74,7 @@ prefix-cache (warm model + identical prefix → KV reused). LLMLingua-
 BERTScore F1 ≥ 0.92). Concern propagation via caveats_embedded
 across dispatches; address within 5 cycles or age out. Seasoning
 queue (P-VS-09): high-water mark 25 unrevived entries; revival_
-outcome_quality ≥40% (FALS-A6-13). All decisions are reproducible
+outcome_quality ≥40%. All decisions are reproducible
 per defining commitment #4: every event in lab/sor/events.jsonl is
 Merkle-hashed at checkpoint; canvas time-machine mode replays any
 past lab state. Standing context this dispatch follows below.
@@ -194,7 +194,7 @@ def _verdict(prefix_speedup: float, total_speedup: float) -> dict:
             "rating": "excellent",
             "message": (
                 f"Ollama prefix cache delivers {prefix_speedup:.1f}× on "
-                "prompt-eval. The L-08 KVComm 'deferred multi-week build' "
+                "prompt-eval. The KVComm 'deferred multi-week build' "
                 "is unnecessary at bert's scale — the built-in cache "
                 "satisfies the SAME_FAMILY_LOCAL route."
             ),

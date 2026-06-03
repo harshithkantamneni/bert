@@ -1,4 +1,4 @@
-"""AGNTCY Agent Card extensions + SLIM-transport headers (G.3).
+"""AGNTCY Agent Card extensions + SLIM-transport headers.
 
 Per Linux Foundation AGNTCY project (Cisco/Salesforce/Dell/Google/
 Oracle/Red Hat). AGNTCY sits ABOVE A2A + MCP, providing:

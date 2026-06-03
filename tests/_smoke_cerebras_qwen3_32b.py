@@ -9,8 +9,6 @@ Verifies:
      evaluator when given a Cerebras (Qwen-family) producer — i.e.,
      P-VS-02 cross-family adversarial review still works post-migration.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.0 (Phase URGENT) acceptance.
-
 Run: `python tests/_smoke_cerebras_qwen3_32b.py`
 Exit 0 = pass; non-zero = fail.
 """

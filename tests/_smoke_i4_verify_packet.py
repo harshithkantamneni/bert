@@ -9,13 +9,29 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import proof_packet, verify_packet
 
 
+def _require_cycle_events(*cycle_ids: int) -> None:
+    """Skip when the lab's event log (a runtime artifact not shipped in the
+    public repo) has no events for these cycles — build_packet() would raise
+    ValueError('no events'). Assertions still run on a full local lab."""
+    missing = [c for c in cycle_ids if not proof_packet._read_events_for_cycle(c)]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact: events for cycle(s) "
+            + ", ".join(str(c) for c in missing)
+            + " (lab/sor/events.jsonl) not shipped in the public repo"
+        )
+
+
 def _build_packet(cycle_id: int = 400) -> tuple[Path, Path]:
+    _require_cycle_events(cycle_id)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i4_"))
     path = proof_packet.build_packet(cycle_id=cycle_id, output_dir=tmp)
     return tmp, path
@@ -136,6 +152,7 @@ def test_format_result_includes_cosign_equivalent_on_fail() -> None:
 def test_verify_chain_links_match() -> None:
     """A 2-packet chain where packet B declares packet A as parent should
     return chain_ok=True."""
+    _require_cycle_events(99, 400)
     tmp = Path(tempfile.mkdtemp(prefix="bert_i4_chain_"))
     try:
         # Build packet A (cycle 99)

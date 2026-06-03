@@ -83,7 +83,7 @@ PROVIDERS: dict[str, ProviderSpec] = {
         api_key_env="OPENROUTER_API_KEY",
         default_model="google/gemma-4-26b-a4b-it:free",
         extra_headers={
-            "HTTP-Referer": "https://github.com/bert-lab/bert-lab",
+            "HTTP-Referer": "https://github.com/harshithkantamneni/bert",
             "X-Title": "bert-lab",
         },
     ),
@@ -169,13 +169,13 @@ def _parse_response(provider: str, raw: dict) -> ProviderResponse:
 
         usage = raw.get("usage") or {}
         prompt_details = usage.get("prompt_tokens_details") or {}
-        # L-08 Phase A: extract cached-prompt-tokens metadata where providers
+        # Extract cached-prompt-tokens metadata where providers
         # surface it. Gemini reports as `cached_content_token_count`; Groq
         # GPT-OSS / OpenAI-compat reports as `cached_tokens`. 0 for
         # providers without cache support (Cerebras / Mistral / NIM no-op).
         # Anthropic uses a different field (`cache_read_input_tokens` at
         # response root) — not implemented because Anthropic is out of
-        # strict-free-tier scope per feedback_bert_is_proprietary.md.
+        # strict-free-tier scope.
         cached_tokens = (
             prompt_details.get("cached_tokens")
             or prompt_details.get("cached_content_token_count")
@@ -298,8 +298,7 @@ def call(
                 # Out of retries — surface a labeled error
                 kind = "rate-limited" if resp.status_code == 429 else "transient"
                 # P-023 circuit-breaker event: fires when transport-level
-                # retries are exhausted. Per A6 §17 + the documented
-                # event_class. Advisory; never breaks the call path.
+                # retries are exhausted. Advisory; never breaks the call path.
                 try:
                     from core import observability as _obs
                     _obs.emit("circuit_breaker_event", {

@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 
 from . import _common
-from ._common import Task, BatteryRunResult
+from ._common import BatteryRunResult, Task
 
 ROLE = "strategist"
 REFERENCE_SET = "strategist_battery_v1"

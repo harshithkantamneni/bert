@@ -1,10 +1,10 @@
-"""Phase 1.1c — wire FALS-CANVASAGENT-* analytics observable from Day 1.
+"""Phase 1.1c — wire CanvasAgent analytics observable from Day 1.
 
 The three falsifiers locked at Phase 0 → Phase 1 transition:
-  FALS-01: onboarding completion <60% on fresh-install funnel (≥50 users)
-  FALS-02: canvas interaction latency >300ms on RTX 4070
-           (drag / wire / click-to-run, 100-rep median)
-  FALS-03: daily active users <200 within 60 days of public launch
+  - onboarding completion <60% on fresh-install funnel (≥50 users)
+  - canvas interaction latency >300ms on RTX 4070
+    (drag / wire / click-to-run, 100-rep median)
+  - daily active users <200 within 60 days of public launch
 
 Privacy-first: all metrics stay in localStorage, no remote pings, no
 SaaS dependency. Users can later opt in to share via export. The point
@@ -26,7 +26,7 @@ DISPATCH = {
     "role": "implementer",
     "cycle": 10,
     "task": (
-        "PHASE 1.1c — instrument FALS-CANVASAGENT-* analytics in CanvasAgent.\n\n"
+        "PHASE 1.1c — instrument CanvasAgent analytics.\n\n"
         "READ FIRST:\n"
         "- memories/mission.md (locked falsifiers at the bottom)\n"
         "- memories/governance/pi_notes.md (Phase 0 → Phase 1 Approval section)\n"
@@ -68,7 +68,7 @@ DISPATCH = {
         "     {total_nodes_after}); also measure ms from click to next\n"
         "     render via a useLayoutEffect or performance.now() pair, log\n"
         "     via recordLatency('drag_node', ms)  (it's actually \"add a\n"
-        "     node\" but the FALS-02 grouping is fine for now)\n"
+        "     node\" but the latency grouping is fine for now)\n"
         "   - On onConnect (edge wired): recordEvent('edge_wired') +\n"
         "     recordLatency('wire_edge', ms-since-callback-start)\n"
         "   - On Run All click: recordEvent('run_all_click') +\n"
@@ -155,7 +155,7 @@ DISPATCH = {
 
 def main() -> int:
     print("=" * 72)
-    print("PHASE 1.1c — Implementer wires FALS-CANVASAGENT-* analytics")
+    print("PHASE 1.1c — Implementer wires CanvasAgent analytics")
     print("=" * 72)
     print()
 

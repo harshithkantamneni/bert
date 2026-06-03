@@ -2,7 +2,6 @@
 
 Settings → State init → Context assembly → 5 shapers → Model call →
 Tool dispatch → Permission gate → Tool execution → Stop condition.
-The 1.6% AI-decision-logic core.
 
 Wired end-to-end with NVIDIA llama-3.3-70b as the default substrate,
 Read/Write/Bash + Spawn (subagent dispatch) + Memory tools as
@@ -11,9 +10,9 @@ in `core/permission.py` with Telegram-approver hook for P-011
 destructive-op approval (auto-registered when bot/approval is
 available). Constitutional preamble prepended.
 
-H4 Track D wiring (commit f9edced) integrates quota + watchdog +
-evaluator at runtime. Lifecycle wiring (commit 9a1f414) connects
-hooks + indexer + brief_assembler + consolidator + session.
+Runtime wiring integrates quota + watchdog + evaluator. Lifecycle
+wiring connects hooks + indexer + brief_assembler + consolidator +
+session.
 
 Returns process exit code; writes session_exit.md as the FINAL action
 in a finally: block (P-014 + cycle-1 trace gap fix).
@@ -210,7 +209,7 @@ def run_role(role: str, *, cycle: int = 1, task: str | None = None,
     last_model_seen = ""
     cycle_start_t = time.monotonic()
 
-    # H4 Track D: register the session with the watchdog for hang
+    # Register the session with the watchdog for hang
     # detection + holding-loop counting. Both top-level cycles and
     # sub-agent dispatches register; the holding-loop heuristic counts
     # all sessions equally.
@@ -297,7 +296,7 @@ def run_role(role: str, *, cycle: int = 1, task: str | None = None,
             LOG.info("iter=%d msg_count=%d est_tokens=%d",
                      iteration, len(messages), _compact.total_tokens(messages))
 
-            # H4 Track D: pre-flight quota check (advisory; logged not blocked).
+            # Pre-flight quota check (advisory; logged not blocked).
             try:
                 _q_ok, _q_reason = quota.check_quota(provider_name)
                 if not _q_ok:
@@ -328,7 +327,7 @@ def run_role(role: str, *, cycle: int = 1, task: str | None = None,
                 "model": resp.model,
                 "text_preview": (resp.text or "")[:500],
             })
-            # A6 §9 falsifier observability — dual-emit JSONL + OTel.
+            # Falsifier observability — dual-emit JSONL + OTel.
             try:
                 observability.emit_model_call(
                     provider=provider_name,
@@ -487,8 +486,8 @@ def run_role(role: str, *, cycle: int = 1, task: str | None = None,
                 # whose primary effect is writing to memories/ or
                 # findings/. Approximate: catch tool=Write with
                 # file_path under those dirs. Per-tool emit is the
-                # canonical surface (Phase C0 follow-up); this fills
-                # the documented event_class for now.
+                # canonical surface; this fills the documented
+                # event_class for now.
                 if call.name == "Write" and isinstance(call.arguments, dict):
                     fp = str(call.arguments.get("file_path") or "")
                     if "/memories/" in fp or "/findings/" in fp or fp.startswith("memories/") or fp.startswith("findings/"):
@@ -518,7 +517,7 @@ def run_role(role: str, *, cycle: int = 1, task: str | None = None,
         LOG.exception("agent loop crashed: %s", e)
         exit_reason = ExitReason.CATASTROPHIC
     finally:
-        # H4 Track D: close out the watchdog session record.
+        # Close out the watchdog session record.
         if _watchdog_session_id:
             try:
                 watchdog.record_end(_watchdog_session_id, exit_reason=exit_reason.value)
@@ -536,7 +535,7 @@ def run_role(role: str, *, cycle: int = 1, task: str | None = None,
                 f"Timestamp: {datetime.now(UTC).isoformat()}\n"
             )
 
-            # H4 Track D: end-of-cycle Python-side evaluator. Writes the
+            # End-of-cycle Python-side evaluator. Writes the
             # mechanical-checks report alongside the agent-side evaluator
             # findings; runner reads both for the GRACEFUL_CHECKPOINT gate.
             try:
@@ -565,7 +564,7 @@ def run_role(role: str, *, cycle: int = 1, task: str | None = None,
             except Exception as e:  # noqa: BLE001
                 LOG.warning("evaluator: skipped (error: %s)", e)
 
-            # H4 Track D: KM agent runs after the evaluator gates. The
+            # KM agent runs after the evaluator gates. The
             # consolidator's should_run() check throttles automatically
             # so calling it every cycle is cheap.
             try:
@@ -581,7 +580,7 @@ def run_role(role: str, *, cycle: int = 1, task: str | None = None,
                 "model_used": last_model_seen or (model or ""),
                 "provider": provider_name,
                 "retry_count": 0,           # provider.call retries internally; not surfaced to caller
-                "fallback_chain": [],       # core/router.py populates when smart-routing fires (L-17)
+                "fallback_chain": [],       # core/router.py populates when smart-routing fires
             })
         LOG.info("cycle=%d role=%s exit_reason=%s tokens=%d/%d",
                  cycle, role, exit_reason.value,

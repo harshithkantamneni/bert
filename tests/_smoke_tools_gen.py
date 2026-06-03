@@ -51,6 +51,9 @@ def test_generate_now_page(monkeypatch, tmp_path):
 
 def test_export_for_web(monkeypatch, tmp_path):
     m = importlib.import_module("export_for_web")
+    # main() calls argparse.parse_args(); under pytest sys.argv carries the
+    # test path — pin it to default args so the shipped logic runs.
+    monkeypatch.setattr(sys, "argv", ["export_for_web"])
     monkeypatch.setattr(m, "LAB_ROOT", tmp_path)  # so relative_to() resolves
     events = tmp_path / "events.jsonl"
     events.write_text("\n".join(json.dumps({

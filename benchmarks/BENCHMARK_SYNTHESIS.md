@@ -17,7 +17,7 @@ Three suites (B7 infra-value, B8 efficiency, B9 long-context RAG) run to answer:
 |---|---|---|
 | retrieval beats full-context/truncation when the corpus > window | B9 RAG (131K corpus, 15K window) | **Yes** — hybrid-RAG 0.85 vs naive-trunc 0.10 / smart-trunc 0.35, at ~5× less input; needle tier 0.88 vs 0.00–0.25 |
 | above the context window, retrieval is the *only* option | B9 wall (3.0M corpus, 1M window, Max Opus) | **Yes** — full-context INFEASIBLE, truncation 0.00, RAG 0.75 at flat ~3.3K tok |
-| effort should scale to task difficulty | B8 effort-triage | **Yes** — trivia 8.8× cheaper / 7× faster, no accuracy loss |
+| effort should scale to task difficulty | B8 effort-triage | **Indicative** — trivia 8.8× cheaper / 7× faster, no accuracy loss (internal run; raw JSON not included in this public copy, unlike B7/B9/B2/B10) |
 
 **Conclusion:** bert's defensible niche is the **long-context regime** — projects that exceed the model's context window, where full-context can't run and retrieval is the only thing that works, at constant cost. Narrow, but real.
 

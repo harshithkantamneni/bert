@@ -7,7 +7,7 @@ import os
 import sys
 import tempfile
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 os.environ["BERT_DISABLE_IDLE_COMPUTE"] = "1"
@@ -32,13 +32,13 @@ def _write_events(path: Path, events: list[dict]) -> None:
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def test_shippable_roles_set() -> None:
     expected = {"researcher", "strategist", "implementer", "evaluator",
                 "reflector", "consolidator", "clearness_phase2"}
-    assert aa.SHIPPABLE_ROLES == expected
+    assert expected == aa.SHIPPABLE_ROLES
 
 
 def test_acceptance_kinds_validated() -> None:

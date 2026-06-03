@@ -19,8 +19,19 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
+
+
+def _require(*paths: Path) -> None:
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        pytest.skip(
+            "requires lab runtime artifact(s) not shipped in the public repo: "
+            + ", ".join(str(m) for m in missing)
+        )
 
 
 CANONICAL_SURFACES = (
@@ -29,7 +40,6 @@ CANONICAL_SURFACES = (
     "findings/architecture/14_glossary.md",
     "findings/architecture/05_signing.md",
     "findings/investor/demo_recording/storyboard.md",
-    "findings/investor/demo_recording/dry_run_2026-05-13.md",
     "findings/investor/demo_recording/demo_run.sh",
     "findings/investor/demo_recording/narration.md",
     "tools/record_explainer.py",
@@ -41,6 +51,7 @@ def test_no_one_config_flip_in_canonical_surfaces() -> None:
     every canonical surface listed above. Historical mentions are
     allowed in change logs / dry-run docs as long as they're framed
     as "earlier docs said X; DD.2 retired that framing"."""
+    _require(*(LAB_ROOT / rel for rel in CANONICAL_SURFACES))
     for rel in CANONICAL_SURFACES:
         p = LAB_ROOT / rel
         assert p.exists(), f"{rel} missing — smoke needs to be updated"
@@ -82,6 +93,7 @@ def test_proof_packet_bundle_docstring_is_honest() -> None:
 
 
 def test_glossary_documents_dd2() -> None:
+    _require(LAB_ROOT / "findings" / "architecture" / "14_glossary.md")
     text = (LAB_ROOT / "findings" / "architecture" / "14_glossary.md").read_text()
     assert "DD.2 retired" in text
     assert "engineering work" in text
@@ -95,6 +107,7 @@ def test_signing_mode_sigstore_emits_runtime_warning() -> None:
     warning explaining that the flag is a tag, not a switchover."""
     # Reset the warn-emitted guard
     import importlib
+
     from core import signing as sig
     importlib.reload(sig)
 
@@ -129,6 +142,7 @@ def test_signing_mode_sigstore_emits_runtime_warning() -> None:
 
 def test_signing_mode_default_is_local_dev() -> None:
     import importlib
+
     from core import signing as sig
     importlib.reload(sig)
     prev_env = os.environ.get("BERT_LAB_SIGNING_MODE")
@@ -143,8 +157,10 @@ def test_signing_mode_default_is_local_dev() -> None:
 def test_demo_narration_mentions_engineering_not_flag() -> None:
     """Every demo recording surface must frame production Sigstore as
     engineering / commercial roadmap, not a flag."""
-    for rel in ("findings/investor/demo_recording/storyboard.md",
-                "findings/investor/demo_recording/demo_run.sh"):
+    rels = ("findings/investor/demo_recording/storyboard.md",
+            "findings/investor/demo_recording/demo_run.sh")
+    _require(*(LAB_ROOT / rel for rel in rels))
+    for rel in rels:
         text = (LAB_ROOT / rel).read_text()
         assert "real engineering" in text or "engineering" in text, (
             f"{rel} narration should frame Sigstore migration as "

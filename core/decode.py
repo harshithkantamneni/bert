@@ -19,7 +19,7 @@ Wraps provider.call with three layers of structured-output discipline:
      total attempts).
 
 This module would have prevented the four schema-shape failures we
-hit during the A6 §9 falsifier calibration prompt evolution
+hit during the falsifier calibration prompt evolution
 (`clearness_queries` written as raw strings instead of ClearnessQuery
 objects; `caveats_embedded` empty when verdict=APPROVE_WITH_CAVEATS).
 

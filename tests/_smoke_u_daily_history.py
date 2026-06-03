@@ -19,11 +19,13 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-import tools.daily_quality_report as dqr  # noqa: E402
 import tools.daily_history_compile as dhc  # noqa: E402
+import tools.daily_quality_report as dqr  # noqa: E402
 
 VENV_PY = LAB_ROOT / ".venv" / "bin" / "python"
 QA = LAB_ROOT / "findings" / "investor" / "qa.md"
@@ -31,6 +33,16 @@ ANTI = LAB_ROOT / "findings" / "investor" / "anti_patterns.md"
 DECK = LAB_ROOT / "findings" / "investor" / "pitch_deck.md"
 TIMELINE_MD = LAB_ROOT / "findings" / "daily_history" / "timeline.md"
 TIMELINE_JSON = LAB_ROOT / "findings" / "daily_history" / "timeline.json"
+
+
+def _require(*paths: Path) -> None:
+    """Skip when a lab runtime artifact (under the gitignored findings/
+    tree) is absent — these are produced by a live lab, not shipped in
+    the public repo. Present in a full local run; absent in isolation."""
+    missing = [p for p in paths if not p.exists()]
+    if missing:
+        names = ", ".join(str(p.relative_to(LAB_ROOT)) for p in missing)
+        pytest.skip(f"requires lab runtime artifact(s) not shipped here: {names}")
 
 
 # ── daily_quality_report.py ─────────────────────────────────────────
@@ -160,13 +172,14 @@ def test_resolve_date_accepts_iso_and_relative() -> None:
     import argparse
     try:
         dqr._resolve_date("not-a-date")
-        assert False, "should have raised on invalid date"
+        raise AssertionError("should have raised on invalid date")
     except argparse.ArgumentTypeError:
         pass
 
 
 def test_cli_backfill_runs() -> None:
     """--backfill must discover and generate for every event date."""
+    _require(VENV_PY)
     result = subprocess.run(
         [str(VENV_PY), "tools/daily_quality_report.py", "--backfill", "--quiet"],
         capture_output=True, text=True, timeout=20,
@@ -215,7 +228,7 @@ def test_history_quiet_day_omission_disclosed() -> None:
 def test_compile_against_real_findings() -> None:
     """End-to-end: the compiled timeline.json must reflect the daily
     reports actually present on disk."""
-    assert TIMELINE_JSON.exists()
+    _require(TIMELINE_JSON)
     payload = json.loads(TIMELINE_JSON.read_text())
     for key in ("ts", "expected_days", "days_recorded", "days_remaining",
                 "window_full", "summary", "days"):
@@ -232,6 +245,7 @@ def test_compile_against_real_findings() -> None:
 
 def test_summary_aggregates_correctly() -> None:
     """The summary section must aggregate across all daily reports."""
+    _require(TIMELINE_JSON)
     payload = json.loads(TIMELINE_JSON.read_text())
     summary = payload["summary"]
     days = payload["days"]
@@ -245,6 +259,7 @@ def test_summary_aggregates_correctly() -> None:
 
 
 def test_timeline_md_contains_disclosure_and_table() -> None:
+    _require(TIMELINE_MD)
     md = TIMELINE_MD.read_text()
     assert "Disclosure" in md, "timeline.md must include disclosure"
     assert "## Daily activity series" in md, "must have activity series section"
@@ -262,9 +277,10 @@ def test_synthetic_30_day_window_full() -> None:
         findings = tmp / "findings"
         findings.mkdir()
         for i in range(30):
-            date = f"2026-04-{i+1:02d}" if i < 30 else None  # safe: 30 days in April? No, only 30. Adjust.
+            _date = f"2026-04-{i+1:02d}" if i < 30 else None
         # Actually April has 30 days, May has 31. Use a stable 30-day window:
-        from datetime import date as DateType, timedelta
+        from datetime import date as DateType
+        from datetime import timedelta
         start = DateType(2026, 3, 1)
         for i in range(30):
             d = (start + timedelta(days=i)).isoformat()
@@ -302,6 +318,7 @@ def test_synthetic_30_day_window_full() -> None:
 # ── Cross-handout disclosure consistency ────────────────────────────
 
 def test_qa_references_daily_history() -> None:
+    _require(QA)
     text = QA.read_text()
     assert "daily_history/timeline" in text, \
         "qa.md must point at the daily timeline"
@@ -310,12 +327,14 @@ def test_qa_references_daily_history() -> None:
 
 
 def test_anti_patterns_references_daily_history() -> None:
+    _require(ANTI)
     text = ANTI.read_text()
     assert "daily_history/timeline" in text, \
         "anti_patterns.md must point at the daily timeline"
 
 
 def test_deck_references_daily_history() -> None:
+    _require(DECK)
     text = DECK.read_text()
     assert "daily_history/timeline" in text, \
         "pitch_deck.md slide 9 footer must point at the daily timeline"
@@ -329,6 +348,7 @@ def test_no_handout_overclaims_daily_grades() -> None:
     """Anti-Devin sweep: handouts must NOT claim multi-day GRADES (only
     multi-day activity DATA + multi-week grades). Grades require the
     locked rubric which only the weekly report applies."""
+    _require(QA, ANTI, DECK)
     for path in (QA, ANTI, DECK):
         text = path.read_text()
         # "N days of grades" or "daily grade history" would be over-claim
@@ -349,6 +369,7 @@ def test_bert_doctor_includes_daily_timeline_check() -> None:
     import tools.bert_doctor as doctor
     assert hasattr(doctor, "check_daily_timeline"), \
         "doctor must expose check_daily_timeline"
+    _require(TIMELINE_MD)
     result = doctor.check_daily_timeline()
     assert result.level == "ok", \
         f"daily timeline check should be ok: {result.message}"

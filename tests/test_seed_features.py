@@ -16,7 +16,7 @@ from pathlib import Path
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
-from core import feature_registry, skill_registry, quality  # noqa: E402
+from core import feature_registry, quality, skill_registry  # noqa: E402
 from core.subagent import KNOWN_ROLES  # noqa: E402
 
 EXPECTED = {"literature_survey", "code_audit", "decision_memo", "refactor_plan"}
@@ -25,7 +25,7 @@ EXPECTED = {"literature_survey", "code_audit", "decision_memo", "refactor_plan"}
 def test_all_four_seed_features_present():
     feature_registry.load_all(force_reload=True)
     names = feature_registry.all_names()
-    assert EXPECTED <= names, f"missing seed features: {EXPECTED - names}"
+    assert names >= EXPECTED, f"missing seed features: {EXPECTED - names}"
 
 
 def test_every_seed_feature_parses_cleanly():
@@ -50,8 +50,8 @@ def test_quality_contracts_pass_thresholds_sane():
         assert 0.5 <= qc.pass_threshold <= 0.9, f"{f.name}: odd threshold {qc.pass_threshold}"
         # a perfect grade must clear the bar; a zero grade must not
         from core.quality import DIMENSIONS
-        assert qc.passes({d: 5 for d in DIMENSIONS}) is True
-        assert qc.passes({d: 0 for d in DIMENSIONS}) is False
+        assert qc.passes(dict.fromkeys(DIMENSIONS, 5)) is True
+        assert qc.passes(dict.fromkeys(DIMENSIONS, 0)) is False
 
 
 def test_mcp_tool_names_follow_convention():

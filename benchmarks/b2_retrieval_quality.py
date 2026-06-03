@@ -35,17 +35,14 @@ Methodology:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import math
 import os
 import random
-import sqlite3
 import statistics
 import sys
-import tempfile
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
@@ -94,7 +91,6 @@ def make_synthetic_dataset(seed: int = DEFAULT_SEED) -> GoldDataset:
     A naive vector-only retriever should score ~0.6 Recall@10; hybrid
     with rerank should approach ~0.85.
     """
-    rng = random.Random(seed)
     clusters = [
         # (topic, canonical_doc, [related_docs])
         ("mamba_ssm", "Mamba is a selective state space model achieving linear-time sequence modeling.", [
@@ -295,7 +291,6 @@ def retrieve_vector_only(query: str, corpus: dict[str, str], k: int) -> list[str
     doc_ids = list(corpus.keys())
     doc_texts = [corpus[d] for d in doc_ids]
     doc_embs = embedder.encode(doc_texts, normalize_embeddings=True, show_progress_bar=False)
-    import numpy as np
     sims = doc_embs @ q_emb
     ranked = sorted(zip(doc_ids, sims, strict=False), key=lambda x: -x[1])
     return [d for d, _ in ranked[:k]]

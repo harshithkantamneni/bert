@@ -1,4 +1,4 @@
-"""bert init — 5-question lab-bootstrap wizard (I.5).
+"""bert init — 5-question lab-bootstrap wizard.
 
 Python questionary + rich. Matches the bert warm-dark-paper aesthetic.
 Resume-on-interrupt at ~/.bert/init-resume.json so a re-run picks up
@@ -51,7 +51,7 @@ ARCHETYPES = [
 
 PROVIDERS = [
     ("Groq",       "groq/llama-3.3-70b-versatile",        "free, fastest (~300 tok/s)"),
-    ("NVIDIA",     "nvidia-prod/nemotron-70b",            "free tier, evaluation-only — see provider AUP"),
+    ("NVIDIA",     "nvidia/meta/llama-3.3-70b-instruct",  "free tier, evaluation-only — see provider AUP"),
     ("OpenRouter", "openrouter/auto",                     "bring-your-own-key, all major models"),
     ("Ollama",     "ollama/qwen3:8b",                     "local, offline, lower throughput"),
 ]

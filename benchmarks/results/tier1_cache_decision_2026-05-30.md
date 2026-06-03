@@ -66,7 +66,3 @@ Re-measure when: real multi-lab organic retrieval traffic exists (today's log is
 benchmark/eval-dominated, single-lab); AND `corpus_version` lands. If a re-measure
 shows organic hit rate >30% at K≤50 AND the cache can be made coherence-correct,
 build it then.
-
-Cross-refs: `project_bert_memory_arch_v3.md` (priority list), the earlier
-`observability_analysis_v3_2026-05-26.md` (which reported the benchmark-inflated
-97%/46% numbers this measurement corrects).

@@ -1,4 +1,4 @@
-"""Smoke test for core/idle_compute.py (G.2)."""
+"""Smoke test for core/idle_compute.py."""
 
 from __future__ import annotations
 

@@ -1,7 +1,6 @@
-"""Migrate archived ResultPackets → canonical events.jsonl (C0 F.5).
+"""Migrate archived ResultPackets → canonical events.jsonl.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.5 day 3. The canvas
-reads `lab/sor/events.jsonl`; ResultPackets in `state/results/*.json`
+The canvas reads `lab/sor/events.jsonl`; ResultPackets in `state/results/*.json`
 contain dispatch-level structure that didn't have a stream event in
 prior cycles. This script back-fills them.
 

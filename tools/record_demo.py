@@ -47,7 +47,7 @@ DWELL = {
     "FirstLight": 14,
     "LabPicker": 8,
     "Atlas": 16,
-    "Diagnostics": 14,    # restored: bug in MemoryTier API field-mapping fixed (Y.1)
+    "Diagnostics": 14,    # restored: bug in MemoryTier API field-mapping fixed
     "Manuscript": 18,     # extra dwell since this carries the wow beat
     "ProofPacket": 10,
 }

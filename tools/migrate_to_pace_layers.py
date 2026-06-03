@@ -1,6 +1,4 @@
-"""Migration script for L-01 pace-layered file structure.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 4.
+"""Migration script for the pace-layered file structure.
 
 Gartner SoR / SoD / SoI three-tier pace-layered systems framework
 applied to bert's file layout:
@@ -23,7 +21,7 @@ applied to bert's file layout:
             findings before ratification.
 
   lab/stream/  Live event stream surface for canvas. events.jsonl is
-               the canonical canvas data source per Phase C0.
+               the canonical canvas data source.
 
 This script provides DRY-RUN ONLY by default. Set --execute to actually
 move files. The default dry-run prints the move plan + identifies any
@@ -104,9 +102,8 @@ PLAN: list[MovePlan] = [
         tier="sod",
         rationale="Constitutional preamble + values + pi_notes",
     ),
-    # state/seasoning.jsonl will be created by A6 in Phase H2 day 3 directly
-    # at lab/sod/seasoning.jsonl (per A6 §13.4 PI commitment); no migration
-    # needed because it doesn't exist yet.
+    # seasoning.jsonl will be created directly at lab/sod/seasoning.jsonl;
+    # no migration needed because it doesn't exist yet.
 
     # ── SoI (freely mutable) ────────────────────────────────────────
     MovePlan(
@@ -271,7 +268,7 @@ def execute_plan(plan: list[MovePlan]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Migrate bert files to L-01 pace-layered structure."
+        description="Migrate bert files to the pace-layered structure."
     )
     parser.add_argument(
         "--execute", action="store_true",

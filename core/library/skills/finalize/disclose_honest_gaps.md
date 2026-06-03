@@ -5,9 +5,8 @@ description: |
   Third step of finalize_project: produce a `gaps.md` document that
   honestly enumerates what the lab could NOT answer, what assumptions
   remain unverified, where the corpus is thin, and what would change
-  the conclusion if discovered. This is the "failures.md" file per
-  project_bert_proof_packet_schema — separately signed and shipped
-  alongside the polished artifact.
+  the conclusion if discovered. This is the "failures.md" file —
+  separately signed and shipped alongside the polished artifact.
 trigger_when: |
   Called by finalize_project as step 3 (after synthesize). Never
   skip — a finalize without gaps.md is by definition lying-by-omission.

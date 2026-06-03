@@ -1,7 +1,5 @@
 """Smoke test for core/sandbox.py — three-tier dispatch.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4.
-
 Tests:
   1. Trusted tier runs echo and captures stdout
   2. Trusted tier respects timeout

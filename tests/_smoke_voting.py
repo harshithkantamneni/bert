@@ -1,4 +1,4 @@
-"""Smoke test for L-13 majority voting (Track A part)."""
+"""Smoke test for majority voting (Track A part)."""
 
 import sys
 from pathlib import Path

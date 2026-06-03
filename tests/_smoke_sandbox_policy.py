@@ -1,4 +1,4 @@
-"""Smoke test for core/sandbox_policy.py + tools/prune_zero_invocation_skills.py (F.8)."""
+"""Smoke test for core/sandbox_policy.py + tools/prune_zero_invocation_skills.py."""
 
 from __future__ import annotations
 

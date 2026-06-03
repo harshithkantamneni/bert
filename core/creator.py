@@ -1,6 +1,5 @@
-"""L-23 agent upskilling: AutoSkill-style trace mining + skill drafting.
+"""Agent upskilling: AutoSkill-style trace mining + skill drafting.
 
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A3 (L-23).
 Replaces the 10-LoC "Implementation pending" stub.
 
 Algorithm (training-free, AutoSkill-shaped):
@@ -195,7 +194,7 @@ ts: {_now_iso()}
 
 # {skill.name}
 
-This skill was *drafted by bert* (L-23 AutoSkill) from {skill.frequency}
+This skill was *drafted by bert* (AutoSkill) from {skill.frequency}
 observations of the following tool sequence in `lab/sor/events.jsonl`:
 
   {' → '.join(skill.tool_sequence)}
@@ -213,12 +212,11 @@ Before promotion to `skills/active/`, this skill must:
 - Run inside `core/sandbox.py` against a held-out trace from one of
   `example_dispatches` and reproduce the original output shape.
 - Receive an APPROVE verdict from the cross-family evaluator
-  (`pick_evaluator_model` consults `lab/state/capability_matrix.jsonl`
-  per L-24).
+  (`pick_evaluator_model` consults `lab/state/capability_matrix.jsonl`).
 
 ## Permission gate
 
-L-23 lives under P-005 (skill creation) and P-011 (destructive-op
+This lives under P-005 (skill creation) and P-011 (destructive-op
 hard-gate). Promotion is PI-blessed via the bert canvas:
 `POST /api/approve/{skill.skill_id}` or Telegram `/approve {skill.skill_id}`.
 
@@ -313,7 +311,7 @@ def promote(skill_id: str, *, drafts_dir: Path = SKILLS_DRAFT,
     """Move a drafted skill into the active set. Caller is responsible
     for verifying PI blessing first (e.g. checking lab/state/blessings.jsonl).
 
-    When validate_in_sandbox=True (default), runs the L-23 step 3
+    When validate_in_sandbox=True (default), runs the AutoSkill step 3
     sandbox validation via core.sandbox.validate_skill before moving
     the draft. Set False for tests that don't have a sandbox-compatible
     environment.
@@ -404,7 +402,7 @@ def _now_iso() -> str:
 
 def main(argv: list[str] | None = None) -> int:
     import argparse
-    parser = argparse.ArgumentParser(description="L-23 agent upskilling")
+    parser = argparse.ArgumentParser(description="agent upskilling")
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("mine", help="scan events.jsonl for recurring patterns")
     p_draft = sub.add_parser("draft", help="write a draft for the top N patterns")

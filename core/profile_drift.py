@@ -1,7 +1,6 @@
 """Mission profile drift detection + within-shape reshape.
 
-Phase C6 of the v3 plan (locked-in answer L-11: within-shape reshape
-only in v1; cross-shape DEFERRED to v1.1).
+Within-shape reshape only in v1; cross-shape DEFERRED to v1.1.
 
 drift_score(profile, recent_cycles) → float ∈ [0, 1]
   Compares the lab's INITIAL profile against the ACTUAL signature of

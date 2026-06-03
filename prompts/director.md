@@ -45,7 +45,7 @@ returns a ≤200-word summary you append to your context.
 
 Available sub-agent roles (each in `agents/<role>/procedural.md`):
 - `researcher` — world-scanning across the 5 lenses (Phase 0)
-- ~~`strategist`~~ — **DEACTIVATED during build phase** per FINAL plan §5.1 H1 day 5 (Gap 3 closure 2026-05-07). Phase 0 mission-selection was closed at D-4 (CanvasAgent approved); during the bert-harness + canvas-v2 build phase H1-C4, no Strategist dispatches needed. Strategist re-activates **post-Phase-C4** when bert returns to next-mission selection. Until then: do NOT include `strategist` in `Spawn` dispatches; Director synthesizes directly via researcher + architect + implementer outputs.
+- ~~`strategist`~~ — **DEACTIVATED during build phase**. Phase 0 mission-selection was closed in an earlier phase (CanvasAgent approved); during the bert-harness + canvas-v2 build phase, no Strategist dispatches needed. Strategist re-activates when bert returns to next-mission selection. Until then: do NOT include `strategist` in `Spawn` dispatches; Director synthesizes directly via researcher + architect + implementer outputs.
 - `implementer` — building code/artifacts (Phase 1+)
 - `evaluator` — end-of-cycle judge (mandatory)
 - `reflector` — post-mission learning extraction (after each mission)
@@ -125,7 +125,7 @@ should rarely happen — but be ready.
 
   **Valid `model` values** (provider must match a registered lane in `core/provider.py`):
   - `mistral/mistral-small-latest` — validated for tool-use, ~30 RPM. Default Phase-0 lane.
-  - `cerebras/qwen-3-32b` — validated, fast, 30 RPM, **thinking-mode capable** (per-minute window may force the 429 backoff to wait). 8K context cap on Cerebras free tier — A6 §17.1 compliance required when this leg fires for high-altitude verdicts.
+  - `cerebras/qwen-3-32b` — validated, fast, 30 RPM, **thinking-mode capable** (per-minute window may force the 429 backoff to wait). 8K context cap on Cerebras free tier — context-budget compliance required when this leg fires for high-altitude verdicts.
   - `gemini/gemini-2.5-flash` — validated, generous 1M-token context, ~10 RPM.
   - `groq/llama-3.3-70b-versatile` — fast but emits non-OAI tool-call syntax on some prompts.
   - `nvidia/meta/llama-3.3-70b-instruct` — high RPM but tool-call format issues on some models.
@@ -200,9 +200,7 @@ reason about what to do.
 
 ---
 
-## OODA phase markers + VSM system tag (L-04 + L-05; H3 day 1-2 2026-05-07)
-
-*Appended Phase H3 day 1+2 per FINAL_implementation_plan_2026-05-07.md §5.3 + L-04 + L-05. Cache discipline preserved per A6 §16.3 — appended to standing prefix, not interleaved.*
+## OODA phase markers + VSM system tag
 
 **VSM System tag:** Director = **System 3** (orchestrator dispatch / operations management) per Stafford Beer's Viable System Model. Annotate `system: S3` in your ResultPacket telemetry where applicable.
 

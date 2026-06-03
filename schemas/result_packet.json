@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "bert-lab/result_packet.json",
   "title": "ResultPacket",
-  "description": "Specialist-to-Director return packet. Validated on every sub-agent return. Schema version 2 (Phase H2 day 1, 2026-05-07): adds caveats_embedded as ConcernEntry array (P-VS-08), severity_grade enum, clearness_queries (P-VS-07 phase 1 output), and cross-field invariants enforcing Quaker pipeline contracts. Backward-compatible via schemas/migrations/v1_to_v2.py.",
+  "description": "Specialist-to-Director return packet. Validated on every sub-agent return. Schema version 2: adds caveats_embedded as ConcernEntry array (P-VS-08), severity_grade enum, clearness_queries (P-VS-07 phase 1 output), and cross-field invariants enforcing Quaker pipeline contracts. Backward-compatible via schemas/migrations/v1_to_v2.py.",
   "schema_version": 2,
   "type": "object",
   "required": [
@@ -131,12 +131,12 @@
     "caveats_embedded": {
       "type": "array",
       "items": {"$ref": "#/$defs/ConcernEntry"},
-      "description": "P-VS-08 stand-aside concerns. Required when verdict=APPROVE_WITH_CAVEATS. Each entry has whisper/voice/weight severity per Sheeran 1983 §5.3. Concerns flow forward to next dispatch's caveats_embedded post-cacheable-prefix per A6 §16.3."
+      "description": "P-VS-08 stand-aside concerns. Required when verdict=APPROVE_WITH_CAVEATS. Each entry has whisper/voice/weight severity per Sheeran 1983 §5.3. Concerns flow forward to next dispatch's caveats_embedded post-cacheable-prefix."
     },
     "clearness_queries": {
       "type": "array",
       "items": {"$ref": "#/$defs/ClearnessQuery"},
-      "description": "P-VS-07 phase 1 output. Required when role=clearness_phase1; minItems=1. Each query MUST have is_leading=false (auto-J classifier check at A6 §9 falsifier #4 targets ≥95% rate)."
+      "description": "P-VS-07 phase 1 output. Required when role=clearness_phase1; minItems=1. Each query MUST have is_leading=false (auto-J classifier check targets ≥95% rate)."
     },
     "severity_grade": {
       "type": "string",
@@ -150,7 +150,7 @@
     "position_swap_delta": {
       "type": "number",
       "minimum": 0,
-      "description": "P-VS-10 position-bias mitigation: verdict-quality delta between position-swapped dispatches (0 = identical verdicts after swap; >0.15 routes to seasoning per A6 §18.1)."
+      "description": "P-VS-10 position-bias mitigation: verdict-quality delta between position-swapped dispatches (0 = identical verdicts after swap; >0.15 routes to seasoning)."
     }
   }
 }

@@ -32,9 +32,9 @@ import os
 import statistics
 import sys
 import time
-from dataclasses import dataclass, asdict, field
+from collections.abc import Callable
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
@@ -60,7 +60,7 @@ class LatencyStats:
     ci95_ms: float  # half-width of 95% CI on the mean
 
     @classmethod
-    def from_list(cls, ms_list: list[float]) -> "LatencyStats":
+    def from_list(cls, ms_list: list[float]) -> LatencyStats:
         if not ms_list:
             return cls(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         srt = sorted(ms_list)
@@ -175,7 +175,6 @@ def bench_per_signal(cfg: BenchConfig) -> dict:
         # warm-up
         time_fn(fn, cfg.n_warmup)
         # measure
-        runs_p50, runs_p99 = [], []
         all_lats = []
         for _ in range(cfg.n_runs):
             lats = time_fn(fn, cfg.n_measure)
@@ -261,6 +260,7 @@ def bench_memory_growth(cfg: BenchConfig) -> dict:
     slightly increasing (cache + small allocator quirks)."""
     print("→ Memory growth curve", flush=True)
     import resource
+
     from core import retrieval as _ret
     os.environ["BERT_DISABLE_RERANKER"] = "1"
 
@@ -291,7 +291,7 @@ def bench_index_scale_curve(cfg: BenchConfig) -> dict:
     proper scale curve requires synthetic corpora at multiple sizes —
     that's B2-level work (we report it there)."""
     print("→ Index scale (current corpus)", flush=True)
-    from core import bm25, token_graph
+    from core import bm25
     # Sample sizes from the corpus
     out = {}
     try:
@@ -301,7 +301,6 @@ def bench_index_scale_curve(cfg: BenchConfig) -> dict:
         out["bm25_corpus"] = {"error": str(e)}
     try:
         # Count tokens in graph
-        from pathlib import Path as P
         lab = LAB_ROOT / "lab"
         graph_db = lab / "state" / "token_graph.db"
         if graph_db.exists():
@@ -333,7 +332,7 @@ def write_summary(results: dict, ts: str) -> Path:
         "# B1 — RAG Latency + Throughput Benchmark",
         "",
         f"_Generated: {ts}_",
-        f"_Platform: M3 Pro 18GB unified memory, Python 3.13_",
+        "_Platform: M3 Pro 18GB unified memory, Python 3.13_",
         "",
         "## Methodology",
         "",
@@ -452,7 +451,7 @@ def main() -> int:
     print(f"Wrote: {summary_path}", flush=True)
     print(flush=True)
     # Marker for smoke runner
-    print(f"All 5 benchmark phases passed.", flush=True)
+    print("All 5 benchmark phases passed.", flush=True)
     return 0
 
 

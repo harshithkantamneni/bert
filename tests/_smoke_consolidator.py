@@ -1,7 +1,5 @@
 """Smoke test for core/consolidator.py — async memory KM agent.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4.
-
 Tests:
   1. should_run respects force, hours, new-DN-count thresholds
   2. promote_statuses promotes PROPOSED entries with cross-refs
@@ -120,7 +118,7 @@ def test_refresh_indexes() -> None:
     sub.mkdir(parents=True, exist_ok=True)
     (sub / "alpha.md").write_text("alpha doc")
     (sub / "beta.md").write_text("beta doc")
-    refreshed = cm.refresh_indexes()
+    cm.refresh_indexes()
     # Find programs/INDEX.md
     idx = MEMORIES_DIR / "programs" / "INDEX.md"
     assert idx.exists()
@@ -167,7 +165,7 @@ def test_summarize_log_head_no_op_under_cap() -> None:
 
 def test_last_run_roundtrip() -> None:
     _reset()
-    rep = cm.consolidate(cycle=42, force=True)
+    cm.consolidate(cycle=42, force=True)
     assert cm.LAST_RUN_PATH.exists()
     payload = json.loads(cm.LAST_RUN_PATH.read_text())
     assert payload["last_cycle"] == 42

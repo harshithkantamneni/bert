@@ -12,6 +12,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
@@ -19,6 +21,8 @@ from core import (
     agent,  # noqa: E402
     )
 from core.types import ToolCall  # noqa: E402
+
+_CONSTITUTIONAL = LAB_ROOT / "memories" / "governance" / "constitutional.md"
 
 
 def test_execute_tool_unknown():
@@ -55,6 +59,8 @@ def test_execute_tool_truncates_oversized(tmp_path):
 
 
 def test_load_system_prompt():
+    if not _CONSTITUTIONAL.exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
     sp = agent._load_system_prompt("researcher")
     assert isinstance(sp, str) and len(sp) > 100   # constitutional + role prompt
     # missing role → fallback marker, never crashes

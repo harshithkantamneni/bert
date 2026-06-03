@@ -1,4 +1,4 @@
-"""Weekly self-measurement report (H.6) — the A/B-tier separator.
+"""Weekly self-measurement report — the A/B-tier separator.
 
 Per both May-2026 SOTA research agents' conclusion:
 "The A/B separator is whether the system measures itself."
@@ -194,7 +194,7 @@ def section_mcp_replay() -> dict:
 
 
 def section_delegation() -> dict:
-    """Director delegation discipline (F.9)."""
+    """Director delegation discipline."""
     from core import delegation
     return delegation.stats()
 

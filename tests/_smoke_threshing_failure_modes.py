@@ -1,17 +1,15 @@
-"""Smoke test for H2 day 4 — threshing failure modes FM-T1..FM-T5.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 4 + A6 §8 + §11.
+"""Smoke test for threshing failure modes FM-T1..FM-T5.
 
 These tests verify that schema-layer cross-field invariants reject the
 5 named failure modes for the threshing pattern. The actual prompt
 adherence (FM-T2 position-collapse, FM-T5 position-favoring framing,
-etc.) is tested at runtime against real model outputs in Phase H2 day 8
+etc.) is tested at runtime against real model outputs in the
 integration tests + the 30-dispatch calibration window. This smoke
 suite verifies the schema-layer subset.
 
 FM-T1 Verdict-rendering: schema rejects role=threshing_pass with
        verdict ≠ SCOPE_STOP. PASS = ValidationError raised.
-FM-T2 Position-collapse: prompt-layer; covered in §11 integration test.
+FM-T2 Position-collapse: prompt-layer; covered in the integration test.
 FM-T3 Read-without-surface: prompt-layer; covered in calibration window.
 FM-T4 New-claim injection: prompt-layer; covered in calibration window.
 FM-T5 Position-favoring framing: prompt-layer; covered in calibration window.
@@ -36,7 +34,7 @@ def _base_spec() -> dict:
         "role": "threshing_pass",
         "cycle": 8,
         "task": ("Thresh the disagreement between r4 and e2 about KV-cache reuse "
-                 "vs cross-family judge requirements per A6 §16."),
+                 "vs cross-family judge requirements."),
         "success_criterion": "produce SCOPE_STOP verdict with clean disagreement frame",
         "output_path": "findings/threshing_c8_kv_reuse.md",
         "model": "nvidia/meta/llama-3.3-70b-instruct",
@@ -57,8 +55,8 @@ def _base_packet() -> dict:
         "findings_count": {"high": 0, "med": 0, "low": 0, "nit": 0},
         "confidence_1to10": 8,
         "calibration_reasoning": ("Threshing surfaced the disagreement between "
-                                  "R8 §2.2 KV reuse savings and P-VS-02 cross-"
-                                  "family rule clearly; positions rendered at "
+                                  "KV-reuse savings and the cross-family rule "
+                                  "clearly; positions rendered at "
                                   "equal resolution; no synthesis."),
         "telemetry": {"tokens_in": 4500, "tokens_out": 1200,
                       "latency_secs": 18.0, "model_used": "nvidia/llama-3.3-70b"},

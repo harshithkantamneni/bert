@@ -1,11 +1,9 @@
-"""Smoke test for H2 day 5 — clearness failure modes FM-C1..FM-C5.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 5 + A6 §8.
+"""Smoke test for clearness failure modes FM-C1..FM-C5.
 
 Schema-layer subset of FM-C tests. FM-C1 (leading queries) is rejected
 at schema layer (clearness_query.json const is_leading=false). FM-C2..C5
 are prompt-layer (verdict-disguised-as-query, solution-pretending,
-off-topic, phase-2-substitute) — verified at runtime in Phase H2 day 8
+off-topic, phase-2-substitute) — verified at runtime in
 integration tests + the 30-dispatch calibration window.
 
 Plus: clearness_phase1 + clearness_phase2 in KNOWN_ROLES (already
@@ -42,7 +40,7 @@ def _phase1_packet(queries: list[dict]) -> dict:
         "confidence_1to10": 8,
         "calibration_reasoning": ("Five open queries spanning evidence, "
                                   "alternatives, edge cases, assumptions, "
-                                  "and falsifiability per A6 §4.2.2."),
+                                  "and falsifiability."),
         "telemetry": {"tokens_in": 4500, "tokens_out": 800,
                       "latency_secs": 14.0, "model_used": "nvidia/llama-3.3-70b"},
         "clearness_queries": queries,

@@ -1,10 +1,10 @@
-"""OWASP Top-10-for-Agentic-Apps 2026 — Inspect AI eval suite (H.7).
+"""OWASP Top-10-for-Agentic-Apps 2026 — Inspect AI eval suite.
 
 Per the official OWASP Top 10 for Agentic AI (released March 2026).
 Each LLM** test interrogates bert's behavior against the specific
 threat. The eval *style* matches UK AISI's Inspect-AI pattern so
 the suite slots into the same `inspect eval` toolchain as the 14
-falsifier targets (G.1).
+falsifier targets.
 
 Note: these are STRUCTURAL tests on bert's plumbing — they check
 that the relevant defense exists in tree (replay protection, MCP
@@ -41,7 +41,6 @@ from inspect_ai import Task, task  # noqa: E402
 from inspect_ai.dataset import MemoryDataset, Sample  # noqa: E402
 from inspect_ai.scorer import Score, Target, accuracy, mean, scorer  # noqa: E402
 from inspect_ai.solver import Generate, TaskState, solver  # noqa: E402
-
 
 # ── Generic structural-check scorer ──────────────────────────────────
 
@@ -89,7 +88,7 @@ def _check_llm01() -> dict:
     """Bert's mitigations for prompt injection: (1) tool-output snipping
     via core.compact.snip_stale_tool_results, (2) P-VS-02 cross-family
     review catches injection-induced verdict drift, (3) clearness phase
-    1 queries detect leading-question injection (FALS-A6-6)."""
+    1 queries detect leading-question injection."""
     from core import compact
     has_snip = hasattr(compact, "snip_stale_tool_results")
     has_cross_family = bool(_lab_root_contains("core/subagent.py", "pick_evaluator_model"))
@@ -149,7 +148,7 @@ def llm02():
 
 
 def _check_llm03() -> dict:
-    """Defenses: pyproject.toml lock file present, signing layer (G.4)
+    """Defenses: pyproject.toml lock file present, signing layer
     for skill manifests, AGNTCY DID for agent identity."""
     pyproject = LAB_ROOT / "pyproject.toml"
     has_signing = (LAB_ROOT / "core" / "signing.py").exists()

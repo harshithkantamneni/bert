@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import json
 import os
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")
 
 import resource
@@ -35,7 +36,6 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
@@ -236,7 +236,7 @@ def t_02_run_50_calls_no_resource_leak():
     for i in range(N_CYCLES):
         tool, args = tools_rotation[i % len(tools_rotation)]
         t0 = time.monotonic()
-        result = S.mcp.call(tool, args)
+        S.mcp.call(tool, args)
         S.latencies_ms.append((time.monotonic() - t0) * 1000)
         # Every 10 calls, sample resource usage
         if (i + 1) % 10 == 0:
@@ -270,7 +270,7 @@ def t_04_rss_bounded():
         return
     iters, rss = zip(*S.rss_samples, strict=False)
     delta = rss[-1] - rss[0]
-    print(f"      ↳ RSS samples: " + " ".join(
+    print("      ↳ RSS samples: " + " ".join(
         f"i{i}={r:.1f}MB" for i, r in S.rss_samples
     ))
     print(f"      ↳ growth: {delta:+.1f}MB over {iters[-1]} calls")
@@ -285,7 +285,7 @@ def t_05_fd_count_stable():
         print("      ↳ skipped: fd measurement unavailable")
         return
     delta = fds[-1] - fds[0]
-    print(f"      ↳ FD samples: " + " ".join(
+    print("      ↳ FD samples: " + " ".join(
         f"i{i}={f}" for i, f in S.fd_samples
     ))
     # Tolerate +5 fds for warmup; reject +50 as leak indicator
@@ -328,7 +328,7 @@ def t_08_migrations_50_labs_no_handle_leak():
     own SQLite handles. Verify no fd leak across all 50."""
     from core import migrations
     fds_before = _open_fds() if _open_fds() > 0 else -1
-    for i in range(50):
+    for _i in range(50):
         with tempfile.TemporaryDirectory() as tmp:
             lab = Path(tmp)
             r = migrations.apply_pending(lab, "document_corpus")

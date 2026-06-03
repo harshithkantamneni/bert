@@ -1,14 +1,13 @@
 """Seasoning queue — P-VS-09 (lay aside indefinitely) mechanics.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.2 H2 day 3 + A6 §4.4 +
-Sheeran 1983 ch. 6 + BYM Quaker faith & practice §12.26.
+Drawn from Sheeran 1983 ch. 6 + BYM Quaker faith & practice §12.26.
 
 When a dispatch produces a REJECT verdict AND there's no clear revision
 path (the work needs to be revisited later under different conditions
 rather than re-done now), the orchestrator routes it to the seasoning
 queue rather than discarding it. Entries persist in
-`lab/sod/seasoning.jsonl` (per A6 §13.4 PI commitment from day one) with
-explicit revival_conditions. **No auto-revival timer** — load-bearing
+`lab/sod/seasoning.jsonl` with explicit revival_conditions.
+**No auto-revival timer** — load-bearing
 constraint: revival is conditional on observable changes in lab state,
 not on calendar time.
 
@@ -22,8 +21,7 @@ Public API:
     start to surface revival candidates
 
 File locking: fcntl.flock advisory lock on the JSONL file during writes
-to prevent corruption when concurrent dispatches season in parallel
-(once Phase H4 Track A L-12 lands).
+to prevent corruption when concurrent dispatches season in parallel.
 
 Schema validation: every season() call validates against
 schemas/seasoning_entry.json before write. Failure raises ValueError
@@ -131,7 +129,7 @@ def season(
             fcntl.flock(f.fileno(), fcntl.LOCK_UN)
     LOG.info("seasoned %s (cycle %d): %s", entry["id"], cycle, summary[:60])
 
-    # A6 §9 falsifier observability — emit seasoning_entry event.
+    # Falsifier observability — emit seasoning_entry event.
     try:
         from core import observability as _obs
         _obs.emit("seasoning_entry", {
@@ -222,7 +220,7 @@ def revive(entry_id: str, revival_dispatch_id: str) -> dict[str, Any]:
 
 def audit_summary() -> dict[str, Any]:
     """Compute summary counts for the daily Telegram digest (P-008)
-    and Lighthouse signal class (Phase C2)."""
+    and Lighthouse signal class."""
     _ensure_path()
     total = 0
     unrevived = 0

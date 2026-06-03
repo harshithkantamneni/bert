@@ -22,7 +22,6 @@ from __future__ import annotations
 import json
 import sys
 import tempfile
-from dataclasses import asdict
 from pathlib import Path
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
@@ -158,7 +157,7 @@ def test_collate_idempotent_preserves_enriched_fields() -> None:
         events[0]["lineage"] = ["state/x.json"]
         out.write_text("\n".join(json.dumps(e) for e in events) + "\n")
         # Second run: should preserve tags + lineage
-        stats2 = collate.collate(output_path=out)
+        collate.collate(output_path=out)
         events2 = [json.loads(line) for line in out.read_text().splitlines() if line.strip()]
         same_event = next(e for e in events2 if e["id"] == events[0]["id"])
         assert same_event["tags"] == ["#test", "#hand-enriched"], (
@@ -173,7 +172,7 @@ def test_output_chronologically_sorted() -> None:
     tmp = Path(tempfile.mkdtemp(prefix="bert_collate_"))
     _setup_tmp(tmp)
     # Create files with different mtimes by writing in order with sleeps
-    import os, time
+    import os
     f1 = tmp / "findings" / "researcher_a.md"
     f1.write_text("a")
     os.utime(f1, (1715000000.0, 1715000000.0))  # 2024-05-06

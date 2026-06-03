@@ -1,7 +1,6 @@
 """Smoke test for core/decode.py — schema-constrained call with retry.
 
-Per A6 §17.2 (R9 G-3) + the prompt-evolution failures we hit during
-A6 §9 calibration (Round 2-4).
+Covers the prompt-evolution failures we hit during calibration (Round 2-4).
 
 Tests:
   1. Successful parse on first try
@@ -26,7 +25,6 @@ sys.path.insert(0, str(LAB_ROOT))
 
 from core import decode  # noqa: E402
 from core.types import ProviderResponse  # noqa: E402
-
 
 SCHEMA = {
     "type": "object",

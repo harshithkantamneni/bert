@@ -1,6 +1,6 @@
 """bert-lab MCP server — public-facing surface for Claude Code / Codex / Cursor.
 
-The plug-in entry point for bert's "lab mode" pivot. Exposes six tools
+The plug-in entry point for bert's "lab mode" pivot. Exposes 11 tools
 that turn any MCP-compatible AI agent (Claude Desktop, Claude Code,
 Cursor with MCP, Continue, etc.) into a persistent lab orchestrator:
 
@@ -8,6 +8,11 @@ Cursor with MCP, Continue, etc.) into a persistent lab orchestrator:
   - lab_status(lab)           inspect a lab's current state
   - lab_start(name, mission)  create a new lab
   - lab_cycle(lab, n)         run N autonomous cycles
+  - lab_reshape(lab)          re-derive roles from the mission
+  - lab_resume(lab)           resume a paused lab
+  - lab_finalize(lab)         run the finalization ceremony
+  - lab_approve(lab, id)      approve a pending proposal
+  - lab_synthesize_tool(lab)  synthesize + sandbox a new tool
   - memory_search(lab, q)     vector + keyword search across a lab's
                               memories + findings
   - packet_export(lab, cycle) build a signed proof-packet tar.gz
@@ -513,8 +518,8 @@ def _t_lab_reshape(args: dict) -> dict:
       apply:   args has `updates` dict — applies the within-shape
                reshape immediately.
 
-    Per locked-in L-11 (v3 plan §11), cross-shape reshape is DEFERRED
-    to v1.1; users with shape changes archive + create new lab.
+    Cross-shape reshape is DEFERRED to v1.1; users with shape changes
+    archive + create new lab.
     """
     from core import profile_drift as pd
     lab_arg = args.get("lab", "")
@@ -537,7 +542,7 @@ def _t_lab_reshape(args: dict) -> dict:
             "next": (
                 "If you agree with the proposal, call lab_reshape again "
                 "with updates={...} populated from proposed_changes. "
-                "Per L-11 (v1), only within-shape reshapes are supported."
+                "Only within-shape reshapes are supported in v1."
             ),
         }
 
@@ -893,7 +898,7 @@ def make_server() -> MCPServer:
         "lab_reshape",
         description=(
             "Reshape a lab's mission_profile based on observed drift "
-            "or explicit updates (within-shape only in v1; per L-11 "
+            "or explicit updates (within-shape only in v1; "
             "cross-shape reshapes archive + recreate). Call with no "
             "updates to get an auto-proposal from drift_score; call "
             "with `updates={...}` to apply specific field changes."

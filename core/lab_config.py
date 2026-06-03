@@ -1,9 +1,9 @@
-"""Per-lab configuration reader (FF-A.1 — multi-lab as product).
+"""Per-lab configuration reader (multi-lab as product).
 
 Today `lab.yaml` is written by `bert init` but never READ by the
 engine — the director's `FocusArea` enum was hardcoded to
 bert-internal areas (routing / memory / discipline / ux). For bert to
-operate ARBITRARY research labs (the the platform framing), each lab needs
+operate ARBITRARY research labs (the multi-lab platform framing), each lab needs
 to declare its own focus areas, role, and privacy posture.
 
 This module is the canonical reader. It returns a `LabConfig`
@@ -28,7 +28,7 @@ focus_areas:
                             # explicit "broader investigation" fallback
 role: standard | supervisor
 share_with_supervisor: true
-provider: groq | nvidia-prod | openrouter | ollama | ...
+provider: groq | nvidia | openrouter | ollama | ...
 autonomy: assistant | collaborator | pilot
 proof_packet:
   required: true
@@ -36,7 +36,7 @@ proof_packet:
   include_sources: true
 ```
 
-Privacy default (per FF-A scope decision, Option A): labs in
+Privacy default (Option A): labs in
 `~/.bert/labs/` default to `share_with_supervisor: true` unless the
 lab.yaml says otherwise. This is the prototype-phase default; the
 commercial product will flip to opt-in.
@@ -44,7 +44,7 @@ commercial product will flip to opt-in.
 Role default: a lab without an explicit `role` declaration is treated
 as `role: standard`. The repo's own `lab/` directory should declare
 `role: supervisor` in its lab.yaml so the engine knows it's the
-the platform supervisor (FF-A.3 ships that file).
+platform supervisor.
 """
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ LOG = logging.getLogger(__name__)
 LAB_ROOT = Path(__file__).resolve().parent.parent
 
 # Bert-internal fallback when no lab.yaml is present. Mirrors the
-# pre-FF FocusArea enum so the existing self-improvement lab continues
+# original FocusArea enum so the existing self-improvement lab continues
 # to work untouched.
 DEFAULT_FOCUS_AREAS_SUPERVISOR = (
     "routing", "memory", "discipline", "ux", "unspecified",
@@ -231,10 +231,10 @@ def load(lab_path: Path) -> LabConfig:
 
     if not cfg_path.exists():
         # No config file — return defaults. For the repo's own lab/,
-        # treat as supervisor (the the platform-internal default). For user
+        # treat as supervisor (the platform-internal default). For user
         # labs in ~/.bert/labs/, treat as standard. This makes the
         # repo's own lab the supervisor without needing a lab.yaml
-        # there, but FF-A.3 will ship one anyway for explicitness.
+        # there, though the repo lab ships one anyway for explicitness.
         is_repo_lab = lab_path.resolve() == (LAB_ROOT / "lab").resolve()
         role = "supervisor" if is_repo_lab else "standard"
         return LabConfig(

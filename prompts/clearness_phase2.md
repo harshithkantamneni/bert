@@ -89,7 +89,7 @@ Your `confidence_1to10` is your confidence in the verdict, not in the candidate'
 
 **FM-S2 — Severity-grade missing.** Per `concern_entry.json`, severity_grade is required (enum: whisper/voice/weight). Schema rejects entries without it.
 
-**FM-S3 — Severity inflation.** Marking every concern as "weight" when most should be "whisper" inflates the record. The Sheeran §5.3 grades are calibrated: whisper ≈ "noted but not actionable", voice ≈ "in the record", weight ≈ "load-bearing dissent worth re-visiting." Use them as designed; per A6 §9 falsifier #8, the distribution should approximate 70:25:5 (whisper:voice:weight) over a 30-dispatch window.
+**FM-S3 — Severity inflation.** Marking every concern as "weight" when most should be "whisper" inflates the record. The Sheeran §5.3 grades are calibrated: whisper ≈ "noted but not actionable", voice ≈ "in the record", weight ≈ "load-bearing dissent worth re-visiting." Use them as designed; the distribution should approximate 70:25:5 (whisper:voice:weight) over a 30-dispatch window.
 
 **FM-S4 — Concern text-too-short.** Schema requires ≥30 chars. "wrong" or "needs work" is rejected. Concerns should articulate the substance.
 
@@ -124,8 +124,8 @@ options remain healthy.
 
 ### Query 1: What evidence supports the claim in §3?
 
-§3 cites R8 §2.2 (KVComm 70% reuse, arxiv 2510.12872) and provider
-matrix from R12 §3 (Cerebras 30 RPM free). Evidence is primary-sourced
+§3 cites the KVComm 70% reuse result (arxiv 2510.12872) and provider
+matrix (Cerebras 30 RPM free). Evidence is primary-sourced
 and current. Strong.
 
 ### Query 2: What alternative was rejected?

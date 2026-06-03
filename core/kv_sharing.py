@@ -1,7 +1,4 @@
-"""L-08 Phases B-D: KV-cache sharing for same-model multi-agent chains.
-
-Per FINAL_implementation_plan_amendment_2026-05-13.md §A1 E.4 + R8 grounding
-in findings/researcher_lab_latent_comms_R8.md.
+"""KV-cache sharing for same-model multi-agent chains.
 
 What this module *does*:
 
@@ -9,16 +6,16 @@ What this module *does*:
      necessary condition for KV-cache transfer).
   2. Expose a routing hook callers can use to switch between three
      paths:
-       - SAME_FAMILY_LOCAL → KVComm-style anchor-based cache offset
-         (Phase B); 5-10× speedup on local Ollama qwen3:8b chains
+       - SAME_FAMILY_LOCAL → KVComm-style anchor-based cache offset;
+         5-10× speedup on local Ollama qwen3:8b chains
        - SAME_FAMILY_REMOTE → no-op (provider APIs don't expose KV);
-         lean on H1 provider-side automatic caching (Gemini 2.5+
+         lean on provider-side automatic caching (Gemini 2.5+
          implicit, Groq GPT-OSS automatic)
        - CROSS_FAMILY → LLMLingua-2 prompt compression
          (core/llmlingua_compress.py); already implemented
   3. Record telemetry per dispatch (which path fired, token win,
      cost win) so a future falsifier can verify the ≥60% reduction
-     target on contested-decision pipelines (A6 §16.2 projection).
+     target on contested-decision pipelines.
 
 What this module *does NOT* do (and what's no longer needed):
 
@@ -26,19 +23,19 @@ What this module *does NOT* do (and what's no longer needed):
     processes. Measured 2026-05-13 via tools/measure_ollama_prefix_
     cache.py: Ollama's *built-in* automatic prefix cache delivers
     17.89× on prompt-eval and 2.38× on total dispatch when bert's
-    H1 stable-prefix discipline is enforced. That meets the L-08
-    Phase B "5-10× speedup" target; the multi-week custom build was
-    a phantom problem at bert's single-user scale.
+    stable-prefix discipline is enforced. That meets the "5-10×
+    speedup" target; the multi-week custom build was a phantom
+    problem at bert's single-user scale.
   - Latent-thought passing (LatentMAS) — requires HF transformers
     stack + hidden-state plumbing; only viable on local models;
     deferred until bert's workload actually benefits.
-  - PolyKV / Q-KVComm with adaptive quantization — Phase D vision;
+  - PolyKV / Q-KVComm with adaptive quantization — future vision;
     relevant if bert ever runs concurrent agents on the same Ollama
     instance and KV memory pressure forces compression.
 
 What the SAME_FAMILY_LOCAL route actually delivers:
   - Ollama native prefix cache, kept warm by OLLAMA_KEEP_ALIVE=24h
-  - Byte-identical prefix from H1 stable-prefix discipline
+  - Byte-identical prefix from the stable-prefix discipline
   - Measured speedup: 17.89× prompt-eval, 2.38× total dispatch
     (see findings/ollama_prefix_cache_measurement.md for the raw data)
 
@@ -173,7 +170,7 @@ def apply_route(
             "compressed_text": standing_context,  # no-op
             "kv_handoff_pending": False,
             "speedup_estimated": decision.estimated_speedup_x,
-            "notes": "rely on provider-side automatic cache (H1 wiring)",
+            "notes": "rely on provider-side automatic cache",
         }
     # CROSS_FAMILY
     try:
@@ -206,8 +203,8 @@ def emit_route_event(decision: RouteDecision, pair: DispatchPair,
     """Record the routing decision as a canvas event so falsifiers can
     aggregate token-win statistics across a window.
 
-    Per amendment §A4 and the H1 cached_tokens telemetry — this is the
-    *opportunity* signal: when bert *could* save tokens by routing
+    Per the cached_tokens telemetry — this is the *opportunity*
+    signal: when bert *could* save tokens by routing
     through KV-sharing, even if the operational backend isn't shipping
     those savings yet.
     """

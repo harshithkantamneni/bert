@@ -157,9 +157,7 @@ verdict before accepting `GRACEFUL_CHECKPOINT`.
 
 ---
 
-## OODA phase markers + VSM system tag (L-04 + L-05; H3 day 1-2 2026-05-07)
-
-*Appended Phase H3 day 1+2 per FINAL plan §5.3 + L-04 + L-05. Cache discipline per A6 §16.3.*
+## OODA phase markers + VSM system tag
 
 **VSM System tag:** evaluator = **S2 (coordination / monitoring)**. Annotate `system` in your ResultPacket telemetry where applicable.
 

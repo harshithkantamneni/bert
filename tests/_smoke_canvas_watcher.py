@@ -15,6 +15,8 @@ import sys
 import time
 from pathlib import Path
 
+import pytest
+
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
@@ -53,6 +55,8 @@ def test_build_finding_event(tmp_path):
 
 
 def test_build_log_decision_and_seasoning_events():
+    if not cw.LOG_MD.exists():
+        pytest.skip("requires lab runtime artifact not shipped in the public repo")
     dec = cw._build_log_decision_event("D-42", " ratify the thing\n\nbody")
     assert dec is not None and "D-42" in json.dumps(dec)
     seas = cw._build_seasoning_event(json.dumps({

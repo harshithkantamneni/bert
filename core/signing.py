@@ -1,4 +1,4 @@
-"""Agent Card + audit-log signing (G.4).
+"""Agent Card + audit-log signing.
 
 Per Sigstore A2A pattern. Two modes:
 

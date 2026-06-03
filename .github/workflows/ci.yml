@@ -29,6 +29,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
-      - run: pip install ruff
-      - name: Ruff (retrieval engine + benchmark harness)
-        run: ruff check benchmarks/b7_ab_infra.py benchmarks/b7_stats.py benchmarks/b9_rag.py benchmarks/b9_rag_stats.py benchmarks/b9_rag_runner.py core/effort_triage.py
+      - run: pip install ruff==0.15.12   # pinned so CI honors pyproject [tool.ruff] deterministically
+      - name: Ruff (whole repo)
+        run: ruff check .

@@ -1,4 +1,4 @@
-"""Cross-lab telemetry aggregator (FF-B.1 — supervisor signal).
+"""Cross-lab telemetry aggregator (supervisor signal).
 
 The supervisor lab (bert's own `lab/` with `role: supervisor`) is the
 only lab that reads events from OTHER labs. This module is the
@@ -7,7 +7,7 @@ canonical reader.
 Quality-first design (per the locked feedback rule "lead with the
 quality answer, not the pragmatic default"):
 
-  The original FF-B scope said "v1 aggregates explicit metrics only,
+  An earlier scope said "v1 aggregates explicit metrics only,
   not free-form event content". That was a heuristic shortcut. The
   honest answer is: the supervisor lab is a LAB. Its researcher reads
   events from other labs as INPUTS; its claims go through the SAME
@@ -15,7 +15,7 @@ quality answer, not the pragmatic default"):
   Don't pre-filter to metrics; surface the full event stream.
 
   The mitigation against signal noise isn't pre-filtering — it's the
-  `supervisor_pattern_evidence` falsifier (FF-B.3) which asserts that
+  `supervisor_pattern_evidence` falsifier which asserts that
   every `pattern_observed` event cites ≥2 distinct source labs in its
   evidence_labs field. The discipline is structural, not filter-based.
 

@@ -1,7 +1,7 @@
 """Proof packet exporter v1 (I.2 — investor wow-moment artifact).
 
 Bundles one Quaker cycle's complete record into a portable, verifiable
-.tar.gz that meets the schema locked in project_bert_proof_packet_schema.md.
+.tar.gz.
 
 File layout:
   cycle-NNNN.tar.gz
@@ -20,12 +20,12 @@ File layout:
   │   ├── results.md             # numbered claims [C-1]...[C-N]
   │   ├── artifacts/             # generated files
   │   └── metrics.json           # measured outcomes
-  ├── failures.md                # numbered limitations [L-1]...[L-N]  (I.3)
-  ├── failures.sigstore          # separate signature on failures.md   (I.3)
+  ├── failures.md                # numbered limitations [L-1]...[L-N]
+  ├── failures.sigstore          # separate signature on failures.md
   ├── reproduce.sh               # exact commands to re-run cycle
   ├── eval/
   │   ├── self-eval.json         # bert's own confidence + scoring
-  │   └── adversarial.json       # red-team agent attacks (I.3)
+  │   └── adversarial.json       # red-team agent attacks
   └── HASHES.txt + HASHES.sigstore
 
 I.2 focuses on the exporter + SLSA envelope + HASHES signing. I.3

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "bert-lab/concern_entry.json",
   "title": "ConcernEntry",
-  "description": "P-VS-08 (Stand-aside verdict) concern. When verdict=APPROVE_WITH_CAVEATS, the concern is recorded with severity_grade per Sheeran 1983 §5.3 (whisper / voice / weight). Concerns flow forward into next dispatch's caveats_embedded, after the cacheable prefix per A6 §16.3.",
+  "description": "P-VS-08 (Stand-aside verdict) concern. When verdict=APPROVE_WITH_CAVEATS, the concern is recorded with severity_grade per Sheeran 1983 §5.3 (whisper / voice / weight). Concerns flow forward into next dispatch's caveats_embedded, after the cacheable prefix.",
   "type": "object",
   "required": [
     "text",

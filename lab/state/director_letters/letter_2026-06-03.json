@@ -1,0 +1,24 @@
+{
+  "id": "letter_2026-06-03_32841e4e",
+  "voice": "B",
+  "is_fallback": false,
+  "ts_local": "2026-06-03T03:51:19-05:00",
+  "weekday": "Wednesday",
+  "date_long": "3 June 2026",
+  "time_short": "03:51",
+  "cycle": 3,
+  "kicker": "Wednesday, 3 June 2026 \u00b7 03:51 \u2014 cycle 3 in keeping",
+  "salutation": "Dominus,",
+  "body": [
+    "Quiet day. The lab kept its rhythm without surfacing anything new \u2014 no dispatches, no verdicts, no findings ready for your eye.",
+    "Nothing this morning needs you. The pending shelf is empty. When you're ready, the surfaces are below \u2014 meeting, tide, manuscript. I'll be here."
+  ],
+  "signed": "\u2014 bert, director",
+  "needs_dominus": false,
+  "_metadata": {
+    "daily_report_anchor": null,
+    "pending_count_observed": 0,
+    "events_window_tail_bytes": 524288,
+    "generator_version": "v1"
+  }
+}

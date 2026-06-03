@@ -1,13 +1,12 @@
 """Live verification of core/llmlingua_compress.py against a real 3K-token
 text. SLOW (~30-60s first run for model download + load + compression).
 
-Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 3 acceptance:
-  "Test: compress a 3K-token standing context; confirm 4-10× compression
-   with semantic preservation (BERTScore F1 ≥ 0.92 vs original)."
+It compresses a 3K-token standing context and confirms 4-10× compression
+with semantic preservation.
 
 This script does the compression test; BERTScore F1 measurement is
-deferred to Phase H4 Track B (where L-14 Inspect AI + L-20 deepeval add
-LLM-aware test framework). For now we verify:
+deferred to a later phase that adds an LLM-aware test framework
+(Inspect AI + deepeval). For now we verify:
   1. LLMLingua model loads successfully
   2. Achieved compression ratio is in 4-10× range on a representative
      bert-style standing context
@@ -27,7 +26,7 @@ LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 
-# Representative bert standing context: A6 §1 scholarly grounding paragraph
+# Representative bert standing context: the scholarly grounding paragraph
 # repeated 4× to clear the LLMLingua-2 model context window (512 tokens) and
 # give the compressor enough redundant material to demonstrate real 3-10×
 # compression. Real bert dispatches see 3-10K-token standing prefixes.
@@ -60,7 +59,7 @@ practitioner perspective. Robert K. Greenleaf's 1977 "Servant
 Leadership" provides the canonical Quaker-to-corporate translation;
 George Fox's 1657 Journal contains the origin of Quaker queries as a
 discernment instrument. Together these sources form the intellectual
-lineage A6's pipeline inherits, distinguishing bert's discernment
+lineage bert's pipeline inherits, distinguishing bert's discernment
 discipline from generic LLM-as-judge practice and from voting-based
 multi-agent consensus protocols. The cross-family judge requirement
 of P-VS-02 layers atop this Quaker substrate, adding bias-resistance

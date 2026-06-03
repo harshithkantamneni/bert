@@ -1,7 +1,5 @@
 """Smoke test for core/llmlingua_compress.py — API contract verification.
 
-Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 3.
-
 Mocks the PromptCompressor so the test is fast and deterministic. The
 LIVE verification (real ~280MB model load + real compression on 3K-token
 text + BERTScore F1 ≥ 0.92) is a separate manual step — see

@@ -1,9 +1,11 @@
-"""Smoke test for the OWASP Top-10 Inspect AI suite (H.7)."""
+"""Smoke test for the OWASP Top-10 Inspect AI suite."""
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
+
+import pytest
 
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
@@ -46,6 +48,9 @@ def test_check_llm07_finds_anchor_guard() -> None:
 
 def test_check_llm09_unbounded_consumption() -> None:
     """Quota + alerts + capability_matrix.quota_headroom_pct."""
+    if not (owasp_top10.LAB_ROOT / "bot" / "alerts.py").exists():
+        pytest.skip("requires the bot/ Telegram-alerts integration "
+                    "(not shipped in the public repo)")
     r = owasp_top10._check_llm09()
     # Should pass on bert's current tree
     assert r["passed"] is True, r["rationale"]
@@ -64,10 +69,10 @@ def test_check_degrades_when_lab_root_missing(monkeypatch_off=None) -> None:
     """R5 edge case: if LAB_ROOT pointed at a non-existent dir, checks
     must return passed=False with rationale, not crash."""
     import tempfile
-    from pathlib import Path as P
+    from pathlib import Path
     orig = owasp_top10.LAB_ROOT
     try:
-        owasp_top10.LAB_ROOT = P(tempfile.mkdtemp(prefix="bert_owasp_empty_"))
+        owasp_top10.LAB_ROOT = Path(tempfile.mkdtemp(prefix="bert_owasp_empty_"))
         for i in range(1, 11):
             fn = getattr(owasp_top10, f"_check_llm{i:02d}")
             r = fn()

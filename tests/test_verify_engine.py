@@ -12,13 +12,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pytest
-
 LAB_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(LAB_ROOT))
 
 from core import verify_engine  # noqa: E402
-
 
 # ── Fixtures ─────────────────────────────────────────────────────────
 

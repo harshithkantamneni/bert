@@ -21,7 +21,7 @@ sys.path.insert(0, str(LAB_ROOT))
 def test_write_to_findings_emits_finding_event() -> None:
     """A Write to findings/foo.md in an active lab triggers an
     event_class=finding append to <lab>/sor/events.jsonl."""
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
     from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
@@ -51,7 +51,7 @@ def test_write_to_findings_emits_finding_event() -> None:
 
 def test_write_to_non_findings_path_does_not_emit() -> None:
     """Writes to drafts/ or any other dir should NOT emit a finding."""
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
     from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
@@ -69,7 +69,7 @@ def test_write_to_non_findings_path_does_not_emit() -> None:
 
 def test_write_to_findings_archive_does_not_emit() -> None:
     """findings/archive/* are historical — no live finding event."""
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
     from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
@@ -87,7 +87,7 @@ def test_write_to_findings_archive_does_not_emit() -> None:
 
 def test_write_to_findings_non_md_does_not_emit() -> None:
     """Only .md files in findings/ count as findings."""
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
     from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:
@@ -112,6 +112,7 @@ def test_bert_run_writes_findings_not_drafts() -> None:
     (the roster is now schema-derived, not a fixed researcher→strategist
     pair). The F9 invariant — findings/ not drafts/ — is unchanged."""
     import inspect
+
     from tools import bert_run as br
     src = inspect.getsource(br._run_one_cycle)
     # Generalized roster-driven output path (covers researcher,
@@ -124,7 +125,7 @@ def test_bert_run_writes_findings_not_drafts() -> None:
 def test_finding_id_is_deterministic() -> None:
     """Same source_path → same id, so re-writes update rather than
     duplicate. Matches canvas_watcher's _hash_id convention."""
-    from core.lab_context import set_active_lab_path, reset_active_lab_path
+    from core.lab_context import reset_active_lab_path, set_active_lab_path
     from core.tools import _write
 
     with tempfile.TemporaryDirectory() as td:

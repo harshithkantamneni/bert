@@ -1,6 +1,4 @@
-"""LLMLingua-2 prompt compression for L-08 Phase A cross-family judge legs.
-
-Per FINAL_implementation_plan_2026-05-07.md §5.1 H1 day 3 + A6 §16.1.
+"""LLMLingua-2 prompt compression for cross-family judge legs.
 
 The cross-family judge dispatch (P-VS-02 + P-VS-07 phase 2 on META/SPEC
 altitude) can't use KV-cache reuse because the producer and judge run on
@@ -23,8 +21,8 @@ bert-specific use:
     with cross-family judge: compress the standing-context portion
     BEFORE sending to the judge; preserve phase-1 questions verbatim
     (those need to fire as queries with their original phrasing).
-  - Same-family chains DON'T compress (KV-cache reuse handles them via
-    L-08 Phase B/C; this module is specifically the cross-family bridge).
+  - Same-family chains DON'T compress (KV-cache reuse handles them;
+    this module is specifically the cross-family bridge).
 
 This module exposes:
   - compress_for_cross_family(text, target_ratio=5.0, force_keep_segments=None)

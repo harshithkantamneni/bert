@@ -23,9 +23,9 @@ Run via:
 
 from __future__ import annotations
 
-import json
-import sqlite3
 import os
+import sqlite3
+
 os.environ.setdefault("BERT_DISABLE_RERANKER", "1")  # tests: no 568MB cold-start
 
 import subprocess
@@ -211,7 +211,7 @@ def test_synth_unknown_profile_falls_through_to_default():
 
 
 def test_scaffold_knowledge_idempotent():
-    from core import schema_synthesizer, mission_profile
+    from core import mission_profile, schema_synthesizer
     with tempfile.TemporaryDirectory() as tmp:
         lab = Path(tmp)
         p = mission_profile.default_profile("test")
@@ -290,8 +290,9 @@ def test_resume_token_empty():
 
 def test_resume_token_expired():
     """Token with past expiry rejected."""
-    from core import pause_resume
     import time
+
+    from core import pause_resume
     st = pause_resume.PausedState(
         lab="x", cycle=1, step_id="s",
         created_at_ts=time.time() - 100000,

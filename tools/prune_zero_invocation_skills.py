@@ -1,6 +1,6 @@
-"""SkillOS-style zero-invocation skill pruning (F.8).
+"""SkillOS-style zero-invocation skill pruning.
 
-Per E.2 / L-23 step 6 deferred scope. Scans skills/active/, computes
+Scans skills/active/, computes
 each skill's invocation count from lab/sor/events.jsonl over the last
 N cycles (default 30), and demotes (moves to skills/archived/) any
 skill with zero invocations.

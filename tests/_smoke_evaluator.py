@@ -1,7 +1,5 @@
 """Smoke test for core/evaluator.py — 23-point cycle judge (Python side).
 
-Per FINAL_implementation_plan_2026-05-07.md §5.4 H4 Track D.
-
 Tests:
   1. Empty cycle (no events) → PASS overall
   2. Director specialist work >5min → FAIL on point 4
