@@ -668,7 +668,7 @@ def _t_packet_export(args: dict) -> dict:
 
 
 def make_server() -> MCPServer:
-    srv = MCPServer(name="bert-lab", version="0.1.0", namespace="bert.lab")
+    srv = MCPServer(name="bert", version="0.1.0", namespace="bert")
 
     srv.register_tool(
         "lab_list",
