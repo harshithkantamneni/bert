@@ -26,6 +26,10 @@ Those claims come from a benchmark program built to **falsify** them. The honest
 
 **What was disproved** (reported as the headline, not buried): orchestration on a frontier model — ≈0 gain at 17–47× tokens; cheaper-model-plus-harness — bert-Sonnet 0.79 < bare-Sonnet 0.87 < bare-Opus 0.89, never won.
 
+**Industry-standard anchors** (recognized benchmarks, comparable to published baselines):
+- **BEIR scifact** (the standard IR benchmark, nDCG@10): bert's BM25 **0.658** ≈ published 0.665; **hybrid 0.684 beats it**. See [`benchmarks/results/B2_BEIR_RESULT.md`](benchmarks/results/B2_BEIR_RESULT.md).
+- **Needle-in-a-Haystack** (the de-facto context-window test): bert-RAG **25/25** across a depth×length grid *including 2× the window*, where full-context is infeasible. (Single-needle NIAH, not RULER; the full-context arm is quota-bounded.) See [`benchmarks/results/B10_NIAH_RESULT.md`](benchmarks/results/B10_NIAH_RESULT.md).
+
 Full methodology, results, and limitations: [`benchmarks/BENCHMARK_SYNTHESIS.md`](benchmarks/BENCHMARK_SYNTHESIS.md).
 
 ## Install (MCP server — you bring your own keys)

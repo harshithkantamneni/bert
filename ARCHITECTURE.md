@@ -211,6 +211,29 @@ Raw: `benchmarks/results/b9_wall_20260602T173506.json`.
 
 Trivia: **8.8× cheaper / 7× faster** with **no accuracy loss** (difficulty-gated short-circuit). Root-caused a 17–47× input-token inflation = mostly re-counted prompt-cache reads, not fresh compute.
 
+### Standard-benchmark anchors (recognized, comparable to published)
+
+Beyond the custom suites, two recognized benchmarks anchor bert to the public landscape.
+
+**B2 — BEIR scifact** (`b2_beir_scifact.py`, the standard IR benchmark; raw `benchmarks/results/B2_BEIR_RESULT.md`). bert's real stack (MiniLM + `core.bm25` + RRF + bge-reranker) on 5,183 docs / 300 queries:
+
+| method | nDCG@10 |
+|---|---|
+| vector-only | 0.645 |
+| BM25 | **0.658** (≈ published BM25 0.665) |
+| hybrid (vector+BM25) | **0.684** (beats published BM25) |
+
+(The reranker row OOM'd on 18 GB MPS — a hardware limit, not a bug.) Note BEIR's short passages can't exercise the wall — it measures retrieval-*stack quality* on standard data.
+
+**B10 — Needle-in-a-Haystack** (`b10_niah.py`, the de-facto context-window test; raw `benchmarks/results/B10_NIAH_RESULT.md`). The standard NIAH method, extended past the window:
+
+| | result |
+|---|---|
+| bert-RAG (5×5 depth×length grid) | **25/25 (100%)** incl. 2× the window |
+| full-context | recall 1.0 ≤ window, **INFEASIBLE** at 2M (quota-bounded, sparse) |
+
+Honest scope: **single-needle** (not RULER's multi-needle), and the full-context arm is one sample per cell (each is a real Opus call). Single-needle NIAH is *easy* for retrieval; B9 is the *hard*-distractor retrieval test (0.85, not 1.0).
+
 ### Three real bugs the eval caught + fixed in bert's own code (the highest-value output)
 
 1. **Hybrid retriever silently broken** — wrong dict keys (`text/id/score` vs `path/chunk_idx/content/distance`) zeroed the RRF vector signal + a 240-char truncation dropped answer spans. **0.10 → 0.85 accuracy, 0.125 → 0.783 recall.** (`core/retrieval.py`)
