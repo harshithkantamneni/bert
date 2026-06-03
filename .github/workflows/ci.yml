@@ -16,7 +16,7 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install
-        run: pip install -e .
+        run: pip install -e ".[dev]"   # [dev] carries pytest + pytest-asyncio
       # The benchmark suite is offline + key-free (the real-API tests skip
       # without credentials). It proves the harness + retrieval-metric logic.
       - name: Run benchmark tests
