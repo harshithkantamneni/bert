@@ -1,5 +1,5 @@
 #!/bin/zsh
-cd /Users/harshithkantamneni/Desktop/bert-lab
+cd /path/to/Desktop/bert-lab
 PASS=0; FAIL=0; TO=0; SKIP=0; RETRIED=0
 FAILS=()
 

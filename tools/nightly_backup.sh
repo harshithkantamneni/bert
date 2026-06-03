@@ -26,7 +26,7 @@
 #
 # Install as cron entry (PI runs once):
 #   crontab -e
-#   # Add: 0 3 * * *  /Users/harshithkantamneni/Desktop/bert-lab/tools/nightly_backup.sh >> /Users/harshithkantamneni/Desktop/bert-lab/logs/nightly_backup.log 2>&1
+#   # Add: 0 3 * * *  /path/to/Desktop/bert-lab/tools/nightly_backup.sh >> /path/to/Desktop/bert-lab/logs/nightly_backup.log 2>&1
 #
 # Manual run:
 #   ./tools/nightly_backup.sh

@@ -3,7 +3,7 @@
 # Each run produces benchmarks/results/diverse_progress_HHMM.md so we
 # can track Zipfian convergence.
 
-cd /Users/harshithkantamneni/Desktop/bert-lab
+cd /path/to/Desktop/bert-lab
 
 while true; do
   STAMP=$(date +%H%M)

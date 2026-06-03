@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /Users/harshithkantamneni/Desktop/bert-lab
+cd /path/to/Desktop/bert-lab
 while true; do
   NOW_C=$(wc -l < state/observability/cycle_outcome.jsonl 2>/dev/null || echo 0)
   NOW_R=$(wc -l < state/observability/retrieval.jsonl 2>/dev/null || echo 0)

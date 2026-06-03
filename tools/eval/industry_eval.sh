@@ -31,7 +31,7 @@
 #  21. Visual regression (Playwright + pixelmatch)
 #  22. Docker container build + smoke
 
-REPO=/Users/harshithkantamneni/Desktop/bert-lab
+REPO=/path/to/Desktop/bert-lab
 cd "$REPO"
 EVAL_DIR="$REPO/tools/eval"
 # Flush prints so stdout reaches the log even mid-stage (zsh default
@@ -77,7 +77,7 @@ ensure_vite() {
     return 0
   fi
   print -P "  %F{cyan}↦%f (re)starting vite dev on :5173..."
-  ( cd "$REPO/abyssal/v4" && npm run dev > /tmp/eval_vite.log 2>&1 ) &
+  ( cd "$REPO/bert/v4" && npm run dev > /tmp/eval_vite.log 2>&1 ) &
   EVAL_VITE_PID=$!
   EVAL_STARTED_VITE=1
   for _i in {1..30}; do
@@ -130,7 +130,7 @@ SMOKE_RUNNER="$EVAL_DIR/_smoke_batch.sh"
 if [ ! -f "$SMOKE_RUNNER" ]; then
 cat > "$SMOKE_RUNNER" <<'SMOKERUNNER'
 #!/bin/zsh
-cd /Users/harshithkantamneni/Desktop/bert-lab
+cd /path/to/Desktop/bert-lab
 PASS=0; FAIL=0; TO=0; SKIP=0
 FAILS=()
 for f in tests/_smoke_*.py; do
@@ -172,7 +172,7 @@ fi
 
 # ── 2. TypeScript strict typecheck ─────────────────────────────
 heading "Stage 2 — TypeScript strict"
-ts_out=$(cd "$REPO/abyssal/v4" && npx -y tsc --noEmit -p tsconfig.json 2>&1)
+ts_out=$(cd "$REPO/bert/v4" && npx -y tsc --noEmit -p tsconfig.json 2>&1)
 if [ -z "$ts_out" ]; then
   record_pass "ts strict — 0 errors"
 else
@@ -188,7 +188,7 @@ fi
 heading "Stage 3 — Vite production build"
 build_out=""
 for _attempt in 1 2; do
-  build_out=$(cd "$REPO/abyssal/v4" && npx -y vite build 2>&1)
+  build_out=$(cd "$REPO/bert/v4" && npx -y vite build 2>&1)
   echo "$build_out" | grep -q "built in" && break
   print -P "  %F{yellow}↻%f vite build attempt $_attempt failed; retrying..."
   sleep 2
@@ -217,7 +217,7 @@ fi
 
 # ── 5. npm audit ───────────────────────────────────────────────
 heading "Stage 5 — npm audit (frontend deps)"
-audit_out=$(cd "$REPO/abyssal/v4" && npm audit --json 2>&1)
+audit_out=$(cd "$REPO/bert/v4" && npm audit --json 2>&1)
 high=$(echo "$audit_out" | python3 -c "import sys,json; d=json.load(sys.stdin); v=d.get('metadata',{}).get('vulnerabilities',{}); print(v.get('high',0)+v.get('critical',0))" 2>/dev/null || echo "?")
 mod=$(echo "$audit_out" | python3 -c "import sys,json; d=json.load(sys.stdin); v=d.get('metadata',{}).get('vulnerabilities',{}); print(v.get('moderate',0))" 2>/dev/null || echo "?")
 print "  high/critical=$high moderate=$mod"
@@ -388,7 +388,7 @@ d = json.load(open('/tmp/bandit.json'))
 hh = [r for r in d.get('results', []) if r['issue_severity'] == 'HIGH' and r['issue_confidence'] == 'HIGH']
 print(len(hh))
 " 2>/dev/null || echo "?")
-es_out=$(cd "$REPO/abyssal/v4" && npx eslint 'src/**/*.{ts,tsx}' 2>&1)
+es_out=$(cd "$REPO/bert/v4" && npx eslint 'src/**/*.{ts,tsx}' 2>&1)
 es_rc=$?
 if [ "$hh" = "0" ] && [ $es_rc -eq 0 ]; then
   record_pass "SAST — bandit 0 HIGH/HIGH + eslint-security clean"
@@ -421,7 +421,7 @@ heading "Stage 19 — SBOM (CycloneDX npm + python)"
 mkdir -p "$REPO/findings/sbom"
 "$REPO/.venv/bin/python" -m cyclonedx_py environment "$REPO/.venv" \
   -o "$REPO/findings/sbom/python.cdx.json" 2>/dev/null
-(cd "$REPO/abyssal/v4" && npx -y @cyclonedx/cyclonedx-npm \
+(cd "$REPO/bert/v4" && npx -y @cyclonedx/cyclonedx-npm \
   --output-file "$REPO/findings/sbom/npm.cdx.json" \
   --output-format JSON --omit dev > /dev/null 2>&1)
 py_components=$("$REPO/.venv/bin/python" -c "import json;print(len(json.load(open('$REPO/findings/sbom/python.cdx.json')).get('components',[])))" 2>/dev/null || echo "0")
@@ -438,11 +438,11 @@ fi
 # meaningless. We build, serve via preview on 4173, run lighthouse,
 # then tear down.
 heading "Stage 20 — Lighthouse (perf ≥ 70, a11y ≥ 95, best ≥ 95)"
-CHROME_BIN="/Users/harshithkantamneni/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+CHROME_BIN="/path/to/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
 mkdir -p "$REPO/findings/lighthouse"
 
 # Spin up vite preview against dist/
-( cd "$REPO/abyssal/v4" && npx vite preview --port 4173 --strictPort > /tmp/vite_preview.log 2>&1 ) &
+( cd "$REPO/bert/v4" && npx vite preview --port 4173 --strictPort > /tmp/vite_preview.log 2>&1 ) &
 PREVIEW_PID=$!
 # wait for preview to bind (max 20s)
 for i in {1..40}; do

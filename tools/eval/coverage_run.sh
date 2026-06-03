@@ -11,7 +11,7 @@
 # don't run in unit mode).
 
 set -u
-REPO=/Users/harshithkantamneni/Desktop/bert-lab
+REPO=/path/to/Desktop/bert-lab
 cd "$REPO"
 .venv/bin/python -m coverage erase
 

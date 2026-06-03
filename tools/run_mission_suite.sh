@@ -5,7 +5,7 @@
 # Usage: bash tools/run_mission_suite.sh
 
 set -uo pipefail
-cd /Users/harshithkantamneni/Desktop/bert-lab
+cd /path/to/Desktop/bert-lab
 
 CYCLES_PER_MISSION=${CYCLES_PER_MISSION:-5}
 

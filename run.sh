@@ -6,7 +6,7 @@
 #   tmux new-session -d -s bert-lab './run.sh'
 #   tmux attach -t bert-lab
 #
-# Adapted from HIVE/AGI patterns — six exit reasons, three-layer rate-limit
+# Adapted from a prior lab/AGI patterns — six exit reasons, three-layer rate-limit
 # handling, holding-loop detector, watchdog, signature verifier.
 
 set -uo pipefail
