@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bert-lab/seasoning_entry.json",
+  "title": "SeasoningEntry",
+  "description": "P-VS-09 (Seasoning queue) entry. A REJECT verdict with no clear revision path is 'laid aside indefinitely' rather than discarded — kept in state/seasoning.jsonl (or lab/sod/seasoning.jsonl post-L-01) for future cycle-recognition revival when context changes. Per Sheeran 1983 ch. 6 + BYM Quaker faith & practice §12.26.",
+  "type": "object",
+  "required": [
+    "id",
+    "ts",
+    "source_dispatch_id",
+    "verdict",
+    "summary",
+    "revival_conditions",
+    "cycle"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^season-[0-9a-f]{8}$",
+      "description": "Stable ID for the seasoning entry. Format: 'season-' + 8 hex chars (truncated SHA of content + ts)."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when seasoned."
+    },
+    "source_dispatch_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ID or path of the dispatch whose REJECT verdict triggered seasoning."
+    },
+    "verdict": {
+      "type": "string",
+      "const": "REJECT",
+      "description": "Always REJECT — only REJECT-with-no-revision-path routes to seasoning. APPROVE_WITH_CAVEATS uses concerns_embedded forward-flow instead (P-VS-08)."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 50,
+      "description": "≥50-char summary of what was rejected and why no clear revision path existed at the time of seasoning."
+    },
+    "revival_conditions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 20},
+      "minItems": 1,
+      "description": "Concrete observable conditions under which this seasoning entry should be revisited. NOT a calendar timer — bert deliberately uses no auto-revival timer (load-bearing per P-VS-09). Conditions are like 'when free-tier context window exceeds 64K' or 'when an agent benchmark with reward-hacking-resistance methodology emerges'."
+    },
+    "cycle": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Cycle in which this entry was seasoned."
+    },
+    "altitude": {
+      "type": "string",
+      "enum": ["META", "SPEC", "IMPL", "INFRA", "NIT-cleanup"],
+      "description": "Dispatch altitude of the seasoned work (informs revival prioritization)."
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Free-form tags for cycle-recognition revival queries."
+    },
+    "revived_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "If/when this entry was revived; null until revival fires."
+    },
+    "revival_dispatch_id": {
+      "type": "string",
+      "description": "Dispatch ID of the revived attempt (when revived)."
+    }
+  },
+  "additionalProperties": false
+}

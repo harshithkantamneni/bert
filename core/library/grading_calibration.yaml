@@ -1,0 +1,126 @@
+# Rubric calibration gold set (launch criterion #16).
+#
+# >=5 artifacts graded by hand against the rubric anchors in
+# grading_rubric.yaml. These reference scores are the human ground truth the
+# 4-judge grader is calibrated against: core/grading_calibration.run_calibration
+# grades each artifact and measures per-dimension agreement (mean-absolute-error)
+# vs `reference_scores`. The set deliberately spans the quality range — a strong
+# brief, an ungrounded one, an overclaiming one, a balanced middle, and a correct
+# but inefficient one — so calibration exercises both ends of every dimension.
+#
+# Dimensions (0-5, see grading_rubric.yaml): correctness, completeness,
+# provenance, defensibility, usability, honesty, reproducibility, efficiency.
+
+cases:
+  - id: strong-cited-research-brief
+    note: >
+      Well-cited, scopes its claims, surfaces its own limitations. High on
+      correctness/provenance/honesty; not perfect on completeness (a sub-question
+      is named but unresolved).
+    artifact: |
+      RWKV-X and xLSTM-7B reach parity with same-class transformers on standard
+      LM benchmarks [^1][^2], while serving with linear attention cost [^3]. On
+      long-context retrieval both trail a tuned transformer by 4-6 points [^2].
+      We recommend a pilot on RWKV-X for throughput-bound workloads; the
+      long-context gap on legal-document QA is named but not yet measured here.
+    gaps: |
+      # Gaps
+      - No measurement of the long-context gap on our own corpus.
+      - Throughput numbers are from the papers, not reproduced locally.
+    reference_scores:
+      correctness: 5
+      completeness: 4
+      provenance: 5
+      defensibility: 4
+      usability: 4
+      honesty: 5
+      reproducibility: 4
+      efficiency: 4
+
+  - id: ungrounded-assertion
+    note: >
+      Confident claims with no citations and no way to check them. Low
+      provenance/reproducibility; correctness is doubtful because nothing is
+      verifiable.
+    artifact: |
+      Non-transformer models are clearly better and everyone should switch. They
+      are faster and just as accurate. The transformer era is over and linear
+      models win across the board.
+    gaps: |
+      # Gaps
+      (none stated)
+    reference_scores:
+      correctness: 2
+      completeness: 2
+      provenance: 1
+      defensibility: 1
+      usability: 2
+      honesty: 2
+      reproducibility: 1
+      efficiency: 3
+
+  - id: overclaiming-hides-limits
+    note: >
+      The analysis is competent but the write-up oversells and buries the
+      caveats. Honesty is the failing dimension; correctness/provenance are
+      middling because the strong claim outruns the evidence.
+    artifact: |
+      Our retriever DEFINITIVELY beats BM25 and ColBERT-v1 [^1]. Results are
+      state of the art and production-ready today. (The +0.02 nDCG margin on one
+      dataset and the missing latency numbers are not discussed.)
+    gaps: |
+      # Gaps
+      - Single dataset.
+    reference_scores:
+      correctness: 3
+      completeness: 3
+      provenance: 3
+      defensibility: 2
+      usability: 3
+      honesty: 1
+      reproducibility: 2
+      efficiency: 3
+
+  - id: balanced-middle
+    note: >
+      A reasonable, ordinary memo: mostly right, partially cited, usable, candid
+      about what it skipped. Sits near the middle on every dimension.
+    artifact: |
+      Vector DBs in scope (pgvector, Qdrant, Weaviate) all meet our recall bar at
+      1M vectors [^1]. pgvector is simplest to operate given our Postgres
+      footprint. We did not benchmark at 10M vectors; that is the next step.
+    gaps: |
+      # Gaps
+      - No 10M-vector benchmark.
+      - Cost-per-query not modeled.
+    reference_scores:
+      correctness: 3
+      completeness: 3
+      provenance: 3
+      defensibility: 3
+      usability: 4
+      honesty: 4
+      reproducibility: 3
+      efficiency: 3
+
+  - id: correct-but-inefficient
+    note: >
+      Rigorous and honest, but the result took a wildly disproportionate path
+      (re-ran the full sweep five times). Strong everywhere except efficiency.
+    artifact: |
+      After five full hyperparameter sweeps (re-run from scratch each time due to
+      a lost cache), we confirm the reranker improves nDCG by 0.12 [^1][^2]. The
+      method, seeds, and configs are recorded and reproducible [^3]. The compute
+      spent was far beyond what the single confirmed result required.
+    gaps: |
+      # Gaps
+      - The four redundant sweeps added no information.
+    reference_scores:
+      correctness: 5
+      completeness: 4
+      provenance: 5
+      defensibility: 4
+      usability: 4
+      honesty: 5
+      reproducibility: 5
+      efficiency: 1

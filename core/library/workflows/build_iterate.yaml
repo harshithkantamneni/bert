@@ -1,0 +1,56 @@
+# Workflow spec — build_iterate (code labs)
+#
+# Used by data_shape=code_repo + primary_work=build|audit|refute.
+# Director picks from valid_cycle_shapes; runner enforces termination
+# rules; brief_assembler may filter sections per session_type.
+
+name: build_iterate
+
+valid_cycle_shapes:
+  - explore               # read the codebase, gather context
+  - propose               # propose a refactor / change
+  - implement             # write the code
+  - test                  # run / write tests
+  - review                # cross-model verification
+  - ship                  # merge / land
+
+# Cycle ordering hints — director picks but should generally progress
+# explore → propose → implement → test → review → ship. Cycles can
+# loop back (e.g., test fails → implement again).
+typical_progression:
+  - explore
+  - propose
+  - implement
+  - test
+  - review
+  - ship
+
+# When director's cycle_shape decision matches a termination_rule's
+# `when` condition, the runner stops the cycle loop and emits a
+# mission_complete event. Per P-8 quality-first, saturation is
+# advisory (asks user) rather than auto-terminating.
+
+termination_rules:
+  - kind: mission_complete_verdict
+    when: cycle_shape == 'ship' AND last_verdict == 'APPROVE'
+    action: complete
+  - kind: saturation
+    when: novelty_score < 0.1 for 3 consecutive cycles
+    action: ask_user
+    note: "Build cycles may have legitimate quiet phases; ask user before stopping."
+  - kind: budget_exhausted
+    when: cost_usd > lab.budget_cap_usd
+    action: ask_user
+  - kind: safety_cap
+    when: cycle > 50
+    action: hard_stop
+
+# Per-session-type brief overrides. Brief_assembler reads this when
+# the classified session_type matches.
+session_type_overrides:
+  post-build-fail:
+    extra_sections: [recent_test_failures, recent_diffs]
+  build-fail-debug:
+    extra_sections: [recent_test_failures, suspect_files]
+  routine-cycle:
+    extra_sections: []

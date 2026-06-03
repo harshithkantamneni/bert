@@ -1,0 +1,55 @@
+{
+  "arms": [
+    "bare-Opus",
+    "bare-Sonnet",
+    "bert-Sonnet"
+  ],
+  "judge": "mistral+gemini (non-Claude, non-OR)",
+  "workloads": [
+    "t1_i1",
+    "t1_i2",
+    "t2_i1"
+  ],
+  "rows": [
+    {
+      "inst": "t1_i1",
+      "bare_opus": 0.8533333333333334,
+      "bare_sonnet": 0.95,
+      "bert_sonnet": 0.89,
+      "pw_bertSonnet_vs_opus": "a",
+      "pw_bertSonnet_vs_sonnet": "tie",
+      "secs": 1210
+    },
+    {
+      "inst": "t1_i2",
+      "bare_opus": 0.8833333333333333,
+      "bare_sonnet": null,
+      "bert_sonnet": 0.7966666666666666,
+      "pw_bertSonnet_vs_opus": "tie",
+      "pw_bertSonnet_vs_sonnet": "n/a",
+      "secs": 1033
+    },
+    {
+      "inst": "t2_i1",
+      "bare_opus": 0.9266666666666666,
+      "bare_sonnet": null,
+      "bert_sonnet": 0.3433333333333333,
+      "pw_bertSonnet_vs_opus": "b",
+      "pw_bertSonnet_vs_sonnet": "n/a",
+      "secs": 1196
+    }
+  ],
+  "derived": {
+    "bare_opus_mean": 0.888,
+    "bare_sonnet_mean": 0.95,
+    "bert_sonnet_mean": 0.677,
+    "harness_lift": -0.273,
+    "tier_gap": -0.062,
+    "bert_sonnet_vs_opus": -0.211,
+    "pw_wins_vs_opus": [
+      "a",
+      "tie",
+      "b"
+    ]
+  }
+}

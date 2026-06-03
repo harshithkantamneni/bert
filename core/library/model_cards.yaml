@@ -1,0 +1,351 @@
+# Model capability cards — bert v1.0 (May 2026 snapshot)
+#
+# Sprint 1 commit 9: the canonical registry of every model bert can
+# route to. Each card declares: where it's accessible (host / BYO /
+# free-tier), context/output limits, thinking-token + prompt-caching
+# support, pricing (USD per million tokens), empirical strengths and
+# weaknesses (tagged), best/avoid for roles + skills, published
+# benchmarks at card-authoring time, and a last_validated date.
+#
+# Used by:
+#   - core/router.py:resolve_model_for_dispatch (model selection)
+#   - core/host_detector (tier-1 availability filtering)
+#   - bert doctor (display per-tier model availability)
+#   - tools/refresh_model_cards.py (daily registry refresh)
+#
+# Schema validated by core/model_cards.py loader; deprecation_date
+# triggers a 7-day warning before retirement (#39). Pair it with
+# `deprecated_to: <successor model id>` so the router transparently
+# remaps a past-date model to its successor (#32 graceful aliases) —
+# the daily refresh (#31) sets both when a provider deprecates a model.
+
+cards:
+
+  # ───────── Anthropic family (Claude Code Max / BYO ANTHROPIC_API_KEY) ─────────
+
+  - id: claude-opus-4-7
+    provider: anthropic
+    access:
+      via_host: [claude-code]
+      via_byo: [ANTHROPIC_API_KEY]
+      via_free_tier: false
+    family: claude
+    generation: "4.7"
+    context_window: 1000000
+    output_token_max: 8192
+    thinking_tokens:
+      supported: true
+      visible_to_caller: true
+      max_budget: 64000
+    prompt_caching:
+      supported: true
+      ttl_seconds: 300
+      discount_pct: 90
+    pricing_per_million_usd:
+      input_uncached: 15.0
+      input_cached: 1.50
+      output: 75.0
+      thinking: 75.0
+    strengths:
+      - long_context_reasoning
+      - tool_use
+      - nuanced_judgment
+      - citation_honesty
+      - code_review
+      - finalization_polish
+    weaknesses:
+      - cost
+      - latency
+    best_for_roles: [evaluator, writer, security_auditor, red_team]
+    best_for_skills: [claim_verify_against_source, red_team_pass, adversarial_audit, finalize_project]
+    avoid_for_roles: []
+    benchmarks:
+      swe_bench_verified: 0.71
+      mmlu_pro: 0.83
+      long_mem_eval: 0.79
+      aime_2024: 0.68
+    last_validated: 2026-05-26
+    notes: "Default tier-A pick when claude-code Max plan available."
+
+  - id: claude-opus-4-6
+    provider: anthropic
+    access:
+      via_host: [claude-code]
+      via_byo: [ANTHROPIC_API_KEY]
+      via_free_tier: false
+    family: claude
+    generation: "4.6"
+    context_window: 200000
+    output_token_max: 8192
+    thinking_tokens: {supported: true, visible_to_caller: true, max_budget: 32000}
+    prompt_caching: {supported: true, ttl_seconds: 300, discount_pct: 90}
+    pricing_per_million_usd: {input_uncached: 15.0, input_cached: 1.50, output: 75.0, thinking: 75.0}
+    strengths: [writer_quality, nuanced_judgment, tool_use]
+    weaknesses: [cost, shorter_context_than_4_7]
+    best_for_roles: [writer, evaluator]
+    benchmarks: {swe_bench_verified: 0.67, mmlu_pro: 0.81}
+    last_validated: 2026-05-26
+    notes: "Current claude-code Team plan default; fallback when 4.7 unavailable."
+
+  - id: claude-sonnet-4-6
+    provider: anthropic
+    access:
+      via_host: [claude-code, cursor]
+      via_byo: [ANTHROPIC_API_KEY]
+      via_free_tier: false
+    family: claude
+    generation: "4.6"
+    context_window: 200000
+    output_token_max: 8192
+    thinking_tokens: {supported: true, visible_to_caller: true, max_budget: 32000}
+    prompt_caching: {supported: true, ttl_seconds: 300, discount_pct: 90}
+    pricing_per_million_usd: {input_uncached: 3.0, input_cached: 0.30, output: 15.0, thinking: 15.0}
+    strengths: [tool_use_speed, code_synthesis, structured_output, balanced_reasoning]
+    weaknesses: [shorter_context_than_opus]
+    best_for_roles: [researcher, analyst, implementer, code_reader, refactor_specialist, test_author]
+    best_for_skills: [test_driven_implement, comparative_evaluation]
+    benchmarks: {swe_bench_verified: 0.66, mmlu_pro: 0.79, long_mem_eval: 0.71}
+    last_validated: 2026-05-26
+    notes: "Tier-B workhorse on claude-code Pro+ plans."
+
+  - id: claude-sonnet-4-5
+    provider: anthropic
+    access:
+      via_host: [cursor]
+      via_byo: [ANTHROPIC_API_KEY]
+      via_free_tier: false
+    family: claude
+    generation: "4.5"
+    context_window: 200000
+    output_token_max: 8192
+    thinking_tokens: {supported: false}
+    prompt_caching: {supported: true, ttl_seconds: 300, discount_pct: 90}
+    pricing_per_million_usd: {input_uncached: 3.0, input_cached: 0.30, output: 15.0}
+    strengths: [tool_use, code_synthesis]
+    weaknesses: [no_thinking, older_generation]
+    best_for_roles: [researcher_fallback]
+    benchmarks: {swe_bench_verified: 0.58, mmlu_pro: 0.74}
+    last_validated: 2026-05-26
+    notes: "Cursor Hobby tier; fallback only."
+
+  - id: claude-haiku-4-5
+    provider: anthropic
+    access:
+      via_host: [claude-code, cursor]
+      via_byo: [ANTHROPIC_API_KEY]
+      via_free_tier: false
+    family: claude
+    generation: "4.5"
+    context_window: 200000
+    output_token_max: 8192
+    thinking_tokens: {supported: true, visible_to_caller: false, max_budget: 4000}
+    prompt_caching: {supported: true, ttl_seconds: 300, discount_pct: 90}
+    pricing_per_million_usd: {input_uncached: 0.80, input_cached: 0.08, output: 4.0, thinking: 4.0}
+    strengths: [speed, cost, extraction, classification, structured_output]
+    weaknesses: [reasoning_depth, long_horizon_planning]
+    best_for_roles: [mission_classifier, extractor, classifier, validator]
+    best_for_skills: [extract_claims_from_text, filter_by_url_pattern, dedupe_by_canonical_url, prompt_injection_detect]
+    benchmarks: {swe_bench_verified: 0.40, mmlu_pro: 0.71, long_mem_eval: 0.55}
+    last_validated: 2026-05-26
+    notes: "Tier-C for mechanical/structured work."
+
+  # ───────── OpenAI family (Codex / Cursor / BYO OPENAI_API_KEY) ─────────
+
+  - id: gpt-5
+    provider: openai
+    access:
+      via_host: [codex, cursor]
+      via_byo: [OPENAI_API_KEY]
+      via_free_tier: false
+    family: gpt
+    generation: "5"
+    context_window: 256000
+    output_token_max: 16384
+    thinking_tokens: {supported: true, visible_to_caller: false, max_budget: 64000}
+    prompt_caching: {supported: true, ttl_seconds: 600, discount_pct: 50}
+    pricing_per_million_usd: {input_uncached: 10.0, input_cached: 5.0, output: 40.0}
+    strengths: [reasoning, multimodal_text_image, structured_output, function_calling]
+    weaknesses: [opaque_reasoning, no_thinking_visibility]
+    best_for_roles: [researcher, analyst, evaluator]
+    benchmarks: {swe_bench_verified: 0.68, mmlu_pro: 0.81}
+    last_validated: 2026-05-26
+    notes: "Codex Pro+ and Cursor Pro+ default; balanced choice for tool-use."
+
+  - id: o3
+    provider: openai
+    access:
+      via_host: [codex]
+      via_byo: [OPENAI_API_KEY]
+      via_free_tier: false
+    family: o-series
+    generation: "3"
+    context_window: 200000
+    output_token_max: 100000
+    thinking_tokens: {supported: true, visible_to_caller: false, max_budget: 200000}
+    prompt_caching: {supported: false}
+    pricing_per_million_usd: {input_uncached: 60.0, output: 240.0}
+    strengths: [deep_reasoning, math, planning, code_synthesis]
+    weaknesses: [latency, cost, no_streaming]
+    best_for_roles: [strategist, finalizer]
+    best_for_skills: [decision_memo_draft, reconcile_contradictions, finalize_project]
+    benchmarks: {swe_bench_verified: 0.75, aime_2024: 0.92}
+    last_validated: 2026-05-26
+    notes: "Codex Business+; deep reasoning workhorse."
+
+  - id: o3-mini
+    provider: openai
+    access: {via_host: [codex, cursor], via_byo: [OPENAI_API_KEY], via_free_tier: false}
+    family: o-series
+    generation: "3"
+    context_window: 128000
+    output_token_max: 65536
+    thinking_tokens: {supported: true, visible_to_caller: false, max_budget: 65000}
+    prompt_caching: {supported: false}
+    pricing_per_million_usd: {input_uncached: 3.0, output: 12.0}
+    strengths: [reasoning_low_cost, math]
+    weaknesses: [shorter_context, lower_quality_than_o3]
+    best_for_roles: [analyst]
+    benchmarks: {swe_bench_verified: 0.57}
+    last_validated: 2026-05-26
+
+  - id: gpt-4o
+    provider: openai
+    access: {via_host: [codex, cursor], via_byo: [OPENAI_API_KEY], via_free_tier: false}
+    family: gpt
+    generation: "4o"
+    context_window: 128000
+    output_token_max: 16384
+    thinking_tokens: {supported: false}
+    prompt_caching: {supported: true, ttl_seconds: 600, discount_pct: 50}
+    pricing_per_million_usd: {input_uncached: 2.5, input_cached: 1.25, output: 10.0}
+    strengths: [balanced, multimodal_text_image_audio, fast, structured_output]
+    weaknesses: [reasoning_depth_vs_o3]
+    best_for_roles: [researcher, analyst]
+    benchmarks: {swe_bench_verified: 0.49, mmlu_pro: 0.74}
+    last_validated: 2026-05-26
+
+  # ───────── Google family (Cursor / BYO GOOGLE_API_KEY / free tier) ─────────
+
+  - id: gemini-2.5-pro
+    provider: google
+    access: {via_host: [cursor], via_byo: [GOOGLE_API_KEY, GOOGLE_AI_API_KEY], via_free_tier: true}
+    family: gemini
+    generation: "2.5"
+    context_window: 2000000
+    output_token_max: 8192
+    thinking_tokens: {supported: true, visible_to_caller: false, max_budget: 32000}
+    prompt_caching: {supported: true, ttl_seconds: 3600, discount_pct: 75}
+    pricing_per_million_usd: {input_uncached: 1.25, input_cached: 0.31, output: 10.0}
+    strengths: [ultra_long_context, multimodal, structured_output]
+    weaknesses: [tool_use_quality, reasoning_depth_vs_opus]
+    best_for_roles: [literature_hunter, consolidator]
+    best_for_skills: [web_search_and_dedup, project_introspect]
+    benchmarks: {long_mem_eval: 0.82, mmlu_pro: 0.78}
+    last_validated: 2026-05-26
+    notes: "Free-tier quota: 1500 rpd. Best-in-class context window."
+
+  - id: gemini-2.5-flash
+    provider: google
+    access: {via_host: [cursor], via_byo: [GOOGLE_API_KEY, GOOGLE_AI_API_KEY], via_free_tier: true}
+    family: gemini
+    generation: "2.5"
+    context_window: 1000000
+    output_token_max: 8192
+    thinking_tokens: {supported: false}
+    prompt_caching: {supported: true, ttl_seconds: 3600, discount_pct: 75}
+    pricing_per_million_usd: {input_uncached: 0.075, output: 0.30}
+    strengths: [speed, cost, structured_output, multimodal]
+    weaknesses: [reasoning_depth, code_quality]
+    best_for_roles: [extractor, classifier, mission_classifier]
+    best_for_skills: [filter_by_url_pattern, extract_citations, classify_mission]
+    benchmarks: {mmlu_pro: 0.69}
+    last_validated: 2026-05-26
+    notes: "bert's default classifier model — fast + cheap + structured output reliable."
+
+  # ───────── Free-tier providers (bert direct, Tier 3) ─────────
+
+  - id: meta/llama-3.3-70b-instruct
+    provider: nvidia
+    access: {via_host: [], via_byo: [], via_free_tier: true}
+    family: llama
+    generation: "3.3"
+    context_window: 131072
+    output_token_max: 8192
+    thinking_tokens: {supported: false}
+    prompt_caching: {supported: false}
+    pricing_per_million_usd: {input_uncached: 0.0, output: 0.0}
+    strengths: [reasoning, tool_use, instruction_following, free]
+    weaknesses: [citation_hallucination, long_context_attention_dropoff_past_30k]
+    best_for_roles: [researcher_fallback, strategist_fallback]
+    avoid_for_roles: [security_auditor, finalizer]
+    benchmarks: {swe_bench_verified: 0.48, mmlu_pro: 0.71}
+    last_validated: 2026-05-26
+    notes: "bert's default fallback when host models unavailable. Watch citation hallucination."
+
+  - id: llama-3.3-70b-versatile
+    provider: groq
+    access: {via_host: [], via_byo: [], via_free_tier: true}
+    family: llama
+    generation: "3.3"
+    context_window: 131072
+    output_token_max: 8192
+    thinking_tokens: {supported: false}
+    prompt_caching: {supported: false}
+    pricing_per_million_usd: {input_uncached: 0.0, output: 0.0}
+    strengths: [speed_extreme, free, reasoning]
+    weaknesses: [citation_hallucination, low_rpm_30]
+    best_for_roles: [researcher_fallback, strategist_fallback]
+    benchmarks: {swe_bench_verified: 0.48, mmlu_pro: 0.71}
+    last_validated: 2026-05-26
+    notes: "Same llama as nvidia but served on Groq's LPU for low latency."
+
+  - id: mistral-large-latest
+    provider: mistral
+    access: {via_host: [], via_byo: [MISTRAL_API_KEY], via_free_tier: true}
+    family: mistral
+    generation: "large"
+    context_window: 128000
+    output_token_max: 8192
+    thinking_tokens: {supported: false}
+    prompt_caching: {supported: false}
+    pricing_per_million_usd: {input_uncached: 0.0, output: 0.0}
+    strengths: [balanced_judgment, free_tier_premium, structured_output]
+    weaknesses: [api_inconsistency, european_data_residency_constraint]
+    best_for_roles: [evaluator, analyst]
+    benchmarks: {mmlu_pro: 0.74}
+    last_validated: 2026-05-26
+    notes: "Free-tier-A judgment slot when claude-cli not available."
+
+  - id: llama3.1-8b
+    provider: cerebras
+    access: {via_host: [], via_byo: [], via_free_tier: true}
+    family: llama
+    generation: "3.1"
+    context_window: 8192
+    output_token_max: 4096
+    thinking_tokens: {supported: false}
+    prompt_caching: {supported: false}
+    pricing_per_million_usd: {input_uncached: 0.0, output: 0.0}
+    strengths: [speed_extreme, free, structured_output]
+    weaknesses: [tiny_8k_context, lower_quality, single_family_collapse]
+    best_for_roles: [extractor, classifier]
+    benchmarks: {mmlu_pro: 0.55}
+    last_validated: 2026-05-26
+    notes: "Cerebras free tier replaced qwen-3-235b post-deprecation."
+
+  - id: qwen3:8b
+    provider: ollama
+    access: {via_host: [], via_byo: [], via_free_tier: true}
+    family: qwen
+    generation: "3"
+    context_window: 32768
+    output_token_max: 8192
+    thinking_tokens: {supported: false}
+    prompt_caching: {supported: false}
+    pricing_per_million_usd: {input_uncached: 0.0, output: 0.0}
+    strengths: [local_no_network, free, privacy_preserving]
+    weaknesses: [requires_local_gpu, slower_than_cloud_free_tier]
+    best_for_roles: [offline_fallback]
+    benchmarks: {mmlu_pro: 0.62}
+    last_validated: 2026-05-26
+    notes: "Local Ollama for offline / privacy-sensitive missions."

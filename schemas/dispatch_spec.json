@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bert-lab/dispatch_spec.json",
+  "title": "DispatchSpec",
+  "description": "Director-to-Specialist dispatch packet. Validated before any sub-agent launch. Schema version 2 (Phase H2 day 1, 2026-05-07): adds threshing_input_paths for P-VS-06 + extends role enum with Quaker pipeline roles. Backward-compatible with v1 dispatches via schemas/migrations/v1_to_v2.py.",
+  "schema_version": 2,
+  "type": "object",
+  "required": [
+    "dispatch_altitude",
+    "role",
+    "cycle",
+    "task",
+    "success_criterion",
+    "output_path",
+    "model",
+    "process_hygiene",
+    "confidence_required"
+  ],
+  "properties": {
+    "dispatch_altitude": {
+      "type": "string",
+      "enum": ["META", "SPEC", "IMPL", "INFRA", "NIT-cleanup"],
+      "description": "Altitude of work — META (org-shaping), SPEC (design), IMPL (build), INFRA (lab tooling), NIT (small fix)."
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Role name from agents/ directory or general-purpose if no fit. v2 adds Quaker pipeline roles: 'threshing_pass' (P-VS-06; surfaces disagreement, never decides), 'clearness_phase1' (P-VS-07 phase 1; open queries), 'clearness_phase2' (P-VS-07 phase 2; verdict with phase-1 queries as context). NOT in enum because role registry is dynamic; KNOWN_ROLES in core/subagent.py is the runtime check."
+    },
+    "cycle": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "task": {
+      "type": "string",
+      "minLength": 50,
+      "description": "Concrete task description (>50 chars)."
+    },
+    "success_criterion": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Outside-observer-checkable success criterion (>20 chars)."
+    },
+    "output_path": {
+      "type": "string",
+      "pattern": "^agents/[^/]+/output_cycle\\d+\\.md$|^findings/[^/]+\\.md$|^drafts/.*$",
+      "description": "Where the agent must write its full output. Distinct paths per parallel agent of same role (P-cycle suffix)."
+    },
+    "model": {
+      "type": "string",
+      "description": "Model identifier in form 'provider/model' (e.g., 'groq/llama-3.3-70b-versatile')."
+    },
+    "caveats_embedded": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Pre-registered caveats from prior cycles relevant to this dispatch."
+    },
+    "forbidden_actions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Things this agent must not do (e.g., 'don't touch pi_notes.md')."
+    },
+    "process_hygiene": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Reminder of process rules relevant to this dispatch (>20 chars)."
+    },
+    "confidence_required": {
+      "type": "boolean",
+      "description": "If true, agent must return calibrated confidence + reasoning ≥80 chars."
+    },
+    "parallel_wave": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Concurrency wave 1-5 for parallelism tracking."
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Roles or sub-task IDs this dispatch depends on."
+    },
+    "falsifier_text": {
+      "type": "string",
+      "minLength": 30,
+      "description": "Outside-observer-checkable falsifier (>30 chars). What would make this dispatch wrong?"
+    },
+    "verification_command": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional shell command run by Spawn AFTER the agent loop completes. Exit code 0 = pass; nonzero = fail. Output is captured into ResultPacket.telemetry.verification. The agent's self-reported verdict is overridden when this disagrees: pass+claimed_fail → BUILD_PASS, fail+claimed_pass → BUILD_FAIL. If the agent crashed without writing the ResultPacket but verification passes, Spawn synthesizes a clean BUILD_PASS instead of returning OTHER/result_packet_missing."
+    },
+    "verification_timeout_secs": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 600,
+      "description": "Timeout for verification_command in seconds (default 120)."
+    },
+    "threshing_input_paths": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^.+\\.(md|json)$"},
+      "minItems": 2,
+      "description": "P-VS-06: array of disagreeing-position output paths to surface in threshing pass. When present, this dispatch IS a threshing pass — the agent reads these (typically conflicting) outputs and surfaces the substance of the disagreement WITHOUT rendering a verdict. ResultPacket.verdict MUST be SCOPE_STOP. Source: BYM Quaker faith & practice §12.26 (https://qfp.quaker.org.uk/passage/12-26/), Sheeran 1983 ch. 3."
+    },
+    "clearness_phase1_output_path": {
+      "type": "string",
+      "pattern": "^.+\\.json$",
+      "description": "P-VS-07 phase 2 only: path to phase-1 ClearnessQuery array output. Phase 2 dispatch reads this as context. If present, this dispatch is phase 2; otherwise it's a non-clearness verdict."
+    }
+  }
+}

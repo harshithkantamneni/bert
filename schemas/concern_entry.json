@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bert-lab/concern_entry.json",
+  "title": "ConcernEntry",
+  "description": "P-VS-08 (Stand-aside verdict) concern. When verdict=APPROVE_WITH_CAVEATS, the concern is recorded with severity_grade per Sheeran 1983 §5.3 (whisper / voice / weight). Concerns flow forward into next dispatch's caveats_embedded, after the cacheable prefix per A6 §16.3.",
+  "type": "object",
+  "required": [
+    "text",
+    "severity_grade",
+    "dispatch_id"
+  ],
+  "properties": {
+    "text": {
+      "type": "string",
+      "minLength": 30,
+      "description": "≥30-char description of the concern. Plain language; not jargon."
+    },
+    "severity_grade": {
+      "type": "string",
+      "enum": ["whisper", "voice", "weight"],
+      "description": "Sheeran 1983 §5.3 grades. whisper = noted in passing, didn't block. voice = articulated and present in the record, recorded in fairness. weight = strongly felt, did not rise to blocking but the dissenter wants it noted as load-bearing."
+    },
+    "dispatch_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ID or path of the dispatch where this concern was raised."
+    },
+    "raised_by_role": {
+      "type": "string",
+      "description": "Role that raised the concern (researcher, evaluator, cross-family judge, etc.)."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when concern was raised."
+    }
+  },
+  "additionalProperties": false
+}

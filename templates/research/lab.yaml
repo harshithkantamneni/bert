@@ -1,0 +1,29 @@
+# Research Lab — generated from templates/research/
+# A bert lab archetype for investigating a question + producing signed
+# briefs/reports.
+
+lab_schema_version: 1
+archetype: research
+role: standard
+share_with_supervisor: true
+focus_areas:
+  - methodology       # how the investigation is structured
+  - evidence          # what sources / data / signals are gathered
+  - synthesis         # combining findings into a load-bearing view
+  - consequences      # what the answer implies for downstream choices
+  - unspecified       # broader investigation not aligned to one axis
+autonomy: collaborator
+first_cycle_seed: |
+  State the research question this lab investigates. Be specific:
+  - what's the question
+  - what would a definitive answer look like
+  - what sources/methods are out of scope
+
+provider: groq
+memory_backend: local
+
+cycle_cadence: review_driven  # research cycles end at review-gates
+proof_packet:
+  required: true
+  schema: bert.proof.v1
+  include_sources: true       # citations appended to outputs/

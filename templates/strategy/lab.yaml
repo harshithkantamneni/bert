@@ -1,0 +1,28 @@
+# Strategy Lab — generated from templates/strategy/
+# A bert lab archetype for decision-making: option sets, tradeoffs,
+# recommendations.
+
+lab_schema_version: 1
+archetype: strategy
+role: standard
+share_with_supervisor: true
+focus_areas:
+  - options           # what the candidate moves actually are
+  - tradeoffs         # what each option costs vs what it buys
+  - risk              # failure modes + reversibility
+  - timing            # when to commit, when to wait
+  - unspecified       # broader investigation not aligned to one axis
+autonomy: assistant   # strategy decisions warrant tighter PI oversight
+first_cycle_seed: |
+  State the decision this lab will inform. Be specific:
+  - what's the decision
+  - what's the horizon
+  - who are the stakeholders / affected parties
+
+provider: groq
+memory_backend: local
+
+cycle_cadence: debate_then_decide  # propose options, debate, conclude
+proof_packet:
+  required: true
+  schema: bert.proof.v1

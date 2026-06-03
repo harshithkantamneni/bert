@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# bert · git pre-push hook.
+#
+# Runs the canonical regression before allowing a push. If any test
+# fails, the push is blocked. The intent: regressions surface locally,
+# before they reach a private CI or a partner machine.
+#
+# Performance budget: must complete in <60s on a warm cache so the
+# hook doesn't make pushing painful. The canonical regression runs
+# in ~30s typical; we add some buffer.
+#
+# Skip on a specific push:
+#   git push --no-verify
+# (this hook is the reason --no-verify exists; use it when you must.)
+#
+# To install:
+#   ./tools/install_hooks.sh
+
+set -e
+
+LAB_ROOT="$(git rev-parse --show-toplevel)"
+cd "$LAB_ROOT"
+
+# Resolve venv python; fail fast if missing
+VENV_PY="$LAB_ROOT/.venv/bin/python"
+if [ ! -x "$VENV_PY" ]; then
+  echo "[pre-push] .venv/bin/python not found — install dependencies first" >&2
+  echo "           hint: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt" >&2
+  exit 1
+fi
+
+# Skip regression if no test/code/finding files changed
+CHANGED_FILES=$(git diff --name-only HEAD@{upstream}..HEAD 2>/dev/null || \
+                git log --name-only --pretty=format: -1)
+RELEVANT=$(echo "$CHANGED_FILES" | grep -E '^(tests/|tools/|core/|api/|findings/investor/|landing/)' || true)
+if [ -z "$RELEVANT" ]; then
+  echo "[pre-push] no relevant files changed — skipping canonical regression"
+  exit 0
+fi
+
+echo "[pre-push] running canonical regression (must pass before push)..."
+START=$(date +%s)
+if bash "$LAB_ROOT/tests/run_canonical.sh" > /tmp/bert_pre_push.log 2>&1; then
+  END=$(date +%s)
+  ELAPSED=$((END - START))
+  TAIL=$(tail -1 /tmp/bert_pre_push.log)
+  echo "[pre-push] ✓ $TAIL  (${ELAPSED}s)"
+  exit 0
+else
+  echo "[pre-push] ✗ canonical regression FAILED — push blocked" >&2
+  echo "[pre-push] log: /tmp/bert_pre_push.log" >&2
+  tail -20 /tmp/bert_pre_push.log >&2
+  echo "" >&2
+  echo "[pre-push] to push anyway (NOT recommended): git push --no-verify" >&2
+  exit 1
+fi

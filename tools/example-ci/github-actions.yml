@@ -1,0 +1,66 @@
+# bert · example CI workflow for a private GitHub repository.
+#
+# This file is NOT placed at .github/workflows/ automatically — per the
+# locked memory "bert is proprietary, do not plan around open-sourcing"
+# (feedback_bert_is_proprietary.md), there's no public-facing CI yaml
+# checked in by default. If you DO maintain a private mirror on GitHub
+# and want Actions to run the canonical regression on every PR:
+#
+#   1. Confirm the repository is set to Private in GitHub settings.
+#   2. Copy this file to .github/workflows/canonical.yml in that repo.
+#   3. Commit + push. The first push triggers the workflow.
+#
+# What this catches:
+#   - Anyone pushing past the local pre-push hook (--no-verify or hooks
+#     not installed) — CI re-runs the regression on the runner.
+#   - Environment-drift bugs that pass locally but fail on a clean
+#     ubuntu-latest image.
+#   - PR review confidence — green check on the PR before merge.
+
+name: canonical regression
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  canonical:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache venv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('requirements.txt') }}
+
+      - name: Create venv + install deps
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt
+
+      - name: bert doctor (preflight)
+        # We don't supply provider keys to CI by default; allow the GROQ
+        # check to fail without aborting the workflow. exit code 2 = FAIL,
+        # which we tolerate here because the regression doesn't need keys.
+        run: |
+          .venv/bin/python tools/bert_doctor.py --no-color || true
+
+      - name: Run canonical regression
+        run: bash tests/run_canonical.sh
+
+      - name: Verify daily history compile (smoke)
+        run: .venv/bin/python tools/daily_history_compile.py --dry-run
+
+      - name: Verify weekly history compile (smoke)
+        run: .venv/bin/python tools/weekly_history_compile.py --dry-run

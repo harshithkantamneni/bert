@@ -1,0 +1,110 @@
+# Schema synthesizer rules — profile → LabSchema mapping
+#
+# First-match-wins. Each rule matches against MissionProfile fields and
+# emits a LabSchema fragment. The synthesizer merges fragments in order;
+# later rules override conflicting fields.
+#
+# Match operators (in priority order):
+#   exact match:  data_shape: document_corpus
+#   alternation:  primary_work: [discover, monitor, synthesize]
+#   wildcard:     domain: "*"
+
+rules:
+
+  # ───── Rule 1: research + monitor → ongoing literature watch ─────
+  - id: research_monitor
+    match:
+      data_shape: document_corpus
+      primary_work: [monitor, discover]
+      horizon: ongoing
+    produce:
+      memory_adapters: [document_corpus]
+      knowledge_files:
+        - open_questions
+        - killed_directions
+        - tripwires
+        - glossary
+      graph_schema: research_kg
+      roster_core: [director, evaluator, consolidator]
+      roster_initial: [literature_hunter, change_detector, methodology_critic]
+      workflow: monitor_weekly
+      output_format: feed_with_inflections
+      routing_overrides:
+        researcher_citation_synthesis: A   # Opus for citation honesty
+
+  # ───── Rule 2: research + decide → option scoring with red team ─────
+  - id: research_decide
+    match:
+      primary_work: decide
+    produce:
+      memory_adapters: [document_corpus]
+      knowledge_files:
+        - open_questions
+        - killed_directions
+        - glossary
+        - architecture_decisions   # for decision memos
+      graph_schema: decision_kg
+      roster_core: [director, evaluator, consolidator]
+      roster_initial: [analyst, option_scorer, red_team, writer]
+      workflow: decide_with_red_team
+      output_format: decision_memo
+      routing_overrides:
+        evaluator_cross_model_verify: A
+
+  # ───── Rule 3: code repo + build → iterative implementation ─────
+  - id: code_build
+    match:
+      data_shape: code_repo
+      primary_work: [build, audit, refute]
+    produce:
+      memory_adapters: [code_repo]
+      knowledge_files:
+        - architecture_decisions
+        - killed_directions
+        - glossary
+      graph_schema: code_kg
+      roster_core: [director, evaluator, consolidator]
+      roster_initial: [code_reader, refactor_specialist, test_author, reviewer]
+      workflow: build_iterate
+      output_format: pr_artifact
+      routing_overrides:
+        engineer_review_diff: A
+        engineer_security_audit: A
+
+  # ───── Rule 4: document corpus + audit → structured ledger ─────
+  # Sprint 1 (v1.0) addition. Was missing — document_corpus + audit
+  # was falling to `default` rule, giving same roster as research.
+  - id: audit_corpus
+    match:
+      data_shape: document_corpus
+      primary_work: audit
+    produce:
+      memory_adapters: [document_corpus]
+      knowledge_files:
+        - architecture_decisions
+        - killed_directions
+        - glossary
+      graph_schema: research_kg
+      roster_core: [director, evaluator, consolidator]
+      roster_initial: [analyst, methodology_critic, red_team, writer]
+      workflow: audit_iterate
+      output_format: audit_ledger
+      routing_overrides:
+        analyst_evidence_verify: A
+        red_team_adversarial_pass: A
+
+  # ───── Default: generic research, short-horizon ─────
+  - id: default
+    match:
+      data_shape: "*"
+    produce:
+      memory_adapters: [document_corpus]
+      knowledge_files:
+        - open_questions
+        - killed_directions
+        - glossary
+      graph_schema: research_kg
+      roster_core: [director, evaluator, consolidator]
+      roster_initial: [literature_hunter, writer]
+      workflow: research_iterate
+      output_format: report

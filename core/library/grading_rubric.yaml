@@ -1,0 +1,97 @@
+# 8-dimension artifact grading rubric (Sprint 5, Q-3).
+#
+# Consumed by core/grader.py (the `evaluate_artifact_rubric` tool). Every judge
+# is shown these anchors so per-dimension scores (0-5) are calibrated to a
+# shared scale rather than each judge's private notion of "good". The dimension
+# keys MUST match core.quality.DIMENSIONS exactly (validated at load time).
+#
+# Scoring: each judge emits an integer 0-5 per dimension; the grader takes the
+# MEDIAN across judges per dimension and reports the VARIANCE (disagreement).
+# core.quality.QualityContract collapses the medians to a weighted 0-1 score and
+# gates acceptance against the mission's pass_threshold.
+
+version: "1.0"
+scale:
+  min: 0
+  max: 5
+
+dimensions:
+  correctness:
+    description: Are the artifact's claims factually and logically correct?
+    anchors:
+      0: Multiple claims are demonstrably false or mutually contradictory.
+      1: A load-bearing claim is wrong, or the central inference is invalid.
+      2: Several factual errors, or one error that undermines the main result.
+      3: Mostly correct; minor errors that do not change the conclusion.
+      4: Correct throughout, with at most one negligible imprecision.
+      5: Every claim verified correct; reasoning is sound and independently checkable.
+
+  completeness:
+    description: Does the artifact cover what the mission actually asked for?
+    anchors:
+      0: Addresses almost none of the mission's stated requirements.
+      1: Tackles only a fragment; major required questions untouched.
+      2: Answers some requirements while silently dropping others.
+      3: Covers the core requirements; some secondary scope omitted but named.
+      4: Covers all stated requirements; minor edge cases noted, not resolved.
+      5: Covers stated and implied scope; edge cases handled or explicitly bounded.
+
+  provenance:
+    description: Are claims traceable to checkable sources or recorded evidence?
+    anchors:
+      0: No citations; assertions are entirely ungrounded.
+      1: Sparse, vague references that cannot be checked.
+      2: Some claims cited; many key claims unsupported.
+      3: Most substantive claims cited, with a few gaps.
+      4: All substantive claims cited to checkable sources.
+      5: Every claim traces to a primary source; citations are exact and reproducible.
+
+  defensibility:
+    description: Does the artifact survive adversarial scrutiny?
+    anchors:
+      0: Collapses under the first obvious counterexample.
+      1: Major unaddressed objections; conclusions are brittle.
+      2: Some counterarguments anticipated, but significant holes remain.
+      3: Handles obvious objections; a sophisticated critic still finds gaps.
+      4: Anticipates strong counterarguments and rebuts them with evidence.
+      5: Pre-empts the strongest adversarial case; conclusions hold under hostile review.
+
+  usability:
+    description: Is the result actionable and fit for its intended consumer?
+    anchors:
+      0: Unusable — no clear takeaway, or the consumer cannot act on it.
+      1: Requires heavy rework before anyone can use it.
+      2: Usable only by an expert who already knows the domain.
+      3: Clear enough to act on with some effort.
+      4: Directly actionable and well-structured for the intended consumer.
+      5: Immediately usable; structure and framing anticipate the consumer's next step.
+
+  honesty:
+    description: Are limitations and failures surfaced rather than hidden?
+    anchors:
+      0: Hides failures and overclaims results.
+      1: Glosses over known limitations; the tone oversells.
+      2: Mentions limitations vaguely; the hard ones are buried.
+      3: States the main limitations plainly.
+      4: Surfaces limitations and the conditions under which conclusions fail.
+      5: Volunteers the strongest case against itself; failures are first-class.
+
+  reproducibility:
+    description: Can someone else re-derive the result from what is recorded?
+    anchors:
+      0: No way to reproduce; inputs and method are undocumented.
+      1: Method sketched, but the inputs or parameters needed to redo it are missing.
+      2: Reproducible only by guessing undocumented steps.
+      3: Reproducible with effort; most inputs and steps are recorded.
+      4: Reproducible from the recorded inputs and procedure.
+      5: Turnkey reproduction — inputs, seeds, and procedure are recorded and runnable.
+
+  efficiency:
+    description: Was the result achieved without disproportionate waste?
+    anchors:
+      0: Enormous waste — cost or effort is wildly disproportionate to the result.
+      1: Heavily redundant work; many wasted cycles or tokens.
+      2: Noticeable waste; obvious shortcuts were ignored.
+      3: Reasonable, with some avoidable redundancy.
+      4: Lean, with little wasted effort.
+      5: Optimal path — result achieved with minimal cost and no redundant work.

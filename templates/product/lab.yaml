@@ -1,0 +1,28 @@
+# Product Lab — generated from templates/product/
+# Edit this file directly or via `bert config` after init.
+
+lab_schema_version: 1
+archetype: product
+role: standard
+share_with_supervisor: true
+focus_areas:
+  - architecture      # structural choices: modules, boundaries, contracts
+  - implementation    # codepoints + integration mechanics
+  - testing           # falsifiers + smoke + canonical discipline
+  - operations        # runtime, observability, error recovery
+  - unspecified       # broader investigation not aligned to one axis
+autonomy: collaborator
+first_cycle_seed: |
+  Describe the artifact this lab will ship. Be specific:
+  - target language / runtime
+  - core capability (one verb)
+  - success metric (one measurable outcome)
+
+provider: groq        # change via `bert config provider <name>`
+memory_backend: local # sqlite-vec + kuzu graph
+
+# Lab-specific configuration
+cycle_cadence: work_until_blocked  # vs review-on-interval or release-driven
+proof_packet:
+  required: true     # every cycle must export a signed packet
+  schema: bert.proof.v1

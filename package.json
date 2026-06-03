@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "^4.2.1",
+    "license-checker-rseidelsohn": "^4.4.2"
+  }
+}

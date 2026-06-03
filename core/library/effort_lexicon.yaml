@@ -1,0 +1,60 @@
+# Effort-triage lexicon — FROZEN 2026-06-02, before any eval set is authored.
+# Pre-registration: triage must not be tuned to flatter a benchmark. Changes to
+# this file after an eval set exists are a methodology deviation and must be logged.
+
+# A short single-fact lookup these mark (combined with the length/structure gate).
+trivial_lookup_markers:
+  - "default port"
+  - "what is the"
+  - "what's the"
+  - "whats the"
+  - "who is"
+  - "who was"
+  - "when did"
+  - "when was"
+  - "capital of"
+  - "version of"
+  - "syntax for"
+  - "command to"
+  - "abbreviation"
+  - "formula for"
+  - "what does"
+  - "how many"
+  - "what year"
+
+# Complexity / quality signals -> escalate to deep (full machinery is justified).
+deep_markers:
+  - compare
+  - evaluate
+  - design
+  - propose
+  - audit
+  - analyze
+  - analyse
+  - synthesize
+  - synthesise
+  - reconcile
+  - tradeoff
+  - trade-off
+  - recommend
+  - assess
+  - investigate
+  - diagnose
+  - strategy
+  - plan
+
+# Time-sensitive -> needs_grounding=True (a stale parametric answer is wrong),
+# forces at least standard even on a short question.
+grounding_markers:
+  - latest
+  - current
+  - today
+  - recent
+  - "as of"
+  - cve
+  - "this year"
+  - "right now"
+  - newest
+
+# Length ceiling (chars) for the trivial fast-path.
+trivial_max_chars: 220

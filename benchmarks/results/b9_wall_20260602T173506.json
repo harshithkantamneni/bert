@@ -1,0 +1,300 @@
+{
+  "tiers": {
+    "T1_131K": 132068,
+    "Tbig_3M": 3037827
+  },
+  "window": 1000000,
+  "a0_subsample": 2,
+  "rows": [
+    {
+      "arm": "A0",
+      "question": "In httpx, what is the default maximum number of redirects a client will follow before raising an error, and what module-level constant holds that value?",
+      "correct": 1,
+      "input_tokens": 132068,
+      "answer": "The default is **20 redirects**, held by the module-level constant `DEFAULT_MAX_REDIRECTS` (defined in `httpx/_config.py` as `DEFAULT_MAX_REDIRECTS = 20`). When the redirect history exceeds `max_redirects`, the client raises `TooManyRedirects`.",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "T1_131K"
+    },
+    {
+      "arm": "A0",
+      "question": "What is the default value of the keepalive_expiry parameter on httpx's Limits class, and what does it control?",
+      "correct": 1,
+      "input_tokens": 132068,
+      "answer": "The default value of `keepalive_expiry` is **5.0**.\n\nAccording to the docstring of the `Limits` class in `httpx/_config.py`, it controls the **\"Time limit on idle keep-alive connections in seconds.\"**",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "T1_131K"
+    },
+    {
+      "arm": "A3",
+      "question": "In httpx, what is the default maximum number of redirects a client will follow before raising an error, and what module-level constant holds that value?",
+      "correct": 0,
+      "input_tokens": 3384,
+      "answer": "The provided context does not contain the answer to the question about the default maximum number of redirects.",
+      "recall_at_10": 0.0,
+      "ndcg_at_10": 0.0,
+      "hit_rate_at_10": 0.0,
+      "tier": "T1_131K"
+    },
+    {
+      "arm": "A3",
+      "question": "What is the default value of the keepalive_expiry parameter on httpx's Limits class, and what does it control?",
+      "correct": 1,
+      "input_tokens": 3521,
+      "answer": "The default value of the keepalive_expiry parameter is 5.0. It controls the time limit on idle keep-alive connections in seconds.",
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 1.0,
+      "hit_rate_at_10": 1.0,
+      "tier": "T1_131K"
+    },
+    {
+      "arm": "A0",
+      "tier": "Tbig_3M",
+      "question": "In httpx, what is the default maximum number of redirects a client will follow before raising an error, and what module-level constant holds that value?",
+      "correct": 0,
+      "input_tokens": 3037827,
+      "infeasible": true,
+      "recall_at_10": null,
+      "ndcg_at_10": null
+    },
+    {
+      "arm": "A0",
+      "tier": "Tbig_3M",
+      "question": "What is the default value of the keepalive_expiry parameter on httpx's Limits class, and what does it control?",
+      "correct": 0,
+      "input_tokens": 3037827,
+      "infeasible": true,
+      "recall_at_10": null,
+      "ndcg_at_10": null
+    },
+    {
+      "arm": "A0",
+      "tier": "Tbig_3M",
+      "question": "In httpx's DeflateDecoder, what does the decoder do if the very first decompress attempt raises a zlib.error?",
+      "correct": 0,
+      "input_tokens": 3037827,
+      "infeasible": true,
+      "recall_at_10": null,
+      "ndcg_at_10": null
+    },
+    {
+      "arm": "A0",
+      "tier": "Tbig_3M",
+      "question": "When httpx percent-encodes multipart form field names/values via _HTML5_FORM_ENCODING_REPLACEMENTS, which single control-character code point in the 0x00-0x1F range is deliberately excluded from being replaced?",
+      "correct": 0,
+      "input_tokens": 3037827,
+      "infeasible": true,
+      "recall_at_10": null,
+      "ndcg_at_10": null
+    },
+    {
+      "arm": "A0",
+      "tier": "Tbig_3M",
+      "question": "What maximum URL length does httpx's RFC3986 urlparse implementation enforce via a module-level constant?",
+      "correct": 0,
+      "input_tokens": 3037827,
+      "infeasible": true,
+      "recall_at_10": null,
+      "ndcg_at_10": null
+    },
+    {
+      "arm": "A0",
+      "tier": "Tbig_3M",
+      "question": "How does Starlette's FloatConvertor serialize a float back into a URL path string in its to_string method?",
+      "correct": 0,
+      "input_tokens": 3037827,
+      "infeasible": true,
+      "recall_at_10": null,
+      "ndcg_at_10": null
+    },
+    {
+      "arm": "A0",
+      "tier": "Tbig_3M",
+      "question": "How does Starlette's FileResponse compute the ETag it sets on a file response?",
+      "correct": 0,
+      "input_tokens": 3037827,
+      "infeasible": true,
+      "recall_at_10": null,
+      "ndcg_at_10": null
+    },
+    {
+      "arm": "A0",
+      "tier": "Tbig_3M",
+      "question": "In Starlette's MultiPartParser, what is the default in-memory spool size before an uploaded file part rolls over to disk, and what attribute holds it?",
+      "correct": 0,
+      "input_tokens": 3037827,
+      "infeasible": true,
+      "recall_at_10": null,
+      "ndcg_at_10": null
+    },
+    {
+      "arm": "A3",
+      "question": "In httpx, what is the default maximum number of redirects a client will follow before raising an error, and what module-level constant holds that value?",
+      "correct": 0,
+      "input_tokens": 2802,
+      "answer": "The context does not contain the answer.",
+      "recall_at_10": 0.0,
+      "ndcg_at_10": 0.0,
+      "hit_rate_at_10": 0.0,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A3",
+      "question": "What is the default value of the keepalive_expiry parameter on httpx's Limits class, and what does it control?",
+      "correct": 1,
+      "input_tokens": 3521,
+      "answer": "The default value of the keepalive_expiry parameter is 5.0. It controls the time limit on idle keep-alive connections in seconds.",
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 1.0,
+      "hit_rate_at_10": 1.0,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A3",
+      "question": "In httpx's DeflateDecoder, what does the decoder do if the very first decompress attempt raises a zlib.error?",
+      "correct": 0,
+      "input_tokens": 3403,
+      "answer": "If the first decompress attempt raises a zlib.error, the DeflateDecoder retries the decompression with a different window size (-zlib.MAX_WBITS).",
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 1.0,
+      "hit_rate_at_10": 1.0,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A3",
+      "question": "When httpx percent-encodes multipart form field names/values via _HTML5_FORM_ENCODING_REPLACEMENTS, which single control-character code point in the 0x00-0x1F range is deliberately excluded from being replaced?",
+      "correct": 1,
+      "input_tokens": 3021,
+      "answer": "0x1B",
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 1.0,
+      "hit_rate_at_10": 1.0,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A3",
+      "question": "What maximum URL length does httpx's RFC3986 urlparse implementation enforce via a module-level constant?",
+      "correct": 1,
+      "input_tokens": 3607,
+      "answer": "65536",
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 1.0,
+      "hit_rate_at_10": 1.0,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A3",
+      "question": "How does Starlette's FloatConvertor serialize a float back into a URL path string in its to_string method?",
+      "correct": 1,
+      "input_tokens": 3194,
+      "answer": "The FloatConvertor's to_string method serializes a float into a URL path string by first converting it to a float, then asserting it's non-negative, not NaN, and not infinite. It then formats the float as a string with up to 20 decimal places, removing trailing zeros and decimal points.",
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 1.0,
+      "hit_rate_at_10": 1.0,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A3",
+      "question": "How does Starlette's FileResponse compute the ETag it sets on a file response?",
+      "correct": 1,
+      "input_tokens": 3188,
+      "answer": "The ETag is computed by taking the last modified time and size of the file, concatenating them with a hyphen in between, encoding the result to bytes, and then taking the MD5 hash of that. The result is a string in the format `\"hash_value\"`.",
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 1.0,
+      "hit_rate_at_10": 1.0,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A3",
+      "question": "In Starlette's MultiPartParser, what is the default in-memory spool size before an uploaded file part rolls over to disk, and what attribute holds it?",
+      "correct": 1,
+      "input_tokens": 3557,
+      "answer": "The default in-memory spool size is 1MB (1024 * 1024 bytes), and the attribute that holds it is `spool_max_size`.",
+      "recall_at_10": 1.0,
+      "ndcg_at_10": 1.0,
+      "hit_rate_at_10": 1.0,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A1",
+      "question": "In httpx, what is the default maximum number of redirects a client will follow before raising an error, and what module-level constant holds that value?",
+      "correct": 0,
+      "input_tokens": 15000,
+      "answer": "The default maximum number of redirects is held by the `DEFAULT_MAX_REDIRECTS` constant, but the provided context does not contain its value.",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A1",
+      "question": "What is the default value of the keepalive_expiry parameter on httpx's Limits class, and what does it control?",
+      "correct": 0,
+      "input_tokens": 15000,
+      "answer": "The context does not contain the answer to the question about the default value of the keepalive_expiry parameter on httpx's Limits class.",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A1",
+      "question": "In httpx's DeflateDecoder, what does the decoder do if the very first decompress attempt raises a zlib.error?",
+      "correct": 0,
+      "input_tokens": 15000,
+      "answer": "The context does not contain the answer.",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A1",
+      "question": "When httpx percent-encodes multipart form field names/values via _HTML5_FORM_ENCODING_REPLACEMENTS, which single control-character code point in the 0x00-0x1F range is deliberately excluded from being replaced?",
+      "correct": 0,
+      "input_tokens": 15000,
+      "answer": "The context does not contain the answer to the question.",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A1",
+      "question": "What maximum URL length does httpx's RFC3986 urlparse implementation enforce via a module-level constant?",
+      "correct": 0,
+      "input_tokens": 15000,
+      "answer": "[reader failed: all lanes errored]",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A1",
+      "question": "How does Starlette's FloatConvertor serialize a float back into a URL path string in its to_string method?",
+      "correct": 0,
+      "input_tokens": 15000,
+      "answer": "The context does not contain the answer to this question. The provided context is about the httpx library, while the question is about Starlette's FloatConvertor.",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A1",
+      "question": "How does Starlette's FileResponse compute the ETag it sets on a file response?",
+      "correct": 0,
+      "input_tokens": 15000,
+      "answer": "The provided context does not contain the answer to the question about how Starlette's FileResponse computes the ETag it sets on a file response.",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "Tbig_3M"
+    },
+    {
+      "arm": "A1",
+      "question": "In Starlette's MultiPartParser, what is the default in-memory spool size before an uploaded file part rolls over to disk, and what attribute holds it?",
+      "correct": 0,
+      "input_tokens": 15000,
+      "answer": "The context does not contain the answer.",
+      "recall_at_10": null,
+      "ndcg_at_10": null,
+      "tier": "Tbig_3M"
+    }
+  ]
+}

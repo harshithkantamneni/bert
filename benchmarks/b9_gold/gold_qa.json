@@ -1,0 +1,283 @@
+{
+  "corpus": "httpx-0.28.1 + starlette (vendored)",
+  "n": 20,
+  "questions": [
+    {
+      "id": "single_hop_q3",
+      "tier": "single_hop",
+      "question": "In httpx, which content encodings does the SUPPORTED_DECODERS mapping register, and which decoder class handles the 'zstd' encoding?",
+      "gold_answer": "SUPPORTED_DECODERS maps 'identity' to IdentityDecoder, 'gzip' to GZipDecoder, 'deflate' to DeflateDecoder, 'br' to BrotliDecoder, and 'zstd' to ZStandardDecoder. The 'zstd' (RFC 8878) encoding is handled by ZStandardDecoder.",
+      "gold_spans": [
+        "SUPPORTED_DECODERS = {",
+        "\"zstd\": ZStandardDecoder,",
+        "Handle 'zstd' RFC 8878 decoding."
+      ],
+      "source_files": [
+        "httpx/_decoders.py"
+      ]
+    },
+    {
+      "id": "single_hop_q4",
+      "tier": "single_hop",
+      "question": "In httpx, what User-Agent header string does the client send by default, and what httpx version does it correspond to in this install?",
+      "gold_answer": "The default User-Agent is built as USER_AGENT = f\"python-httpx/{__version__}\", and with __version__ = \"0.28.1\" it produces 'python-httpx/0.28.1'.",
+      "gold_spans": [
+        "USER_AGENT = f\"python-httpx/{__version__}\"",
+        "__version__ = \"0.28.1\""
+      ],
+      "source_files": [
+        "httpx/_client.py",
+        "httpx/__version__.py"
+      ]
+    },
+    {
+      "id": "single_hop_q6",
+      "tier": "single_hop",
+      "question": "In Starlette's URL path convertors, what regex pattern does the IntegerConvertor use, and what regex does the StringConvertor (the 'str' default) use?",
+      "gold_answer": "IntegerConvertor uses the regex \"[0-9]+\", and StringConvertor uses the regex \"[^/]+\".",
+      "gold_spans": [
+        "class IntegerConvertor(Convertor[int]):",
+        "regex = \"[0-9]+\"",
+        "regex = \"[^/]+\""
+      ],
+      "source_files": [
+        "starlette/convertors.py"
+      ]
+    },
+    {
+      "id": "single_hop_q7",
+      "tier": "single_hop",
+      "question": "In Starlette's MultiPartParser, what are the default values for max_files and max_fields, and what is the default max_part_size and spool_max_size?",
+      "gold_answer": "max_files and max_fields both default to 1000. The default max_part_size is 1024 * 1024 (1MB), and the class attribute spool_max_size is also 1024 * 1024 (1MB).",
+      "gold_spans": [
+        "max_files: int | float = 1000",
+        "max_fields: int | float = 1000",
+        "spool_max_size = 1024 * 1024  # 1MB"
+      ],
+      "source_files": [
+        "starlette/formparsers.py"
+      ]
+    },
+    {
+      "id": "single_hop_q8",
+      "tier": "single_hop",
+      "question": "In Starlette, what JSON serialization separators and flags does JSONResponse.render use, and what is the default status_code of RedirectResponse?",
+      "gold_answer": "JSONResponse.render calls json.dumps with ensure_ascii=False, allow_nan=False, indent=None, and separators=(\",\", \":\"). RedirectResponse defaults to status_code 307.",
+      "gold_spans": [
+        "separators=(\",\", \":\"),",
+        "allow_nan=False,",
+        "status_code: int = 307,"
+      ],
+      "source_files": [
+        "starlette/responses.py"
+      ]
+    },
+    {
+      "id": "multi_hop_q1",
+      "tier": "multi_hop",
+      "question": "In httpx, how is the default Accept-Encoding request header value computed, and what encodings does it advertise?",
+      "gold_answer": "The ACCEPT_ENCODING constant in _client.py is built by joining the keys of SUPPORTED_DECODERS (defined in _decoders.py) with ', ', excluding the 'identity' key. SUPPORTED_DECODERS maps 'identity', 'gzip', 'deflate', 'br', and 'zstd' to their decoder classes, so the advertised value is the non-identity subset: gzip, deflate, br, zstd (with br/zstd dropped if brotli/zstandard aren't installed). So the request advertises exactly the encodings httpx can actually decode.",
+      "gold_spans": [
+        "ACCEPT_ENCODING = \", \".join(",
+        "key for key in SUPPORTED_DECODERS.keys() if key != \"identity\"",
+        "SUPPORTED_DECODERS = {"
+      ],
+      "source_files": [
+        "httpx/_client.py",
+        "httpx/_decoders.py"
+      ]
+    },
+    {
+      "id": "multi_hop_q2",
+      "tier": "multi_hop",
+      "question": "In httpx, when a response declares a Content-Encoding that httpx does not know how to decode, what decoder does it fall back to, and where does the set of recognized encodings come from?",
+      "gold_answer": "In Response._get_content_decoder (_models.py), each content-encoding value is looked up in SUPPORTED_DECODERS; unknown values raise KeyError and are skipped via 'continue'. If no recognized decoders remain, it falls back to IdentityDecoder() (which returns data unchanged). SUPPORTED_DECODERS and IdentityDecoder are both defined in _decoders.py, and SUPPORTED_DECODERS only contains identity/gzip/deflate/br/zstd.",
+      "gold_spans": [
+        "decoder_cls = SUPPORTED_DECODERS[value]",
+        "self._decoder = IdentityDecoder()",
+        "class IdentityDecoder(ContentDecoder):"
+      ],
+      "source_files": [
+        "httpx/_models.py",
+        "httpx/_decoders.py"
+      ]
+    },
+    {
+      "id": "multi_hop_q3",
+      "tier": "multi_hop",
+      "question": "In httpx, how does a redirect with a 303 See Other status code change the request method, and what symbolic constant represents 303?",
+      "gold_answer": "Client._redirect_method in _client.py changes the method to 'GET' when response.status_code == codes.SEE_OTHER and the method is not 'HEAD'. The codes.SEE_OTHER constant is defined in _status_codes.py as SEE_OTHER = 303, \"See Other\" in the codes IntEnum. So a 303 (and a 302 FOUND, and a POST+301) is rewritten to GET on redirect.",
+      "gold_spans": [
+        "if response.status_code == codes.SEE_OTHER and method != \"HEAD\":",
+        "SEE_OTHER = 303, \"See Other\""
+      ],
+      "source_files": [
+        "httpx/_client.py",
+        "httpx/_status_codes.py"
+      ]
+    },
+    {
+      "id": "multi_hop_q4",
+      "tier": "multi_hop",
+      "question": "In httpx DigestAuth, what exact string is hashed to compute the HA2 value of the digest response, and where does the path component of it come from?",
+      "gold_answer": "In DigestAuth._build_auth_header (_auth.py), A2 is b\":\".join((request.method.encode(), path)) and HA2 = digest(A2), where 'path = request.url.raw_path'. The raw_path property is defined in _urls.py and returns the complete URL path and query string as raw bytes (path defaulting to '/', plus '?'+query if present), encoded ascii. So HA2 hashes 'METHOD:/path?query'.",
+      "gold_spans": [
+        "A2 = b\":\".join((request.method.encode(), path))",
+        "path = request.url.raw_path",
+        "Used as the target when constructing HTTP requests."
+      ],
+      "source_files": [
+        "httpx/_auth.py",
+        "httpx/_urls.py"
+      ]
+    },
+    {
+      "id": "multi_hop_q5",
+      "tier": "multi_hop",
+      "question": "In Starlette routing, when you declare a path parameter like '/{id:int}', how is the regex for that parameter chosen and what regex does the int convertor contribute?",
+      "gold_answer": "compile_path in routing.py parses params with PARAM_REGEX, looks up the convertor_type in CONVERTOR_TYPES (asserting it exists with 'Unknown path convertor'), then appends f\"(?P<{param_name}>{convertor.regex})\" to the path regex. The 'int' key maps to IntegerConvertor in convertors.py, whose regex is \"[0-9]+\". So '/{id:int}' compiles to a named group using [0-9]+.",
+      "gold_spans": [
+        "path_regex += f\"(?P<{param_name}>{convertor.regex})\"",
+        "assert convertor_type in CONVERTOR_TYPES",
+        "regex = \"[0-9]+\""
+      ],
+      "source_files": [
+        "starlette/routing.py",
+        "starlette/convertors.py"
+      ]
+    },
+    {
+      "id": "multi_hop_q6",
+      "tier": "multi_hop",
+      "question": "In Starlette, when a synchronous (non-async) function is passed as a BackgroundTask, how is it actually executed without blocking the event loop?",
+      "gold_answer": "BackgroundTask.__init__ (background.py) sets self.is_async = is_async_callable(func). In __call__, if not async it does 'await run_in_threadpool(self.func, ...)'. run_in_threadpool is defined in concurrency.py as wrapping func in functools.partial and calling 'await anyio.to_thread.run_sync(func)'. So sync background functions run in anyio's worker thread pool. (is_async_callable from _utils.py unwraps functools.partial and checks iscoroutinefunction.)",
+      "gold_spans": [
+        "await run_in_threadpool(self.func, *self.args, **self.kwargs)",
+        "return await anyio.to_thread.run_sync(func)"
+      ],
+      "source_files": [
+        "starlette/background.py",
+        "starlette/concurrency.py"
+      ]
+    },
+    {
+      "id": "multi_hop_q7",
+      "tier": "multi_hop",
+      "question": "In Starlette StaticFiles, when a request includes If-None-Match, which response header is compared against it, and which class is responsible for putting that header onto the response?",
+      "gold_answer": "is_not_modified in staticfiles.py reads etag = response_headers[\"etag\"] and checks membership against the if-none-match tags (stripping ' W/'). The comment notes 'The \"etag\" header is added by FileResponse, so it's always present.' FileResponse.set_stat_headers in responses.py builds etag_base = str(stat_result.st_mtime) + \"-\" + str(stat_result.st_size) and sets the etag header. So the etag compared comes from FileResponse's mtime-size hash.",
+      "gold_spans": [
+        "etag = response_headers[\"etag\"]",
+        "The \"etag\" header is added by FileResponse, so it's always present.",
+        "etag_base = str(stat_result.st_mtime) + \"-\" + str(stat_result.st_size)"
+      ],
+      "source_files": [
+        "starlette/staticfiles.py",
+        "starlette/responses.py"
+      ]
+    },
+    {
+      "id": "needle_q1",
+      "tier": "needle",
+      "question": "In httpx, what is the default maximum number of redirects a client will follow before raising an error, and what module-level constant holds that value?",
+      "gold_answer": "The default is 20, held in the module-level constant DEFAULT_MAX_REDIRECTS = 20 in httpx/_config.py.",
+      "gold_spans": [
+        "DEFAULT_MAX_REDIRECTS = 20"
+      ],
+      "source_files": [
+        "httpx/_config.py"
+      ]
+    },
+    {
+      "id": "needle_q2",
+      "tier": "needle",
+      "question": "What is the default value of the keepalive_expiry parameter on httpx's Limits class, and what does it control?",
+      "gold_answer": "keepalive_expiry defaults to 5.0 (seconds); it is the time limit on idle keep-alive connections in seconds for the connection pool.",
+      "gold_spans": [
+        "keepalive_expiry: float | None = 5.0",
+        "Time limit on idle keep-alive connections in seconds"
+      ],
+      "source_files": [
+        "httpx/_config.py"
+      ]
+    },
+    {
+      "id": "needle_q3",
+      "tier": "needle",
+      "question": "In httpx's DeflateDecoder, what does the decoder do if the very first decompress attempt raises a zlib.error?",
+      "gold_answer": "On a first-attempt zlib.error, it re-creates the decompressor as zlib.decompressobj(-zlib.MAX_WBITS) (raw deflate, no zlib header) and retries decoding; only a later failure raises DecodingError.",
+      "gold_spans": [
+        "zlib.decompressobj(-zlib.MAX_WBITS)",
+        "was_first_attempt"
+      ],
+      "source_files": [
+        "httpx/_decoders.py"
+      ]
+    },
+    {
+      "id": "needle_q4",
+      "tier": "needle",
+      "question": "When httpx percent-encodes multipart form field names/values via _HTML5_FORM_ENCODING_REPLACEMENTS, which single control-character code point in the 0x00-0x1F range is deliberately excluded from being replaced?",
+      "gold_answer": "Code point 0x1B (ESC) is excluded; the dict comprehension iterates range(0x1F + 1) but skips c when c == 0x1B.",
+      "gold_spans": [
+        "for c in range(0x1F + 1) if c != 0x1B",
+        "_HTML5_FORM_ENCODING_REPLACEMENTS"
+      ],
+      "source_files": [
+        "httpx/_multipart.py"
+      ]
+    },
+    {
+      "id": "needle_q5",
+      "tier": "needle",
+      "question": "What maximum URL length does httpx's RFC3986 urlparse implementation enforce via a module-level constant?",
+      "gold_answer": "It enforces a maximum of 65536, defined as MAX_URL_LENGTH = 65536 in httpx/_urlparse.py.",
+      "gold_spans": [
+        "MAX_URL_LENGTH = 65536"
+      ],
+      "source_files": [
+        "httpx/_urlparse.py"
+      ]
+    },
+    {
+      "id": "needle_q6",
+      "tier": "needle",
+      "question": "How does Starlette's FloatConvertor serialize a float back into a URL path string in its to_string method?",
+      "gold_answer": "It formats with twenty decimal places then strips trailing zeros and a trailing dot: (\"%0.20f\" % value).rstrip(\"0\").rstrip(\".\"). It also rejects negative, NaN, and infinite values via asserts.",
+      "gold_spans": [
+        "(\"%0.20f\" % value).rstrip(\"0\").rstrip(\".\")",
+        "Infinite values are not supported"
+      ],
+      "source_files": [
+        "starlette/convertors.py"
+      ]
+    },
+    {
+      "id": "needle_q7",
+      "tier": "needle",
+      "question": "How does Starlette's FileResponse compute the ETag it sets on a file response?",
+      "gold_answer": "It builds etag_base = str(stat_result.st_mtime) + \"-\" + str(stat_result.st_size), then md5-hashes it with usedforsecurity=False and wraps the hexdigest in quotes: f'\"{hashlib.md5(etag_base.encode(), usedforsecurity=False).hexdigest()}\"'.",
+      "gold_spans": [
+        "etag_base = str(stat_result.st_mtime) + \"-\" + str(stat_result.st_size)",
+        "hashlib.md5(etag_base.encode(), usedforsecurity=False)"
+      ],
+      "source_files": [
+        "starlette/responses.py"
+      ]
+    },
+    {
+      "id": "needle_q8",
+      "tier": "needle",
+      "question": "In Starlette's MultiPartParser, what is the default in-memory spool size before an uploaded file part rolls over to disk, and what attribute holds it?",
+      "gold_answer": "The default is 1 MB (1024 * 1024 bytes), held in the class attribute spool_max_size = 1024 * 1024, which is passed as SpooledTemporaryFile(max_size=self.spool_max_size).",
+      "gold_spans": [
+        "spool_max_size = 1024 * 1024",
+        "SpooledTemporaryFile(max_size=self.spool_max_size)"
+      ],
+      "source_files": [
+        "starlette/formparsers.py"
+      ]
+    }
+  ],
+  "frozen": "2026-06-02",
+  "authoring": "b9-gold-qa-authoring workflow, blind, adversarially reviewed"
+}

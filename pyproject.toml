@@ -1,0 +1,145 @@
+[project]
+name = "bert-lab"
+version = "0.1.0"
+description = "Long-context project-memory and hybrid-retrieval MCP server for Claude Code / Cursor / Codex"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "bert-lab", email = "noreply@users.noreply.github.com" }]
+license = "MIT"
+
+dependencies = [
+    # HTTP + JSON
+    "httpx>=0.28.0",
+    "jsonschema>=4.23.0",
+    "pyyaml>=6.0.2",
+    # Local memory (vector + graph)
+    "sqlite-vec>=0.1.7",
+    "sentence-transformers>=3.3.1",
+    "ryugraph>=25.9.2",          # community fork of kùzu (Apple acquired Kùzu Inc. 2025-10; upstream archived)
+    # Constrained decoding (tool-call reliability)
+    # XGrammar is primary (default in vLLM/SGLang/TensorRT-LLM as of Mar 2026, 80x throughput vs outlines).
+    # Outlines kept as fallback for schemas XGrammar can't represent (matches vLLM auto-mode pattern).
+    "xgrammar>=0.2.0",
+    "outlines>=0.1.14",
+    # MCP (we build native client + servers; fastmcp scaffolds servers)
+    "fastmcp>=0.4.0",
+    # File system + indexing
+    "watchdog>=6.0.0",
+    # Web tools
+    "beautifulsoup4>=4.12.0",
+    "playwright>=1.49.0",
+    "crawl4ai>=0.4.0",
+    # Sandbox
+    "docker>=7.1.0",
+    # Telegram (existing bot listener)
+    "python-telegram-bot>=21.6",
+    "requests>=2.32.0",
+    # Utilities
+    "rich>=13.9.0",       # terminal formatting / structured logs
+    "click>=8.1.0",       # CLI
+    "questionary>=2.1.0", # `bert init` 5-question wizard (I.5)
+    "llmlingua>=0.2.2",
+    # Supply-chain / proof-packet signing pulls sigstore→tuf transitively.
+    # Forward-pin tuf to the patched line: tuf 6.0.0 carries GHSA-qp9x-wp8f-qgjj
+    # (fixed in 7.0.0). sigstore 4.2.0 (latest) still declares tuf~=6.0, so pip
+    # emits a metadata-only conflict warning — but tuf 7.0.0 is runtime-verified
+    # against the full sign/verify + proof-packet path (28 signing smokes green),
+    # so this overrides the transitive pull to clear the CVE. Drop once sigstore
+    # ships tuf~=7.0 support upstream.
+    "tuf>=7.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[project.scripts]
+bert = "lab:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["core", "tools", "bot"]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# RUF006 added 2026-05-28: catches dangling asyncio.create_task() (weak-ref GC)
+# — the class of bug the Sprint-4 supervisor task had, which fast tests can't see.
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "RUF006"]
+ignore = [
+    "E501",   # line length handled by formatter
+    # ── Intentional codebase conventions (not bugs) ──
+    "E402",   # module-import-not-at-top: every module/tool/test does
+              #   `sys.path.insert(0, LAB_ROOT)` BEFORE `from core import ...`
+              #   so the package resolves when run as a script. Required, not a smell.
+    "N806",   # non-lowercase var in function: math/retrieval code uses
+              #   domain-conventional uppercase (X, N, BM25, RRF weights, ...).
+    "E741",   # ambiguous var name (l/I/O): used as tight numeric/loop locals.
+    "N812",   # lowercase imported as non-lowercase: e.g. torch.nn.functional as F.
+    "N814",   # camelcase imported as constant: same import-alias convention.
+    "N802",   # function name not lowercase: a few intentional (e.g. check_22_*).
+    "N818",   # exception name without Error suffix: stable public names
+              #   (renaming would break call sites for a cosmetic gain).
+    # ── Style-preference rules we deliberately do NOT hard-gate ──
+    # (the bug-catching families F / B / UP / I / C4 stay fully enforced)
+    "B008",   # function-call-in-default-arg: REQUIRED by FastAPI
+              #   (`x: UploadFile = File(...)`, `= Depends(...)`, `= Query(...)`).
+              #   Known B008 false-positive for FastAPI handlers.
+    "SIM105", # try/except/pass vs contextlib.suppress: the codebase uses
+              #   explicit `except Exception:  # noqa: BLE001 \n pass` to mark
+              #   intentional advisory-failure swallowing. Pure preference.
+    "SIM102", # collapsible-if: nested ifs are often clearer than a bool chain.
+    "SIM108", # if-else vs ternary: forced ternaries frequently hurt readability.
+    "SIM113", # enumerate suggestion: manual counters are sometimes clearer.
+    "E701",   # multiple-statements-on-one-line (colon): `if x: return` is allowed.
+    "E702",   # multiple-statements-on-one-line (semicolon): same preference.
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.mypy]
+# Type-check audit config. `follow_imports = "skip"` is the load-bearing
+# setting — without it, mypy stalls indefinitely on heavy ML imports
+# (sentence-transformers / torch / etc. transitively pulled by
+# core/memory.py). The audit checks bert's OWN code, not third-party.
+python_version = "3.12"
+follow_imports = "skip"
+ignore_missing_imports = true
+strict_optional = false
+warn_redundant_casts = true
+warn_unused_ignores = true
+# Modules that have been audit-passed for type-hint quality. Adding a
+# new module here means it should stay mypy-clean going forward.
+files = [
+    "core/decode.py",
+    "core/hooks.py",
+    "core/quota.py",
+    "core/watchdog.py",
+    "core/verify.py",
+    "core/evaluator.py",
+    "core/brief_assembler.py",
+    "core/permission.py",
+    "core/session.py",
+    "core/indexer.py",
+    "core/sandbox.py",
+    "core/consolidator.py",
+]

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bert-lab/clearness_query.json",
+  "title": "ClearnessQuery",
+  "description": "P-VS-07 (Clearness committee) phase-1 query output. Open queries — never leading questions. Per Loring 1992 PHP #305 + Brown 2017 PHP #446 + Fox 1657 Journal. The phase-1 output (this schema's array) becomes context for phase-2 verdict.",
+  "type": "object",
+  "required": [
+    "text",
+    "is_leading"
+  ],
+  "properties": {
+    "text": {
+      "type": "string",
+      "minLength": 15,
+      "description": "The query text itself. ≥15 chars. Open form: 'What evidence supports the claim in §3 that X implies Y?' NOT leading: 'Don't you think §3 is wrong?'"
+    },
+    "is_leading": {
+      "type": "boolean",
+      "const": false,
+      "description": "MUST be false. A leading query (pre-loads its answer) is a phase-1 violation per P-VS-07. The auto-J classifier check (per A6 §9 falsifier #4) verifies ≥95% rate of is_leading=false across all phase-1 queries."
+    },
+    "source_query_template": {
+      "type": "string",
+      "description": "If derived from BYM Advices & Queries, FGC primary docs, or a few-shot example, cite the source for traceability. e.g., 'BYM Advices & Queries §1.02'."
+    },
+    "anchor_section": {
+      "type": "string",
+      "description": "Optional anchor in the candidate work this query targets. e.g., '§3' or 'the assertion at line 47'."
+    }
+  },
+  "additionalProperties": false
+}

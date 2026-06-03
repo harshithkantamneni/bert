@@ -1,0 +1,28 @@
+# Demo lab — "note-cli"
+# A tiny Markdown note-taking CLI. Used as the 5-minute investor demo.
+# Cycle 1 is pre-seeded on disk; cycle 2 runs LIVE on Groq llama-3.3-70b.
+
+lab_schema_version: 1
+name: "note-cli"
+archetype: product
+role: standard
+share_with_supervisor: true
+focus_areas:
+  - architecture
+  - implementation
+  - testing
+  - operations
+  - unspecified
+autonomy: collaborator
+first_cycle_seed: |
+  CLI for sub-100ms Markdown capture with frontmatter tags. Offline-first,
+  no auth, single binary, stdlib only. Success metric: capture a thought
+  in under 2 seconds from terminal-cold.
+
+provider: groq
+memory_backend: local
+
+cycle_cadence: work_until_blocked
+proof_packet:
+  required: true
+  schema: bert.proof.v1

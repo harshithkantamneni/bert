@@ -1,0 +1,29 @@
+# USD per 1K tokens (input, output). Sprint 4 C2 — cost ledger.
+#
+# Free-tier providers are 0.0 (tokens still tracked for quota + attribution).
+# Host/BYO models are priced so the cost ledger reflects real spend when a
+# user routes through their own paid keys. Approximate 2026 list prices;
+# refreshed alongside the daily model registry.
+
+default:
+  input: 0.0
+  output: 0.0
+
+# Free-tier providers (strict-free-tier routing → $0, tokens still counted)
+providers:
+  nvidia: {input: 0.0, output: 0.0}
+  groq: {input: 0.0, output: 0.0}
+  cerebras: {input: 0.0, output: 0.0}
+  gemini: {input: 0.0, output: 0.0}
+  mistral: {input: 0.0, output: 0.0}
+  openrouter: {input: 0.0, output: 0.0}
+  hf_router: {input: 0.0, output: 0.0}
+  ollama: {input: 0.0, output: 0.0}
+
+# Host / BYO models — priced per 1K tokens (input, output)
+models:
+  claude-opus-4-7: {input: 0.015, output: 0.075}
+  claude-sonnet-4-6: {input: 0.003, output: 0.015}
+  claude-haiku-4-5: {input: 0.0008, output: 0.004}
+  gpt-5: {input: 0.010, output: 0.030}
+  o3: {input: 0.010, output: 0.040}
