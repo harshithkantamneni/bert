@@ -1,0 +1,59 @@
+{
+  "benchmark": "NIAH (needle-in-a-haystack)",
+  "needle": "The best thing to do in San Francisco is eat a sandwich and sit in Dolores Park on a sunny day.",
+  "depth": 0.5,
+  "length_tiers": [
+    50000,
+    200000,
+    2000000
+  ],
+  "window": 1000000,
+  "filler": "sympy+numpy+scipy",
+  "rows": [
+    {
+      "length": 50000,
+      "arm": "full-context",
+      "recall": 1,
+      "input_tokens": 50024,
+      "infeasible": false
+    },
+    {
+      "length": 50000,
+      "arm": "bert-RAG",
+      "recall": 1,
+      "input_tokens": 3534,
+      "needle_retrieved": 1.0,
+      "infeasible": false
+    },
+    {
+      "length": 200000,
+      "arm": "full-context",
+      "recall": 1,
+      "input_tokens": 200024,
+      "infeasible": false
+    },
+    {
+      "length": 200000,
+      "arm": "bert-RAG",
+      "recall": 1,
+      "input_tokens": 2781,
+      "needle_retrieved": 1.0,
+      "infeasible": false
+    },
+    {
+      "length": 2000000,
+      "arm": "full-context",
+      "recall": 0,
+      "input_tokens": 2000024,
+      "infeasible": true
+    },
+    {
+      "length": 2000000,
+      "arm": "bert-RAG",
+      "recall": 1,
+      "input_tokens": 3599,
+      "needle_retrieved": 1.0,
+      "infeasible": false
+    }
+  ]
+}
