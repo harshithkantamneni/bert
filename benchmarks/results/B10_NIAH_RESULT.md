@@ -15,3 +15,20 @@ _NIAH (Greg Kamradt) is the de-facto test labs cite for context-window claims ("
 **Robustness (RAG depth-sweep, free):** the headline table above is one sample per cell. A follow-up sweep at 50K across 5 needle depths (0/25/50/75/100%) gives **bert-RAG recall = 5/5, with the needle retrieved at rank 1 every time** — i.e. RAG is **depth-invariant** (full-context famously degrades for needles "lost in the middle"; retrieval pulls the needle chunk regardless of position).
 
 **Honest caveats:** the **full-context** cells (50K/200K) are **one sample each** — each is a real Max-Opus quota call, so that arm is not depth-swept; "recall 1.0" there means "the single test passed," and a full depth×length heatmap for the Opus arm would need more quota. The needle is verified genuine (the filler contains neither "Dolores Park" nor "sandwich", and the needle is a made-up fact unanswerable without retrieval). Minor retrieval non-determinism was observed on *exact* rank in isolated runs, but end-to-end recall is stable (5/5 in the sweep). Together: NIAH shows the long-context wall on the standard harness; B9 + BEIR show retrieval quality under realistic distractors.
+
+
+## RAG depth×length grid (the proper measurement, free arm)
+
+Single-sample-per-cell is not the NIAH standard. The **bert-RAG** arm — which is free (llama reader) — was run as a proper depth × length grid:
+
+| depth ＼ length | 10K | 100K | 500K | 1M | 2M (>window) |
+|---|---|---|---|---|---|
+| 0%  | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 25% | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 50% | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 75% | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 100%| ✓ | ✓ | ✓ | ✓ | ✓ |
+
+**bert-RAG recall = 25/25 (100%)** across the grid — depth-invariant and length-invariant, including 2× the 1M window. The **full-context arm stays sparse** (50K/200K, n=1 each) because each cell is a real Max-Opus quota call and the >1M cells are infeasible.
+
+**Honest scope:** this is a 25-cell **single-needle** NIAH grid. The most rigorous standard (NVIDIA RULER) uses *multiple* needles, variable-tracking, and several samples per cell — not done here. Single-needle NIAH is also not a *hard* retrieval test (one distinctive English needle in code filler is easy to retrieve); retrieval under realistic *semantically-similar distractors* is what the B9 RAG benchmark stresses (and where hybrid-RAG scored 0.85, not 1.0). So: NIAH (this) shows the long-context **wall** + RAG depth/length-invariance on the standard harness; B9 + BEIR show retrieval **quality under hard distractors**. Together they cover the standard long-context claim and the realistic-difficulty claim — neither oversold as RULER-grade.
