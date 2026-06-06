@@ -9,7 +9,7 @@
   </picture>
 </p>
 
-<p align="center"><sub>Long-context RAG (B9): 131K-token corpus, 15K window. Reproducible from <code>benchmarks/</code>; full results in <a href="benchmarks/BENCHMARK_SYNTHESIS.md">BENCHMARK_SYNTHESIS.md</a>.</sub></p>
+<p align="center"><sub>Long-context RAG (B9): a 131K-token corpus with truncation capped at a 15K-token budget (a controlled stand-in for a context limit, so retrieval and truncation compete at a fixed cost). The case that <i>genuinely exceeds a model's window</i> (a 3.0M-token corpus vs. a 1M window) is in <a href="#results-honest-falsification-first">Results</a>. Reproducible from <code>benchmarks/</code>.</sub></p>
 
 bert is a local **MCP server** that gives an AI coding host a persistent, per-project memory + hybrid-retrieval layer. It exists for one specific, measured problem: **projects that outgrow the model's context window.** A frontier model with a large window can brute-force anything that fits inside it — but no one stuffs a 10M-token project into a prompt. When the corpus exceeds the window, full-context becomes infeasible, naive truncation drops the answer, and retrieval is the only thing that still works. That regime is the entirety of what bert claims.
 
@@ -30,6 +30,8 @@ Those claims come from a benchmark program built to **falsify** them. The honest
 | naive truncation (15K) | 0.10 | 15,000 | 0.00 |
 | smart truncation (15K) | 0.35 | 14,709 | 0.25 |
 | **bert hybrid-RAG** | **0.85** | **3,278** | **0.88** |
+
+Here the reader's input is capped at ~15K tokens, a controlled stand-in for a context limit, so retrieval and truncation compete at a fixed budget. This 131K corpus still fits inside a real model window; it isolates *answer-per-token efficiency*. The result that **genuinely exceeds the window** is the wall below.
 
 **The full-context wall** (1M-token model): at 132K (fits) full-context scores 1.00; at **3.0M (exceeds the window) full-context is INFEASIBLE**, truncation scores **0.00**, and bert-RAG holds **0.75 at a flat ~3.3K input tokens**. Retrieval is the *only* option above the window.
 

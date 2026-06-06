@@ -36,7 +36,7 @@
 
   <!-- Title -->
   <text x="40" y="30" class="fg" font-size="17" font-weight="700">Higher accuracy, fewer tokens: bert wins the corner</text>
-  <text x="40" y="49" class="muted" font-size="12">Long-context QA — answer accuracy vs. input tokens sent per query (log scale)</text>
+  <text x="40" y="49" class="muted" font-size="12">Long-context QA · answer accuracy vs. input tokens sent per query (log scale)</text>
 
   <!-- Dominance zone shading (top-left = better) -->
   <rect x="78" y="64" width="180" height="120" class="domzone"/>
@@ -124,5 +124,5 @@
   <text x="384" y="356" class="muted" font-size="11" text-anchor="middle">~4.6x fewer input tokens than truncation</text>
 
   <!-- Provenance caption -->
-  <text x="40" y="453" class="faint" font-size="9.5">B9 — 131K-token corpus, 15K window (~8.7x over), llama-3.3-70b reader, non-Claude judges, n=20 (directional)</text>
+  <text x="40" y="453" class="faint" font-size="9.5">B9 · 131K-token corpus · truncation capped at 15K tokens (controlled budget) · free llama reader · non-Claude judges · n=20</text>
 </svg>
