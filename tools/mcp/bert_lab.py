@@ -572,6 +572,20 @@ def _t_memory_search(args: dict) -> dict:
     if not query:
         return {"ok": False, "error": "query required"}
 
+    # Keep any ingested external sources fresh before searching (best-effort,
+    # TTL-gated). This is what lets a re-ingested project stay current with no
+    # agent effort. A resync failure must never break search.
+    try:
+        from core import lab_context as _lc
+        from core import memory as _mem
+        _tok = _lc.set_active_lab_path(lab_path)
+        try:
+            _mem.resync_sources(force=False, eager_index=False)
+        finally:
+            _lc.reset_active_lab_path(_tok)
+    except Exception:  # noqa: BLE001 — freshness is best-effort
+        pass
+
     if use_vector:
         try:
             from core import lab_context, memory
@@ -624,6 +638,56 @@ def _t_memory_search(args: dict) -> dict:
             "fallback_reason": fallback_reason,
             "results": hits[:k],
         }
+
+
+# ── Tool: memory_ingest ─────────────────────────────────────────────
+
+
+def _t_memory_ingest(args: dict) -> dict:
+    lab_arg = args.get("lab", "")
+    source = (args.get("source") or "").strip()
+
+    lab_path = _resolve_lab(lab_arg)
+    if lab_path is None:
+        return {"ok": False, "error": f"lab not found: {lab_arg!r}"}
+    if not source:
+        return {"ok": False, "error": "source required"}
+    src = Path(source).expanduser()
+    if not src.exists() or not src.is_dir():
+        return {"ok": False,
+                "error": f"source is not an existing directory: {source!r}"}
+
+    exts_t = None
+    raw_exts = args.get("exts")
+    if isinstance(raw_exts, list) and raw_exts:
+        exts_t = tuple(e if e.startswith(".") else f".{e}" for e in raw_exts)
+
+    from core import lab_context, memory
+    token = lab_context.set_active_lab_path(lab_path)
+    try:
+        kw: dict = {"eager_index": True}
+        if exts_t:
+            kw["exts"] = exts_t
+        rep = memory.ingest_corpus_report(src, **kw)
+        memory.register_ingest_source(src, exts=exts_t, dest="findings/corpus")
+        result = {
+            "ok": True,
+            "lab": lab_path.name,
+            "source": str(src.resolve()),
+            "files_ingested": rep["written"],
+            "files_skipped": rep["skipped"],
+            "files_removed": rep["removed"],
+            "truncated": rep["truncated"],
+        }
+        try:
+            st = memory.stats()
+            result["chunks_indexed"] = st.get("chunks_indexed")
+            result["db_bytes"] = st.get("db_bytes")
+        except Exception:  # noqa: BLE001 — stats needs sqlite-vec; degrade
+            pass
+        return result
+    finally:
+        lab_context.reset_active_lab_path(token)
 
 
 # ── Tool: packet_export ─────────────────────────────────────────────
@@ -970,6 +1034,40 @@ def make_server() -> MCPServer:
             "required": ["lab", "query"],
         },
         handler=_t_memory_search,
+    )
+
+    srv.register_tool(
+        "memory_ingest",
+        description=(
+            "Index an EXISTING external project/codebase into a lab so the "
+            "agent can retrieve over it. Walks `source` (a directory), shards "
+            "the supported text/code files into the lab corpus, and embeds "
+            "them. Incremental on re-call (only changed files re-embed); the "
+            "source is remembered so later memory_search calls auto-refresh "
+            "it. Returns file counts. Never modifies the source tree; this is "
+            "files-only (not a live database connector)."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "lab": {
+                    "type": "string",
+                    "description": "Lab name or absolute path",
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Absolute path to the project directory to index",
+                },
+                "exts": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Optional file extensions to include "
+                                   "(default: common code + docs types)",
+                },
+            },
+            "required": ["lab", "source"],
+        },
+        handler=_t_memory_ingest,
     )
 
     srv.register_tool(
