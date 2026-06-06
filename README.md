@@ -2,6 +2,15 @@
 
 > Long-context project-memory and retrieval infrastructure for Claude Code / Cursor / Codex. When a project outgrows the model's context window, bert's hybrid retrieval keeps answer quality flat at near-constant input cost — where full-context stuffing becomes infeasible and naive truncation drops to zero.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/bench-rag-dominance-dark.svg">
+    <img alt="Accuracy vs. input-token cost on a 131K-token corpus (B9). bert (hybrid-RAG) reaches 0.85 accuracy at ~3.3K input tokens, dominating both truncation baselines (naive 0.10 and smart 0.35 at ~15K tokens) on the up-and-to-the-left axis." src="assets/bench-rag-dominance.svg" width="760">
+  </picture>
+</p>
+
+<p align="center"><sub>Long-context RAG (B9): 131K-token corpus, 15K window. Reproducible from <code>benchmarks/</code>; full results in <a href="benchmarks/BENCHMARK_SYNTHESIS.md">BENCHMARK_SYNTHESIS.md</a>.</sub></p>
+
 bert is a local **MCP server** that gives an AI coding host a persistent, per-project memory + hybrid-retrieval layer. It exists for one specific, measured problem: **projects that outgrow the model's context window.** A frontier model with a large window can brute-force anything that fits inside it — but no one stuffs a 10M-token project into a prompt. When the corpus exceeds the window, full-context becomes infeasible, naive truncation drops the answer, and retrieval is the only thing that still works. That regime is the entirety of what bert claims.
 
 Those claims come from a benchmark program built to **falsify** them. The honest result up front: **bert's orchestration does NOT make a model produce better single deliverables.** With the model held constant, orchestration showed ≈0 quality gain at 17–47× the token cost, and a cheaper-model-plus-harness arm (0.79) scored *below* the same bare model (0.87) and never beat the bare frontier model (0.89). What the data *does* support is the long-context retrieval value below. The credibility here is the rigor and the published nulls, not a leaderboard claim.

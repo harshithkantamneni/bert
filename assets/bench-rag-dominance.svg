@@ -1,0 +1,128 @@
+<svg viewBox="0 0 720 460" role="img" aria-labelledby="t d" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif">
+  <title id="t">Accuracy vs. input cost: bert dominates the top-left corner</title>
+  <desc id="d">Scatter of four long-context methods; bert (hybrid-RAG) reaches 0.85 accuracy using ~3.3K input tokens, beating 15K-token truncation (0.10 to 0.35) at roughly 4.6x lower cost.</desc>
+  <style>
+    .fg     { fill: #1c2024; }
+    .muted  { fill: #5b636b; }
+    .faint  { fill: #8b939b; }
+    .axis   { stroke: #c4cad0; stroke-width: 1; }
+    .grid   { stroke: #e7eaee; stroke-width: 1; }
+    .baseln { fill: #6b7178; }
+    .baselnStroke { stroke: #6b7178; }
+    .fail   { fill: #b4524a; }
+    .failStroke   { stroke: #b4524a; }
+    .hero   { fill: #2f7d6b; }
+    .heroStroke   { stroke: #2f7d6b; }
+    .heroHalo { fill: #2f7d6b; opacity: 0.12; }
+    .domzone { fill: #2f7d6b; opacity: 0.05; }
+    .dim    { stroke: #c4cad0; stroke-width: 1; stroke-dasharray: 2 3; }
+    @media (prefers-color-scheme: dark) {
+      .fg     { fill: #e8ecef; }
+      .muted  { fill: #aab2ba; }
+      .faint  { fill: #7d858d; }
+      .axis   { stroke: #444c54; }
+      .grid   { stroke: #232a31; }
+      .baseln { fill: #9aa2aa; }
+      .baselnStroke { stroke: #9aa2aa; }
+      .fail   { fill: #e0796f; }
+      .failStroke   { stroke: #e0796f; }
+      .hero   { fill: #4fd0ad; }
+      .heroStroke   { stroke: #4fd0ad; }
+      .heroHalo { fill: #4fd0ad; opacity: 0.16; }
+      .domzone { fill: #4fd0ad; opacity: 0.07; }
+      .dim    { stroke: #444c54; stroke-dasharray: 2 3; }
+    }
+  </style>
+
+  <!-- Title -->
+  <text x="40" y="30" class="fg" font-size="17" font-weight="700">Higher accuracy, fewer tokens: bert wins the corner</text>
+  <text x="40" y="49" class="muted" font-size="12">Long-context QA — answer accuracy vs. input tokens sent per query (log scale)</text>
+
+  <!-- Dominance zone shading (top-left = better) -->
+  <rect x="78" y="64" width="180" height="120" class="domzone"/>
+
+  <!-- Gridlines (faint) + Y axis ticks -->
+  <g class="grid">
+    <line x1="78" y1="64"  x2="690" y2="64"/>
+    <line x1="78" y1="146.5" x2="690" y2="146.5"/>
+    <line x1="78" y1="229" x2="690" y2="229"/>
+    <line x1="78" y1="311.5" x2="690" y2="311.5"/>
+  </g>
+
+  <!-- Axes -->
+  <line x1="78" y1="64" x2="78" y2="394" class="axis"/>
+  <line x1="78" y1="394" x2="690" y2="394" class="axis"/>
+
+  <!-- Y axis labels -->
+  <g class="muted" font-size="11" text-anchor="end">
+    <text x="70" y="68">1.0</text>
+    <text x="70" y="150.5">0.75</text>
+    <text x="70" y="233">0.50</text>
+    <text x="70" y="315.5">0.25</text>
+    <text x="70" y="398">0</text>
+  </g>
+  <text x="22" y="229" class="fg" font-size="12" font-weight="600" text-anchor="middle" transform="rotate(-90 22 229)">Answer accuracy</text>
+
+  <!-- X axis labels (log: 2k..20k) -->
+  <g class="muted" font-size="11" text-anchor="middle">
+    <text x="78"  y="411">2K</text>
+    <text x="185.8" y="411">3K</text>
+    <text x="321.5" y="411">5K</text>
+    <text x="505.8" y="411">10K</text>
+    <text x="613.5" y="411">15K</text>
+    <text x="690" y="411">20K</text>
+  </g>
+  <g class="axis">
+    <line x1="78"   y1="394" x2="78"   y2="398"/>
+    <line x1="185.8" y1="394" x2="185.8" y2="398"/>
+    <line x1="321.5" y1="394" x2="321.5" y2="398"/>
+    <line x1="505.8" y1="394" x2="505.8" y2="398"/>
+    <line x1="613.5" y1="394" x2="613.5" y2="398"/>
+    <line x1="690"  y1="394" x2="690"  y2="398"/>
+  </g>
+  <text x="384" y="431" class="fg" font-size="12" font-weight="600" text-anchor="middle">Input tokens sent to reader, per query  (log scale)</text>
+
+  <!-- "Better" direction cue: up + left -->
+  <g>
+    <line x1="250" y1="150" x2="150" y2="92" class="heroStroke" stroke-width="1.4" marker-end="url(#arrow)"/>
+    <text x="258" y="150" class="hero" font-size="11.5" font-weight="600">better</text>
+    <text x="258" y="164" class="faint" font-size="10">(up &amp; left)</text>
+  </g>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="hero"/>
+    </marker>
+  </defs>
+
+  <!-- Connector from vector-RAG up to bert to show the upgrade -->
+  <line x1="177.2" y1="163" x2="209.3" y2="113.5" class="dim"/>
+
+  <!-- ============ DATA POINTS ============ -->
+
+  <!-- naive truncation (15000, 0.10) FAIL -->
+  <circle cx="613.5" cy="361" r="5.5" class="fail"/>
+  <text x="603" y="356" class="fail" font-size="12" font-weight="600" text-anchor="end">naive truncation</text>
+  <text x="603" y="370" class="faint" font-size="10.5" text-anchor="end">0.10  ·  15.0K tok</text>
+
+  <!-- smart truncation (14709, 0.35) -->
+  <circle cx="608.3" cy="278.5" r="5.5" class="baseln"/>
+  <text x="597" y="274" class="baseln" font-size="12" font-weight="600" text-anchor="end">smart truncation</text>
+  <text x="597" y="288" class="faint" font-size="10.5" text-anchor="end">0.35  ·  14.7K tok</text>
+
+  <!-- vector-RAG (2905, 0.70) -->
+  <circle cx="177.2" cy="163" r="5.5" class="baseln"/>
+  <text x="190" y="178" class="baseln" font-size="12" font-weight="600">vector-RAG</text>
+  <text x="190" y="192" class="faint" font-size="10.5">0.70  ·  2.9K tok</text>
+
+  <!-- hybrid-RAG / bert (3278, 0.85) HERO -->
+  <circle cx="209.3" cy="113.5" r="11" class="heroHalo"/>
+  <circle cx="209.3" cy="113.5" r="6.5" class="hero"/>
+  <text x="226" y="106" class="hero" font-size="14" font-weight="700">bert · hybrid-RAG</text>
+  <text x="226" y="122" class="muted" font-size="11">0.85 accuracy  ·  3.3K tokens</text>
+
+  <!-- token-savings annotation -->
+  <text x="384" y="356" class="muted" font-size="11" text-anchor="middle">~4.6x fewer input tokens than truncation</text>
+
+  <!-- Provenance caption -->
+  <text x="40" y="453" class="faint" font-size="9.5">B9 — 131K-token corpus, 15K window (~8.7x over), llama-3.3-70b reader, non-Claude judges, n=20 (directional)</text>
+</svg>
