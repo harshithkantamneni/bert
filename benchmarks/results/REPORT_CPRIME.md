@@ -130,4 +130,4 @@ Plus benchmark suite re-ran cleanly with new code paths.
 
 ## Defensible single-sentence post-C-prime claim
 
-"On real BEIR scifact, bert's bge-base-en-v1.5 dense retrieval scores 0.740 nDCG@10 (matching the published bge-base reference, and above ColBERT v1 at 0.694 and the BM25+CE 0.688 baseline from the BEIR paper), with the full hybrid + cross-encoder rerank stack reaching 0.745. Competitive on retrieval quality with self-hosted alternatives, while shipping signed proof packets, adversarial-eval-by-design, and free-tier-only routing that no measured competitor matches."
+"On real BEIR (scifact + nfcorpus + fiqa), bert's bge-base-en-v1.5 dense retrieval matches the published bge-base reference on all three datasets and the full stack beats published BM25 on every one (+0.08 / +0.05 / +0.20 nDCG@10); on scifact the hybrid + cross-encoder rerank reaches 0.745, above ColBERT v1 (0.694) and the BM25+CE (0.688) baseline from the BEIR paper. Competitive on retrieval quality with self-hosted alternatives, while shipping signed proof packets, adversarial-eval-by-design, and free-tier-only routing that no measured competitor matches."

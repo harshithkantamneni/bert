@@ -213,7 +213,7 @@ Trivia: **8.8× cheaper / 7× faster** with **no accuracy loss** (difficulty-gat
 
 Beyond the custom suites, two recognized benchmarks anchor bert to the public landscape.
 
-**B2 — BEIR scifact** (`b2_beir_multi.py` / `b2_beir_scifact.py`, the standard IR benchmark; raw `benchmarks/results/B2_BEIR_RESULT.md`). bert's real stack — embedder single-sourced from `core.memory` (**bge-base-en-v1.5**, query-instruction prefixed) + `core.bm25` + RRF + **bge-reranker-v2-m3** — on 5,183 docs / 300 queries, nDCG@10 with bootstrap 95% CI:
+**B2 — BEIR (scifact + nfcorpus + fiqa)** (`b2_beir_multi.py`, the standard IR benchmark; raw `benchmarks/results/B2_BEIR_MULTI_RESULT.md`). bert's real stack — embedder single-sourced from `core.memory` (**bge-base-en-v1.5**, query-instruction prefixed) + `core.bm25` + RRF + **bge-reranker-v2-m3** — on three datasets, nDCG@10 with bootstrap 95% CI. scifact (5,183 docs / 300 queries) in detail:
 
 | method | nDCG@10 [95% CI] |
 |---|---|
@@ -222,7 +222,15 @@ Beyond the custom suites, two recognized benchmarks anchor bert to the public la
 | hybrid (vector+BM25, RRF) | 0.719 [0.676–0.759] |
 | **hybrid + bge-reranker** | **0.745 [0.707–0.783]** (**+0.080** over published BM25) |
 
-Two honest findings: (1) upgrading the 2020 MiniLM embedder to bge-base-en-v1.5 is the bulk of the gain — **0.645 → 0.740** vector-only, now matching the published bge-base reference (0.741); (2) on scifact the dense signal is strong enough that naive RRF with the weaker BM25 *slightly drags* it (0.740 → 0.719), and the cross-encoder rerank is what recovers it and makes the full stack best (**0.745**). The reranker now runs on 18 GB MPS (bounded `max_length`+`batch_size`) where it previously OOM'd and silently degraded to no-rerank. BEIR's short passages can't exercise the context wall — this measures retrieval-*stack quality* on standard data.
+Best method per dataset vs the published BM25 baseline:
+
+| dataset | bge-base vector (published ref) | best method | vs published BM25 |
+|---|---|---|---|
+| scifact | 0.740 (0.741) | hybrid+rerank **0.745** | **+0.080** |
+| nfcorpus | 0.374 (0.373) | vector-only **0.374** | **+0.049** |
+| fiqa | 0.406 (0.407) | hybrid+rerank **0.434** | **+0.198** |
+
+Three honest findings: (1) upgrading the 2020 MiniLM embedder to bge-base-en-v1.5 is the bulk of the gain — vector-only matches the published bge-base reference on **all three** datasets (scifact 0.645 → 0.740); (2) on scifact the dense signal is strong enough that naive RRF with the weaker BM25 *slightly drags* it (0.740 → 0.719), and the cross-encoder rerank recovers it (**0.745**); (3) the rerank is **dataset-dependent** — a large win on fiqa (0.356 → 0.434) and scifact, but flat on nfcorpus where bge-base alone is best, so no single method wins all three. The reranker now runs on 18 GB MPS (bounded `max_length`+`batch_size`) where it previously OOM'd and silently degraded to no-rerank. BEIR's short passages can't exercise the context wall — this measures retrieval-*stack quality* on standard data.
 
 **B10 — Needle-in-a-Haystack** (`b10_niah.py`, the de-facto context-window test; raw `benchmarks/results/B10_NIAH_RESULT.md`). The standard NIAH method, extended past the window:
 

@@ -27,7 +27,7 @@ The custom B7–B9 evals are rigorous but bespoke. These two are recognized benc
 
 | benchmark | what it is | bert's result |
 |---|---|---|
-| **BEIR scifact** (`b2_beir_multi.py`) | the standard IR benchmark (nDCG@10) | bge-base vector **0.740** (≈ published 0.741) · BM25 0.658 · **hybrid + rerank 0.745** (+0.080 over BM25) |
+| **BEIR** (`b2_beir_multi.py`: scifact + nfcorpus + fiqa) | the standard IR benchmark (nDCG@10) | bge-base matches the published ref on all 3 (scifact 0.740 / nfcorpus 0.374 / fiqa 0.406); full stack beats published BM25 everywhere (+0.08 / +0.05 / +0.20); scifact hybrid+rerank **0.745** |
 | **Needle-in-a-Haystack** (`b10_niah.py`) | the de-facto context-window test | bert-RAG **25/25** across a 5×5 depth×length grid *including 2× the window*; full-context walls past 1M |
 
 **Honest scope:** BEIR validates retrieval-*stack* quality on standard data (its short passages can't show the wall). NIAH is **single-needle** and its **full-context arm is quota-bounded** (one sample per cell — not the full-context heatmap, and not RULER-grade multi-needle). Single-needle NIAH is also *easy* for retrieval (one distinctive needle) — the *hard* retrieval test, with semantically-similar distractors, is B9 (hybrid-RAG 0.85, not 1.0). Together: BEIR + NIAH anchor "competitive on standard data + survives past the window"; B9 + the wall cover "holds under realistic difficulty + the production wiring is correct".

@@ -38,7 +38,7 @@ Here the reader's input is capped at ~15K tokens, a controlled stand-in for a co
 **What was disproved** (reported as the headline, not buried): orchestration on a frontier model — ≈0 gain at 17–47× tokens; cheaper-model-plus-harness — bert-Sonnet 0.79 < bare-Sonnet 0.87 < bare-Opus 0.89, never won.
 
 **Industry-standard anchors** (recognized benchmarks, comparable to published baselines):
-- **BEIR scifact** (the standard IR benchmark, nDCG@10): bge-base-en-v1.5 dense retrieval scores **0.740** (matching the published bge-base reference, 0.741), and the full hybrid + cross-encoder rerank stack scores **0.745**, **+0.080 over published BM25** (0.665). See [`benchmarks/results/B2_BEIR_RESULT.md`](benchmarks/results/B2_BEIR_RESULT.md).
+- **BEIR — scifact + nfcorpus + fiqa** (the standard IR benchmark, nDCG@10): bge-base-en-v1.5 matches the published bge-base reference on all three (0.740 / 0.374 / 0.406), and the full stack beats published BM25 on every dataset (**+0.080 / +0.049 / +0.198**). On scifact the hybrid + cross-encoder rerank reaches **0.745**; the cross-encoder is honestly dataset-dependent (a big win on fiqa, flat on nfcorpus). See [`benchmarks/results/B2_BEIR_MULTI_RESULT.md`](benchmarks/results/B2_BEIR_MULTI_RESULT.md).
 - **Needle-in-a-Haystack** (the de-facto context-window test): bert-RAG **25/25** across a depth×length grid *including 2× the window*, where full-context is infeasible. (Single-needle NIAH, not RULER; the full-context arm is quota-bounded.) See [`benchmarks/results/B10_NIAH_RESULT.md`](benchmarks/results/B10_NIAH_RESULT.md).
 
 Full methodology, results, and limitations: [`benchmarks/BENCHMARK_SYNTHESIS.md`](benchmarks/BENCHMARK_SYNTHESIS.md).
