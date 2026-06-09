@@ -98,7 +98,7 @@ SEED_DOCS = [
     "Cross-encoder reranker pair-wise scoring full attention BGE",
     "Hybrid retrieval vector graph BM25 RRF combine signals diversity",
     "Personalized PageRank random walks graph token co-occurrence",
-    "Sentence-transformers all-MiniLM-L6-v2 22 MB 384 dimensions",
+    "Sentence-transformers bge-base-en-v1.5 440 MB 768 dimensions",
     "ColBERT late interaction token-level relevance scoring",
     "ANCE asynchronous negative training contrastive retrieval",
     "Sigstore Fulcio Rekor cosign keyless signing transparency log",

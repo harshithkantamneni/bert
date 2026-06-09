@@ -1,7 +1,7 @@
 """Memory subsystem — vector search over the markdown corpus (MVP).
 
 Lazy-indexes memories/ + findings/ via sqlite-vec + sentence-transformers
-(all-MiniLM-L6-v2, 22 MB, 384-dim, normalized embeddings → cosine via L2).
+(BAAI/bge-base-en-v1.5, 768-dim, normalized embeddings → cosine via L2).
 On each search, the corpus is re-walked and any file with mtime newer than
 its indexed mtime is re-embedded. Old chunks for changed files are deleted
 before reinsertion so we never serve stale content.
@@ -27,7 +27,7 @@ from pathlib import Path
 from core import log
 
 # Force HuggingFace Hub offline mode by default. The embedder model
-# (all-MiniLM-L6-v2, 22 MB) is downloaded once into ~/.cache/huggingface
+# (BAAI/bge-base-en-v1.5, ~440 MB) is downloaded once into ~/.cache/huggingface
 # and used offline thereafter — bert is free-tier-runtime per P-009 with
 # data-stays-on-machine privacy positioning, so the library's default
 # "phone home to check for model updates" behavior is wrong for bert.
@@ -77,8 +77,36 @@ def _index_dirs() -> list[Path]:
     except Exception:  # noqa: BLE001
         p = None
     return [p / "memories", p / "findings"] if p is not None else list(INDEX_DIRS)
-EMBED_DIM = 384
-EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
+# Embedder. Default upgraded from all-MiniLM-L6-v2 (2020, 384-dim) to
+# BAAI/bge-base-en-v1.5 (2023, 768-dim) — a materially stronger retrieval
+# encoder (see benchmarks/results/B2_BEIR_RESULT.md). Both the model and dim
+# are env-overridable so the BEIR harness can sweep encoders and pick on
+# measured nDCG@10. EMBED_DIM is baked into the vec0 schema below, so changing
+# it requires rebuilding memory.db (gitignored + rebuildable from the markdown).
+EMBED_MODEL_NAME = os.environ.get("BERT_EMBED_MODEL", "BAAI/bge-base-en-v1.5")
+EMBED_DIM = int(os.environ.get("BERT_EMBED_DIM", "768"))
+
+
+def _default_affixes(model_name: str) -> tuple[str, str]:
+    """Return (query_prefix, passage_prefix) for a retrieval encoder.
+
+    Modern retrieval encoders are asymmetric: the query is encoded with a short
+    instruction the passages don't get. bge-*-en-v1.5 prefixes only the query;
+    the e5 family prefixes both. Symmetric models (MiniLM) use neither. These
+    are the model authors' documented retrieval instructions — omitting the bge
+    query instruction silently costs several nDCG points.
+    """
+    m = model_name.lower()
+    if "bge" in m and "v1.5" in m:
+        return ("Represent this sentence for searching relevant passages: ", "")
+    if "e5" in m:  # intfloat/e5-* family
+        return ("query: ", "passage: ")
+    return ("", "")
+
+
+_q_pref, _p_pref = _default_affixes(EMBED_MODEL_NAME)
+EMBED_QUERY_PREFIX = os.environ.get("BERT_EMBED_QUERY_PREFIX", _q_pref)
+EMBED_PASSAGE_PREFIX = os.environ.get("BERT_EMBED_PASSAGE_PREFIX", _p_pref)
 CHUNK_CHARS = 1500
 CHUNK_OVERLAP = 100
 
@@ -161,9 +189,17 @@ def _get_embedder():
     return _embedder
 
 
-def _embed_batch(texts: list[str]) -> list[bytes]:
-    """Embed → list of float32 byte-blobs in sqlite-vec format."""
+def _embed_batch(texts: list[str], *, is_query: bool = False) -> list[bytes]:
+    """Embed → list of float32 byte-blobs in sqlite-vec format.
+
+    is_query selects the asymmetric affix: queries get EMBED_QUERY_PREFIX,
+    passages get EMBED_PASSAGE_PREFIX. For symmetric encoders both are empty,
+    so indexing and search encode identically (the historical behavior).
+    """
     model = _get_embedder()
+    prefix = EMBED_QUERY_PREFIX if is_query else EMBED_PASSAGE_PREFIX
+    if prefix:
+        texts = [prefix + t for t in texts]
     embs = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
     return [struct.pack(f"{EMBED_DIM}f", *e.tolist()) for e in embs]
 
@@ -353,7 +389,7 @@ def search(query: str, k: int = 5) -> list[dict]:
         return []
     _index_corpus()
     conn = _get_conn()
-    q_emb = _embed_batch([query])[0]
+    q_emb = _embed_batch([query], is_query=True)[0]
     k = max(1, min(k, 20))
     rows = conn.execute(
         """

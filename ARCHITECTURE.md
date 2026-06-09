@@ -119,13 +119,13 @@ Beyond tools, `bert_lab` exposes **MCP resources** (each lab's `seed_brief.md` +
 
 A markdown corpus (`memories/` + `findings/`) is chunked, embedded into sqlite-vec, and retrieved through a multi-signal fusion pipeline, then reranked by a cross-encoder. Per-lab scoped via `lab_context`; runs offline/local on an M3 Pro. Pipeline: **ingest → index → hybrid_retrieve → rerank**, with `core/retrieval.py:hybrid_retrieve` as the single entry point.
 
-**Ingest + dense index — `core/memory.py` (~484 LoC).** `ingest_corpus()` walks an external tree and writes each file as a `.md` shard under `findings/corpus/` via `create()` (gated to `memories/` or `findings/` only; atomic tmp+rename; also serves the `memory_create` MCP tool). `_index_corpus()` is lazy and mtime-driven: on each `search()` the corpus is re-walked, files newer than their `indexed_mtime` are re-chunked (paragraph-aware, 1500 chars / 100 overlap) and re-embedded (all-MiniLM-L6-v2, 384-dim, normalized → cosine via L2) into the `vec_chunks` sqlite-vec virtual table, with metadata in `chunks`. Orphan GC drops chunks for deleted/archived files; `archive/*` is excluded (demand-paging page-out). A 5s TTL cache skips the ~4ms walk when nothing changed. `HF_HUB_OFFLINE=1` is forced by default to avoid multi-minute hangs.
+**Ingest + dense index — `core/memory.py` (~484 LoC).** `ingest_corpus()` walks an external tree and writes each file as a `.md` shard under `findings/corpus/` via `create()` (gated to `memories/` or `findings/` only; atomic tmp+rename; also serves the `memory_create` MCP tool). `_index_corpus()` is lazy and mtime-driven: on each `search()` the corpus is re-walked, files newer than their `indexed_mtime` are re-chunked (paragraph-aware, 1500 chars / 100 overlap) and re-embedded (BAAI/bge-base-en-v1.5, 768-dim, asymmetric query instruction on the search side, normalized → cosine via L2) into the `vec_chunks` sqlite-vec virtual table, with metadata in `chunks`. Orphan GC drops chunks for deleted/archived files; `archive/*` is excluded (demand-paging page-out). A 5s TTL cache skips the ~4ms walk when nothing changed. `HF_HUB_OFFLINE=1` is forced by default to avoid multi-minute hangs.
 
 **Hybrid fusion — `core/retrieval.py` (~457 LoC).** `hybrid_retrieve` pulls `_vector_candidates` (`memory.search`), `_bm25_candidates` (`bm25.search`), and `_graph_candidates` (only if `seed_ids` given), fuses them via Reciprocal Rank Fusion (`k=60`), takes `top_n*5` as a rerank pool, applies the cross-encoder `rerank_fn`, sorts by final score, trims to `top_n`. Per-stage timings + per-signal top-K are emitted to `state/observability/retrieval.jsonl`. **PPR and the semantic cache were removed from fusion on empirical evidence** (PPR never fired on arbitrary corpora; the cache ordered by recency not relevance); only vector + bm25 (+ graph) fuse now.
 
 **Sparse signal — `core/bm25.py` (~427 LoC).** `rank_bm25` BM25Okapi over the same sqlite chunks; IR-quality tokenizer (stopword removal + light stemmer; lifted BEIR scifact 0.56 → 0.66 nDCG); mtime-gated incremental rebuild + a 3-layer process cache (payload / BM25Okapi instance / freshness signature) fixing a profiled 22ms JSON re-parse + 24ms rebuild per call.
 
-**Rerank — `core/reranker.py` (~245 LoC).** `BAAI/bge-reranker-v2-m3` cross-encoder scoring `(query, passage)` pairs with full attention; thread-safe lazy singleton with a 30s load timeout, MiniLM fallback model, cached-failure flag, and a `BERT_DISABLE_RERANKER` kill switch. On any failure `hybrid_retrieve` falls back to `default_cosine_reranker` (single-vector cosine via Ollama nomic-embed).
+**Rerank — `core/reranker.py` (~245 LoC).** `BAAI/bge-reranker-v2-m3` cross-encoder scoring `(query, passage)` pairs with full attention; thread-safe lazy singleton with a 30s load timeout, MiniLM fallback model, cached-failure flag, and a `BERT_DISABLE_RERANKER` kill switch. Inference is bounded — `max_length` 512 + `batch_size` 32 (both env-tunable), with a clear-MPS-cache + `batch_size=1` retry on OOM — so the cross-encoder actually runs on 18 GB unified memory instead of OOM-ing and silently degrading to no-rerank. On any failure `hybrid_retrieve` falls back to `default_cosine_reranker` (single-vector cosine via Ollama nomic-embed).
 
 **Supporting:** `core/semantic_cache.py` (LLM-dispatch dedup cache, **distinct from retrieval**: nomic-embed 768-dim, 0.90 cosine + an anchor-term guard to defeat the embedder's topic-suffix collapse; strict `CACHEABLE_ROLES` allow-list excludes all verdict roles). `core/grader.py` (4-judge median+variance artifact grader over a free-tier provider cascade; `aggregate()` is a pure LLM-free function). `core/prewarm.py` (background daemon pins embedder + reranker resident at MCP-server start).
 
@@ -213,15 +213,16 @@ Trivia: **8.8× cheaper / 7× faster** with **no accuracy loss** (difficulty-gat
 
 Beyond the custom suites, two recognized benchmarks anchor bert to the public landscape.
 
-**B2 — BEIR scifact** (`b2_beir_scifact.py`, the standard IR benchmark; raw `benchmarks/results/B2_BEIR_RESULT.md`). bert's real stack (MiniLM + `core.bm25` + RRF + bge-reranker) on 5,183 docs / 300 queries:
+**B2 — BEIR scifact** (`b2_beir_multi.py` / `b2_beir_scifact.py`, the standard IR benchmark; raw `benchmarks/results/B2_BEIR_RESULT.md`). bert's real stack — embedder single-sourced from `core.memory` (**bge-base-en-v1.5**, query-instruction prefixed) + `core.bm25` + RRF + **bge-reranker-v2-m3** — on 5,183 docs / 300 queries, nDCG@10 with bootstrap 95% CI:
 
-| method | nDCG@10 |
+| method | nDCG@10 [95% CI] |
 |---|---|
-| vector-only | 0.645 |
-| BM25 | **0.658** (≈ published BM25 0.665) |
-| hybrid (vector+BM25) | **0.684** (beats published BM25) |
+| vector-only (bge-base) | 0.740 [0.696–0.779] |
+| BM25 (`core.bm25`) | 0.658 [0.614–0.703] (≈ published BM25 0.665) |
+| hybrid (vector+BM25, RRF) | 0.719 [0.676–0.759] |
+| **hybrid + bge-reranker** | **0.745 [0.707–0.783]** (**+0.080** over published BM25) |
 
-(The reranker row OOM'd on 18 GB MPS — a hardware limit, not a bug.) Note BEIR's short passages can't exercise the wall — it measures retrieval-*stack quality* on standard data.
+Two honest findings: (1) upgrading the 2020 MiniLM embedder to bge-base-en-v1.5 is the bulk of the gain — **0.645 → 0.740** vector-only, now matching the published bge-base reference (0.741); (2) on scifact the dense signal is strong enough that naive RRF with the weaker BM25 *slightly drags* it (0.740 → 0.719), and the cross-encoder rerank is what recovers it and makes the full stack best (**0.745**). The reranker now runs on 18 GB MPS (bounded `max_length`+`batch_size`) where it previously OOM'd and silently degraded to no-rerank. BEIR's short passages can't exercise the context wall — this measures retrieval-*stack quality* on standard data.
 
 **B10 — Needle-in-a-Haystack** (`b10_niah.py`, the de-facto context-window test; raw `benchmarks/results/B10_NIAH_RESULT.md`). The standard NIAH method, extended past the window:
 

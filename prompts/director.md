@@ -115,7 +115,7 @@ should rarely happen — but be ready.
 - `WebFetch(url, prompt=None, timeout=15)` — httpx + bs4 cleaning (script/style/nav stripped, prefers `<main>`/`<article>`). Returns `{ok, url, status_code, title, content (≤30 KB), truncated, error}`. JSON/text returned as-is.
 
 **Memory tools** (`core/memory.py`, MVP subset of the 11-op API):
-- `memory_search(query, k=5)` — vector similarity over indexed `memories/` + `findings/` (sentence-transformers all-MiniLM-L6-v2, cosine). Returns top-k chunks with `path`, `chunk_idx`, `content`, `distance` (lower = more similar). Auto-reindexes mtime-changed files. **Use this BEFORE re-doing research; cycle 2+ has accumulated findings.**
+- `memory_search(query, k=5)` — vector similarity over indexed `memories/` + `findings/` (sentence-transformers bge-base-en-v1.5, cosine). Returns top-k chunks with `path`, `chunk_idx`, `content`, `distance` (lower = more similar). Auto-reindexes mtime-changed files. **Use this BEFORE re-doing research; cycle 2+ has accumulated findings.**
 - `memory_create(path, content)` — atomic write scoped to `memories/` or `findings/` only. For `state/` / `agents/` / code, use `Write` instead.
 
 (The other 9 ops — view, str_replace, insert, delete, rename, graph, index, stats, extract — ship in later phases. Use `Read` for view, `Edit` for str_replace, `Write` for replacement.)

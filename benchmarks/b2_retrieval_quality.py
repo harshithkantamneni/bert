@@ -286,7 +286,7 @@ def retrieve_vector_only(query: str, corpus: dict[str, str], k: int) -> list[str
     if embedder is None:
         # Fallback: lazy-load via sentence_transformers directly
         from sentence_transformers import SentenceTransformer
-        embedder = SentenceTransformer("all-MiniLM-L6-v2")
+        embedder = SentenceTransformer("BAAI/bge-base-en-v1.5")
     q_emb = embedder.encode([query], normalize_embeddings=True)[0]
     doc_ids = list(corpus.keys())
     doc_texts = [corpus[d] for d in doc_ids]

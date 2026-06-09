@@ -42,6 +42,38 @@ DEFAULT_MODEL = os.environ.get(
 FALLBACK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 
+# ── Inference controls (the OOM fix) ─────────────────────────────────
+# bge-reranker-v2-m3 defaults to an 8192-token window; scoring a batch of long
+# (query, passage) pairs at that length allocates a huge attention buffer and
+# OOMs 18 GB MPS. predict() then raised and rerank() returned [] — so
+# hybrid_with_rerank silently degraded to hybrid_no_rerank (why the earlier B2
+# BEIR run had no reranked column). Capping max_length (our chunks are ~1500
+# chars ≈ 400 tokens, under 512) and bounding batch_size keeps peak memory
+# flat; on OOM we clear the MPS cache and retry at batch_size=1 before giving up.
+def _max_length() -> int:
+    return int(os.environ.get("BERT_RERANKER_MAX_LENGTH", "512"))
+
+
+def _batch_size() -> int:
+    return int(os.environ.get("BERT_RERANKER_BATCH_SIZE", "32"))
+
+
+def _device() -> str:
+    # "" → let sentence-transformers choose (MPS on Apple Silicon). Set
+    # BERT_RERANKER_DEVICE=cpu to force CPU when memory is tight.
+    return os.environ.get("BERT_RERANKER_DEVICE", "").strip()
+
+
+def _empty_mps_cache() -> None:
+    """Free fragmented MPS allocations between retry attempts (best-effort)."""
+    try:
+        import torch
+        if torch.backends.mps.is_available():
+            torch.mps.empty_cache()
+    except Exception:  # noqa: BLE001
+        pass
+
+
 @dataclass
 class RerankerStatus:
     model: str | None
@@ -75,7 +107,10 @@ def _try_load(model_name: str) -> bool:
 
     def _load_thread() -> None:
         try:
-            result["model"] = CrossEncoder(model_name)
+            result["model"] = CrossEncoder(
+                model_name, max_length=_max_length(),
+                device=(_device() or None),
+            )
         except Exception as e:  # noqa: BLE001
             result["err"] = f"{type(e).__name__}: {e}"
 
@@ -153,12 +188,25 @@ def rerank(query: str, passages: list[str]) -> list[float]:
     if not _ensure_loaded():
         return []
     pairs = [[query, p or ""] for p in passages]
-    try:
-        scores = _model.predict(pairs, show_progress_bar=False)
-        return [float(s) for s in scores]
-    except Exception as e:  # noqa: BLE001
-        LOG.warning("cross-encoder predict failed: %s", e)
-        return []
+    # Try the configured batch size; on an OOM (RuntimeError / MemoryError)
+    # clear the MPS cache and retry at batch_size=1 before giving up, so a
+    # transient memory spike degrades latency rather than silently dropping
+    # the rerank pass (which is what made hybrid_with_rerank disappear before).
+    for bs in dict.fromkeys((_batch_size(), 1)):
+        try:
+            scores = _model.predict(pairs, batch_size=bs, show_progress_bar=False)
+            return [float(s) for s in scores]
+        except (RuntimeError, MemoryError) as e:
+            LOG.warning(
+                "cross-encoder OOM/failure at batch_size=%d (%s); clearing "
+                "cache + retrying smaller", bs, e
+            )
+            _empty_mps_cache()
+            continue
+        except Exception as e:  # noqa: BLE001
+            LOG.warning("cross-encoder predict failed: %s", e)
+            return []
+    return []
 
 
 # ── Adapter for core/retrieval.py rerank_fn ──────────────────────────

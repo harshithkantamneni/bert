@@ -73,6 +73,7 @@ Thumbs.db
 .idea/
 *.swp
 *~
+.playwright-mcp/
 
 # ── Runtime state in lab/state/ (J.5 hygiene) ─────────────────────────
 # Databases + append-only jsonl runtime stores. Source-level files are
@@ -142,6 +143,8 @@ benchmarks/results/b1_latency_*.json
 benchmarks/results/b1_summary_*.md
 benchmarks/results/b2_beir_scifact_*.json
 benchmarks/results/b2_beir_scifact_summary_*.md
+benchmarks/results/b2_beir_multi_*.json
+benchmarks/results/b2_beir_multi_summary_*.md
 benchmarks/results/b2_summary_*.md
 benchmarks/results/b2_quality_synthetic_*.json
 benchmarks/results/b3_*.json

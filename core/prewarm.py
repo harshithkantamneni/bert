@@ -1,6 +1,6 @@
 """Pin retrieval models resident at MCP-server start (memory v3+ priority 2).
 
-The embedder (all-MiniLM-L6-v2, used on every search) and the cross-encoder
+The embedder (bge-base-en-v1.5, used on every search) and the cross-encoder
 reranker (bge-reranker-v2-m3, used on every search unless BERT_DISABLE_RERANKER)
 are otherwise lazy-loaded on the FIRST query — paying a measured cold-start tail
 (p99.9 = 8.6s, max = 46s under memory pressure; 99.7% of warm calls are <1s).

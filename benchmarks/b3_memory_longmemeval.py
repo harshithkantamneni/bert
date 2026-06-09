@@ -246,7 +246,7 @@ def retrieve_bert_hybrid(scenario: MemoryScenario, lab_path: Path | None = None)
     if not hasattr(memory, "_get_embedder"):
         # Use sentence_transformers directly
         from sentence_transformers import SentenceTransformer
-        embedder = SentenceTransformer("all-MiniLM-L6-v2")
+        embedder = SentenceTransformer("BAAI/bge-base-en-v1.5")
     else:
         embedder = memory._get_embedder()
     q_emb = embedder.encode([scenario.question], normalize_embeddings=True)[0]

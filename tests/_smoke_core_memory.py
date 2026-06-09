@@ -3,7 +3,7 @@
 Exercises the REAL indexing + vector-search plumbing (chunk → embed →
 vec0 insert → KNN query → stats/cli) against a temp DB + temp corpus.
 Only the torch embedder is faked: `_get_embedder` returns a deterministic
-numpy stub (384-d, L2-normalized) — the bm25 traffic tool exists
+numpy stub (mem.EMBED_DIM-d, L2-normalized) — the bm25 traffic tool exists
 precisely because loading the real embedder is memory-heavy on this
 machine, so faking just the model keeps the smoke fast + RAM-safe while
 the sqlite-vec math (struct pack, vec0 MATCH/k, distance ordering) is all
@@ -39,7 +39,7 @@ class _MP:
 
 
 class _FakeEmbedder:
-    """Deterministic 384-d embedder — same text → same unit vector."""
+    """Deterministic embedder (mem.EMBED_DIM-d) — same text → same unit vector."""
     def encode(self, texts, normalize_embeddings=True, show_progress_bar=False):
         out = []
         for t in texts:
@@ -134,7 +134,7 @@ def test_stats(monkeypatch, tmp_path):
     mem._index_corpus()
     s = mem.stats()
     assert s["chunks_indexed"] >= 2 and s["files_indexed"] >= 2
-    assert s["embedding_dim"] == 384
+    assert s["embedding_dim"] == mem.EMBED_DIM
 
 
 def test_cli_ops(monkeypatch, tmp_path):

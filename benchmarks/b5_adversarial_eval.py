@@ -346,7 +346,7 @@ def retrieve_vector_only(query: str, corpus: dict[str, str], k: int) -> list[str
         embedder = memory._get_embedder()
     else:
         from sentence_transformers import SentenceTransformer
-        embedder = SentenceTransformer("all-MiniLM-L6-v2")
+        embedder = SentenceTransformer("BAAI/bge-base-en-v1.5")
     q_emb = embedder.encode([query], normalize_embeddings=True)[0]
     doc_ids = list(corpus.keys())
     doc_embs = embedder.encode([corpus[d] for d in doc_ids],

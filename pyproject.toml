@@ -56,6 +56,12 @@ dev = [
     "ruff>=0.8.0",
     "mypy>=1.13.0",
 ]
+# Datasets + sparse-baseline lib for the BEIR retrieval benchmarks
+# (benchmarks/b2_beir_*.py). Install with: uv sync --extra benchmarks
+benchmarks = [
+    "ir-datasets>=0.5.0",
+    "rank-bm25>=0.2.2",
+]
 
 [project.scripts]
 bert = "lab:main"

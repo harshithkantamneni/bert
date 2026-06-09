@@ -25,12 +25,14 @@ Published BEIR baselines for scifact (Thakur et al. 2021, Table 4):
   bge-large-en-v1.5 (2024): ~0.72 nDCG@10
   bge-m3 (2024): ~0.74-0.78 nDCG@10
 
-What we test (and where bert's MiniLM + bge-reranker stack should land
-relative to these published numbers):
-  vector_only (all-MiniLM-L6-v2):     expect 0.55-0.65 (2020 embedder)
-  bm25_only (rank_bm25):              expect ~0.66 (published BM25)
-  hybrid_no_rerank:                   expect 0.62-0.68
-  hybrid_with_rerank (bge-rerank-v2-m3): expect 0.70-0.78
+What we test (bert's real stack — embedder single-sourced from core.memory,
+now BAAI/bge-base-en-v1.5 — relative to these published numbers):
+  vector_only (bge-base-en-v1.5):        expect ~0.72-0.74
+  bm25_only (core.bm25 + rank_bm25):     expect ~0.66 (published BM25)
+  hybrid_no_rerank:                      expect ~0.70-0.74
+  hybrid_with_rerank (bge-rerank-v2-m3): expect ~0.74-0.78
+
+For the multi-dataset gauntlet (scifact + nfcorpus + fiqa) see b2_beir_multi.py.
 
 Output: benchmarks/results/b2_beir_scifact_<ts>.json + summary.md
 """
@@ -130,16 +132,21 @@ def bootstrap_ci95(xs: list[float], n=1000, seed=42) -> tuple[float, float]:
 
 
 def index_vector(corpus: dict[str, str]):
-    """One-time index build for vector-only baseline."""
+    """One-time index build for vector-only baseline. The embedder + passage
+    affix are single-sourced from core.memory so this measures bert's REAL
+    encoder, not a hardcoded copy."""
     import numpy as np
     from sentence_transformers import SentenceTransformer
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+
+    from core.memory import EMBED_MODEL_NAME, EMBED_PASSAGE_PREFIX
+    model = SentenceTransformer(EMBED_MODEL_NAME)
     doc_ids = list(corpus.keys())
-    print(f"    encoding {len(doc_ids)} docs (vector)…", flush=True)
+    texts = [EMBED_PASSAGE_PREFIX + corpus[d] for d in doc_ids] \
+        if EMBED_PASSAGE_PREFIX else [corpus[d] for d in doc_ids]
+    print(f"    encoding {len(doc_ids)} docs ({EMBED_MODEL_NAME})…", flush=True)
     t0 = time.monotonic()
     embs = model.encode(
-        [corpus[d] for d in doc_ids],
-        normalize_embeddings=True, show_progress_bar=False, batch_size=64,
+        texts, normalize_embeddings=True, show_progress_bar=False, batch_size=64,
     )
     print(f"    {time.monotonic()-t0:.1f}s", flush=True)
     return model, doc_ids, np.array(embs)
@@ -166,7 +173,9 @@ def _query_tokens(query: str) -> list[str]:
 
 
 def retrieve_vector(query, model, doc_ids, embs, k):
-    q_emb = model.encode([query], normalize_embeddings=True)[0]
+    from core.memory import EMBED_QUERY_PREFIX
+    qtext = (EMBED_QUERY_PREFIX + query) if EMBED_QUERY_PREFIX else query
+    q_emb = model.encode([qtext], normalize_embeddings=True)[0]
     sims = embs @ q_emb
     ranked = sorted(zip(doc_ids, sims, strict=False), key=lambda x: -x[1])
     return [d for d, _ in ranked[:k]]

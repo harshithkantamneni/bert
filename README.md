@@ -38,14 +38,14 @@ Here the reader's input is capped at ~15K tokens, a controlled stand-in for a co
 **What was disproved** (reported as the headline, not buried): orchestration on a frontier model — ≈0 gain at 17–47× tokens; cheaper-model-plus-harness — bert-Sonnet 0.79 < bare-Sonnet 0.87 < bare-Opus 0.89, never won.
 
 **Industry-standard anchors** (recognized benchmarks, comparable to published baselines):
-- **BEIR scifact** (the standard IR benchmark, nDCG@10): bert's BM25 **0.658** ≈ published 0.665; **hybrid 0.684 beats it**. See [`benchmarks/results/B2_BEIR_RESULT.md`](benchmarks/results/B2_BEIR_RESULT.md).
+- **BEIR scifact** (the standard IR benchmark, nDCG@10): bge-base-en-v1.5 dense retrieval scores **0.740** (matching the published bge-base reference, 0.741), and the full hybrid + cross-encoder rerank stack scores **0.745**, **+0.080 over published BM25** (0.665). See [`benchmarks/results/B2_BEIR_RESULT.md`](benchmarks/results/B2_BEIR_RESULT.md).
 - **Needle-in-a-Haystack** (the de-facto context-window test): bert-RAG **25/25** across a depth×length grid *including 2× the window*, where full-context is infeasible. (Single-needle NIAH, not RULER; the full-context arm is quota-bounded.) See [`benchmarks/results/B10_NIAH_RESULT.md`](benchmarks/results/B10_NIAH_RESULT.md).
 
 Full methodology, results, and limitations: [`benchmarks/BENCHMARK_SYNTHESIS.md`](benchmarks/BENCHMARK_SYNTHESIS.md).
 
 ## Install (MCP server)
 
-bert is a local stdio MCP server. **The retrieval layer needs no LLM and no API keys** — it embeds locally (`all-MiniLM-L6-v2`, 22 MB) + BM25 + a local cross-encoder reranker (`bge-reranker-v2-m3`, ~568 MB), both downloaded once by `pip`/HuggingFace. The *answering* is done by your **host model** (Claude Code / Cursor / Codex): the host calls `memory_search`, bert returns the relevant chunks, and the host's own model reasons over them. No Ollama, no llama — the free-tier llama in the benchmarks was only a controlled reader to isolate retrieval quality.
+bert is a local stdio MCP server. **The retrieval layer needs no LLM and no API keys** — it embeds locally (`bge-base-en-v1.5`, 768-dim, ~440 MB) + BM25 + a local cross-encoder reranker (`bge-reranker-v2-m3`, ~568 MB), both downloaded once by `pip`/HuggingFace. The *answering* is done by your **host model** (Claude Code / Cursor / Codex): the host calls `memory_search`, bert returns the relevant chunks, and the host's own model reasons over them. No Ollama, no llama — the free-tier llama in the benchmarks was only a controlled reader to isolate retrieval quality.
 
 ```bash
 git clone https://github.com/harshithkantamneni/bert && cd bert

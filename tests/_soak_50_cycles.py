@@ -347,7 +347,7 @@ def t_09_hybrid_retrieval_throughput():
     """100 hybrid_retrieve calls on the project's lab — confirm
     median latency is sane (sub-second).
 
-    Warm-up: the embedder model (all-MiniLM-L6-v2, 22 MB) cold-loads
+    Warm-up: the embedder model (bge-base-en-v1.5, ~440 MB) cold-loads
     on first call and adds ~30-60s. That's a production cold-start
     concern (the server should pre-warm at boot), not a per-call
     regression. We discard the first call's latency to measure the
