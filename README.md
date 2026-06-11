@@ -35,6 +35,8 @@ Here the reader's input is capped at ~15K tokens, a controlled stand-in for a co
 
 **The full-context wall** (1M-token model): at 132K (fits) full-context scores 1.00; at **3.0M (exceeds the window) full-context is INFEASIBLE**, truncation scores **0.00**, and bert-RAG holds **0.75 at a flat ~3.3K input tokens**. Retrieval is the *only* option above the window.
 
+**The bug this benchmark caught:** the first end-to-end B9 run scored near-random. Root cause was a silent fusion bug in the *production* retriever — a result-key mismatch zeroed the vector signal and snippets were truncated to 240 chars, so "hybrid" fusion was effectively lexical-only. The BEIR harness never caught it because it exercised a separate code path. Fixing fusion took the held-out QA eval from near-random to the **0.85** above, and is why every benchmark here now runs against the shipped retriever rather than a bench-only fork.
+
 **What was disproved** (reported as the headline, not buried): orchestration on a frontier model — ≈0 gain at 17–47× tokens; cheaper-model-plus-harness — bert-Sonnet 0.79 < bare-Sonnet 0.87 < bare-Opus 0.89, never won.
 
 **Industry-standard anchors** (recognized benchmarks, comparable to published baselines):
