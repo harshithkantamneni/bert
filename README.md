@@ -11,6 +11,8 @@
 
 <p align="center"><sub>Long-context RAG (B9): a 131K-token corpus with truncation capped at a 15K-token budget (a controlled stand-in for a context limit, so retrieval and truncation compete at a fixed cost). The case that <i>genuinely exceeds a model's window</i> (a 3.0M-token corpus vs. a 1M window) is in <a href="#results-honest-falsification-first">Results</a>. Reproducible from <code>benchmarks/</code>.</sub></p>
 
+> This repository is the curated public release; development prior to June 2026 lived in a private research lab and its operational history is kept there.
+
 bert is a local **MCP server** that gives an AI coding host a persistent, per-project memory + hybrid-retrieval layer. It exists for one specific, measured problem: **projects that outgrow the model's context window.** A frontier model with a large window can brute-force anything that fits inside it — but no one stuffs a 10M-token project into a prompt. When the corpus exceeds the window, full-context becomes infeasible, naive truncation drops the answer, and retrieval is the only thing that still works. That regime is the entirety of what bert claims.
 
 Those claims come from a benchmark program built to **falsify** them. The honest result up front: **bert's orchestration does NOT make a model produce better single deliverables.** With the model held constant, orchestration showed ≈0 quality gain at 17–47× the token cost, and a cheaper-model-plus-harness arm (0.79) scored *below* the same bare model (0.87) and never beat the bare frontier model (0.89). What the data *does* support is the long-context retrieval value below. The credibility here is the rigor and the published nulls, not a leaderboard claim.
