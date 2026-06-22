@@ -91,7 +91,7 @@ def build_big_corpus(target_tokens: int | None = None) -> dict:
     for name, url, subdir in REPOS:
         if target_tokens and realized >= target_tokens:
             break
-        d = _clone(name, url, subdir)
+        _clone(name, url, subdir)
         realized = _est_tokens(BIG_ROOT)
         print(f"  running total: ~{realized:,} tokens", flush=True)
     n_files = sum(1 for _ in BIG_ROOT.rglob("*.py"))

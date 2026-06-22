@@ -65,10 +65,10 @@ CORPUS_LABEL = "httpx-0.28.1 + starlette (vendored)"
 # Bare None/True/False/0/1/""/empty-collection defaults are everywhere and are
 # not distinctive enough to be a fair retrieval/QA target on their own. We only
 # keep them when... we never keep them. We require a DISTINCTIVE literal.
-_TRIVIAL_CONSTANTS = {None, True, False, 0, 1, -1, "", b""}
+_TRIVIAL_CONSTANTS = {None, True, False, -1, "", b""}
 
 # Numeric literals this small/common are not distinctive enough on their own.
-_TRIVIAL_NUMS = {0, 1, -1, 0.0, 1.0, 2, 100}  # 100 appears as a generic default a lot
+_TRIVIAL_NUMS = {0, 1, -1, 2, 100}  # 100 appears as a generic default a lot
 
 _IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
@@ -137,7 +137,7 @@ def _is_distinctive_value_node(node: ast.expr) -> bool:
             return False
         return all(
             _elt_is_literalish(k) and _elt_is_literalish(val)
-            for k, val in zip(node.keys, node.values)
+            for k, val in zip(node.keys, node.values, strict=False)
             if k is not None
         )
 
@@ -411,9 +411,9 @@ def _extract_python(src: str, rel_path: str) -> list[dict]:
         posargs = list(args.posonlyargs) + list(args.args)
         defaults = list(args.defaults)
         pos_with_def = posargs[len(posargs) - len(defaults):] if defaults else []
-        pairs = list(zip(pos_with_def, defaults))
+        pairs = list(zip(pos_with_def, defaults, strict=False))
         # keyword-only defaults align positionally to kwonlyargs (None = no default)
-        for a, d in zip(args.kwonlyargs, args.kw_defaults):
+        for a, d in zip(args.kwonlyargs, args.kw_defaults, strict=False):
             if d is not None:
                 pairs.append((a, d))
 
@@ -489,9 +489,7 @@ def _enum_member_distinctive(value: ast.expr) -> bool:
     if v is not _NOT_CONST:
         if isinstance(v, bool):
             return False
-        if isinstance(v, (int, float, str, bytes)):
-            return True
-        return False
+        return bool(isinstance(v, (int, float, str, bytes)))
     if isinstance(value, (ast.Tuple, ast.List)):
         return bool(value.elts) and all(_elt_is_literalish(e) for e in value.elts)
     if isinstance(value, ast.BinOp):

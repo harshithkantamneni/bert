@@ -16,7 +16,6 @@ Pure functions, scipy/numpy only, fully unit-testable. No network, no LLM.
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
 import numpy as np

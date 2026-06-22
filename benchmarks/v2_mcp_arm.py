@@ -23,7 +23,6 @@ import collections
 import json
 import subprocess
 import sys
-import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -109,7 +108,7 @@ def main() -> int:
                 "tokens_in": r["tokens_in"], "tokens_out": r["tokens_out"], "answer": r["answer"][:200]}
 
     lock = threading.Lock()
-    f = ckpt.open("a"); t0 = time.monotonic(); n = 0
+    f = ckpt.open("a"); n = 0
     with ThreadPoolExecutor(max_workers=workers) as ex:
         for fut in as_completed([ex.submit(_work, g) for g in cells]):
             row = fut.result()

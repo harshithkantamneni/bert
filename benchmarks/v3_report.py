@@ -76,8 +76,8 @@ def _track_section(title, rows, tok_summary=None):
     tests = ST.holm_bonferroni(tests)
 
     # bert-centric: A3 vs the rest
-    L += [f"**Is `bert hybrid-RAG (A3)` significantly different from each arm?** "
-          f"(paired exact McNemar, Holm-corrected)", "",
+    L += ["**Is `bert hybrid-RAG (A3)` significantly different from each arm?** "
+          "(paired exact McNemar, Holm-corrected)", "",
           "| vs | Δacc (A3 − other) | 95% CI | Holm p | significant |",
           "|---|---|---|---|---|"]
     for t in tests:

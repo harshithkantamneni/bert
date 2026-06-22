@@ -25,5 +25,6 @@ for r in rows:
 
 (OUT / "factorial_rows.jsonl").write_text("\n".join(json.dumps(r) for r in kept) + ("\n" if kept else ""))
 import collections
+
 print(f"kept {len(kept)} cache-independent rows (dropped {len(rows)-len(kept)}); "
       f"by arm: {dict(collections.Counter(r['arm'] for r in kept))}")

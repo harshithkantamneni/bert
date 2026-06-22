@@ -26,7 +26,8 @@ def _load_trackA() -> dict:
     out: dict = {}
     for f in sorted(glob.glob(str(REPO / "benchmarks/results/b2_beir_multi_*.json"))):
         try:
-            d = json.load(open(f))
+            with open(f) as fh:
+                d = json.load(fh)
         except Exception:  # noqa: BLE001
             continue
         for r in d.get("results", []):

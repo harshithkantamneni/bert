@@ -80,7 +80,7 @@ def _mentioned_fnames(question: str, rel_files: list[str]) -> set[str]:
     return out
 
 
-def aider_rank(rm: RepoMap, all_files: list[str], root: str, question: str):
+def aider_rank(rm, all_files: list[str], root: str, question: str):
     """Return Aider's ranked output as an ordered list of (rel_fname, line|None),
     best first. `line` is the definition line for tag entries, None for bare
     file entries Aider appends for files without ranked defs."""

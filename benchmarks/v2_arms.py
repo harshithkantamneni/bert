@@ -30,6 +30,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 import sys  # noqa: E402
+
 sys.path.insert(0, str(REPO))
 
 from benchmarks import b9_agentic_grep as AG  # noqa: E402
