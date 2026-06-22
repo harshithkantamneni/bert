@@ -556,15 +556,53 @@ def _t_lab_reshape(args: dict) -> dict:
 # ── Tool: memory_search ─────────────────────────────────────────────
 
 
+def _grep_memory(lab_path, query: str, k: int) -> list[dict]:
+    """Literal substring scan over a lab's memories/ + findings/ markdown.
+    The fast escape hatch and the graceful fallback when retrieval fails."""
+    hits: list[dict] = []
+    for root in (lab_path / "memories", lab_path / "findings"):
+        if not root.exists():
+            continue
+        for p in root.rglob("*.md"):
+            try:
+                text = p.read_text(errors="replace")
+            except OSError:
+                continue
+            idx = text.lower().find(query.lower())
+            if idx < 0:
+                continue
+            start = max(0, idx - 100)
+            end = min(len(text), idx + len(query) + 300)
+            hits.append({
+                "path": str(p.relative_to(lab_path)),
+                "snippet": text[start:end],
+            })
+            if len(hits) >= k:
+                break
+        if len(hits) >= k:
+            break
+    return hits[:k]
+
+
 def _t_memory_search(args: dict) -> dict:
     lab_arg = args.get("lab", "")
     query = (args.get("query") or "").strip()
     k = max(1, min(int(args.get("k", 5)), 20))
-    # Default to grep — vector search loads ~500MB of sentence-
-    # transformers on cold cache, which can hang for 30s+ on disk-
-    # pressured machines. MCP callers expect snappy responses; opt
-    # into vector explicitly when depth matters.
-    use_vector = bool(args.get("use_vector", False))
+    # mode: "hybrid" (default) | "vector" | "grep".
+    #   hybrid = the full retrieval engine (dense bge + BM25, fused by RRF,
+    #            then a bge-reranker-v2-m3 cross-encoder) — what makes this a
+    #            semantic memory rather than a grep box.
+    #   vector = dense-only (no BM25/rerank); grep = literal substring.
+    # The prewarm daemon (serve() → prewarm.prewarm()) pins the embedder +
+    # reranker resident at server start, so hybrid-by-default does not pay a
+    # cold-start load on the first call. Back-compat: a legacy `use_vector`
+    # flag maps true→hybrid, false→grep when `mode` is unset.
+    mode = (args.get("mode") or "").strip().lower()
+    if not mode:
+        if "use_vector" in args:
+            mode = "hybrid" if bool(args.get("use_vector")) else "grep"
+        else:
+            mode = "hybrid"
 
     lab_path = _resolve_lab(lab_arg)
     if lab_path is None:
@@ -586,58 +624,53 @@ def _t_memory_search(args: dict) -> dict:
     except Exception:  # noqa: BLE001 — freshness is best-effort
         pass
 
-    if use_vector:
+    fallback_reason = ""
+    if mode in ("hybrid", "vector"):
         try:
             from core import lab_context, memory
             token = lab_context.set_active_lab_path(lab_path)
             try:
-                hits = memory.search(query, k=k)
+                if mode == "hybrid":
+                    from core import retrieval as _ret
+                    results = _ret.hybrid_retrieve(
+                        query, k_per_source=max(k * 4, 20), top_n=k,
+                    )
+                    hits = [{
+                        "path": (r.metadata or {}).get("path", ""),
+                        "chunk_idx": (r.metadata or {}).get("chunk_idx", 0),
+                        "snippet": r.text,
+                        "score": r.final_score,
+                        "sources": r.sources,  # which signal(s) surfaced this
+                    } for r in results]
+                else:
+                    hits = memory.search(query, k=k)
             finally:
                 lab_context.reset_active_lab_path(token)
             return {
                 "ok": True,
                 "lab": lab_path.name,
                 "query": query,
-                "method": "vector",
+                "method": mode,
                 "results": hits,
             }
         except Exception as e:  # noqa: BLE001
-            fallback_reason = f"{type(e).__name__}: {e}"
-        # fall through to grep
-    else:
-        fallback_reason = "grep is the default (set use_vector=true for semantic search)"
+            fallback_reason = (f"{mode} retrieval failed, fell back to grep: "
+                               f"{type(e).__name__}: {e}")
+        # fall through to grep on any retrieval failure
+    elif mode != "grep":
+        fallback_reason = f"unknown mode {mode!r}; used grep"
 
-    if True:  # grep fallback / default
-        hits = []
-        for root in (lab_path / "memories", lab_path / "findings"):
-            if not root.exists():
-                continue
-            for p in root.rglob("*.md"):
-                try:
-                    text = p.read_text(errors="replace")
-                except OSError:
-                    continue
-                idx = text.lower().find(query.lower())
-                if idx < 0:
-                    continue
-                start = max(0, idx - 100)
-                end = min(len(text), idx + len(query) + 300)
-                hits.append({
-                    "path": str(p.relative_to(lab_path)),
-                    "snippet": text[start:end],
-                })
-                if len(hits) >= k:
-                    break
-            if len(hits) >= k:
-                break
-        return {
-            "ok": True,
-            "lab": lab_path.name,
-            "query": query,
-            "method": "grep",
-            "fallback_reason": fallback_reason,
-            "results": hits[:k],
-        }
+    hits = _grep_memory(lab_path, query, k)
+    out = {
+        "ok": True,
+        "lab": lab_path.name,
+        "query": query,
+        "method": "grep",
+        "results": hits,
+    }
+    if fallback_reason:
+        out["fallback_reason"] = fallback_reason
+    return out
 
 
 # ── Tool: memory_ingest ─────────────────────────────────────────────
@@ -1014,16 +1047,24 @@ def make_server() -> MCPServer:
     srv.register_tool(
         "memory_search",
         description=(
-            "Search a lab's memories + findings. Uses sentence-"
-            "transformers vector search when available, falls back "
-            "to substring grep otherwise. Returns the top k matches "
-            "with path + content snippet."
+            "Semantic search over a lab's memories + findings. Defaults to the "
+            "full hybrid retrieval engine: dense (bge-base-en-v1.5) + BM25, fused "
+            "by reciprocal rank fusion, then re-scored by a bge-reranker-v2-m3 "
+            "cross-encoder. Set mode='grep' for a fast literal substring scan, or "
+            "mode='vector' for dense-only. Returns the top k matches with path + "
+            "snippet (and, for hybrid, the fusion score + which signals hit). "
+            "Falls back to grep if the retrieval models are unavailable."
         ),
         input_schema={
             "type": "object",
             "properties": {
                 "lab": {"type": "string"},
                 "query": {"type": "string"},
+                "mode": {
+                    "type": "string",
+                    "enum": ["hybrid", "vector", "grep"],
+                    "description": "Retrieval mode (default hybrid).",
+                },
                 "k": {
                     "type": "integer",
                     "minimum": 1,

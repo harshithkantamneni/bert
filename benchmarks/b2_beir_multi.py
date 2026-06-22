@@ -83,34 +83,81 @@ DATASETS: dict[str, dict] = {
             "bge-base-en-v1.5 (ref)": 0.407,
         },
     },
+    # Programming-domain retrieval with independent qrels (StackExchange
+    # Programmers duplicate-question retrieval) — the closest tractable
+    # established proxy for code/programming retrieval (codesearchnet is 2M docs
+    # with no cheap subsample, excluded for tractability; see REPORT limitations).
+    "cqadupstack-programmers": {
+        "irds": "beir/cqadupstack/programmers",
+        "published": {
+            "BM25 (BEIR paper)": 0.281,
+            "bge-base-en-v1.5 (ref)": 0.402,
+        },
+    },
+    "scidocs": {
+        "irds": "beir/scidocs",
+        "published": {
+            "BM25 (BEIR paper)": 0.158,
+            "bge-base-en-v1.5 (ref)": 0.217,
+        },
+    },
+    "arguana": {
+        "irds": "beir/arguana",
+        "published": {
+            "BM25 (BEIR paper)": 0.315,
+            "bge-base-en-v1.5 (ref)": 0.636,
+        },
+    },
 }
 
 
 def load_beir(irds_id: str, max_queries: int | None = None,
-              max_docs: int | None = None) -> tuple[dict, dict, dict]:
-    """Return (corpus, queries, qrels) for a BEIR dataset. Caps allow smoke runs."""
+              max_docs: int | None = None, seed: int = 13) -> tuple[dict, dict, dict]:
+    """Return (corpus, queries, qrels) for a BEIR dataset.
+
+    GOLD-PRESERVING subsample: when max_docs caps the corpus (for tractable
+    encoding on the M3 Pro), the pool ALWAYS keeps every gold doc for the kept
+    queries, then fills with random non-gold docs up to max_docs. This keeps the
+    task valid (recall is computable — gold is always in the pool) instead of the
+    naive head-truncation that silently drops queries whose gold sorts late."""
+    import random as _rnd
+
     import ir_datasets
     ds = ir_datasets.load(irds_id)
-    print(f"  loading {ds.docs_count()} docs…", flush=True)
-    corpus: dict[str, str] = {}
-    for d in ds.docs_iter():
-        title = getattr(d, "title", "") or ""
-        body = getattr(d, "text", "") or ""
-        corpus[d.doc_id] = (title + " " + body).strip()
-        if max_docs is not None and len(corpus) >= max_docs:
-            break
-    print(f"  loading {ds.queries_count()} queries…", flush=True)
+    # queries (capped)
     queries: dict[str, str] = {}
     for q in ds.queries_iter():
         queries[q.query_id] = q.text
         if max_queries is not None and len(queries) >= max_queries:
             break
-    print("  loading qrels…", flush=True)
+    # qrels for the kept queries; collect gold doc ids
     qrels: dict[str, dict[str, int]] = {}
+    gold_docs: set[str] = set()
     for r in ds.qrels_iter():
-        if r.query_id not in queries or r.doc_id not in corpus:
+        if r.query_id not in queries or r.relevance <= 0:
             continue
         qrels.setdefault(r.query_id, {})[r.doc_id] = r.relevance
+        gold_docs.add(r.doc_id)
+    queries = {qid: q for qid, q in queries.items() if qid in qrels}
+    gold_docs = {d for qid in queries for d in qrels[qid]}
+    # docs: load all, then gold-preserving subsample if capped
+    print(f"  loading {ds.docs_count()} docs (cap={max_docs}, gold={len(gold_docs)})…", flush=True)
+    corpus: dict[str, str] = {}
+    for d in ds.docs_iter():
+        title = getattr(d, "title", "") or ""
+        body = getattr(d, "text", "") or ""
+        corpus[d.doc_id] = (title + " " + body).strip()
+    if max_docs is not None and len(corpus) > max_docs:
+        rng = _rnd.Random(seed)
+        fill = [k for k in corpus if k not in gold_docs]
+        rng.shuffle(fill)
+        keep = set(gold_docs) | set(fill[: max(0, max_docs - len(gold_docs))])
+        corpus = {k: v for k, v in corpus.items() if k in keep}
+    # drop any gold not present (defensive) and queries left without qrels
+    for qid in list(qrels):
+        qrels[qid] = {d: r for d, r in qrels[qid].items() if d in corpus}
+        if not qrels[qid]:
+            del qrels[qid]
     queries = {qid: q for qid, q in queries.items() if qid in qrels}
     return corpus, queries, qrels
 
@@ -163,7 +210,8 @@ def index_vector(corpus: dict[str, str], model):
     print(f"    encoding {len(doc_ids)} docs with {EMBED_MODEL_NAME}…", flush=True)
     t0 = time.monotonic()
     embs = model.encode(
-        texts, normalize_embeddings=True, show_progress_bar=False, batch_size=64,
+        texts, normalize_embeddings=True, show_progress_bar=False,
+        batch_size=int(os.environ.get("BERT_EMBED_BATCH", "64")),
     )
     print(f"    {time.monotonic()-t0:.1f}s", flush=True)
     return doc_ids, np.array(embs)
@@ -362,7 +410,8 @@ def main() -> int:
     from sentence_transformers import SentenceTransformer
     print(f"Loading embedder {EMBED_MODEL_NAME} (one-time)…", flush=True)
     t0 = time.monotonic()
-    model = SentenceTransformer(EMBED_MODEL_NAME)
+    model = SentenceTransformer(EMBED_MODEL_NAME, device=os.environ.get("BERT_EMBED_DEVICE") or None)
+    print(f"  embedder device: {model.device}", flush=True)
     print(f"  loaded in {time.monotonic()-t0:.1f}s "
           f"(dim={model.get_sentence_embedding_dimension()})")
     print()

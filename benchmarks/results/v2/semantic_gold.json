@@ -1,0 +1,343 @@
+[
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "How does the router determine when a request path can be automatically adjusted to match a registered endpoint, and what is the order of preference if multiple fixes are possible?",
+    "gold_answer": "The router first checks if adding or removing a trailing slash would match an existing route (value.tsr). If RedirectTrailingSlash is enabled, it redirects to the corrected path with a 301 status for GET requests or 307 for other methods. If the path still doesn't match and RedirectFixedPath is enabled, the router cleans up superfluous elements like double slashes or ../ parent-directory references (via cleanPath) and then does a case-insensitive lookup (findCaseInsensitivePath). These checks occur in sequence inside handleHTTPRequest, with the trailing-slash fix attempted before the fixed-path fix.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/gin.go",
+      "/tmp/v2_corpora/c2/path.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_00"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "When a handler chain is interrupted before completion, how can subsequent middleware detect this and what state does the context maintain?",
+    "gold_answer": "Middleware can call IsAborted() to detect if the chain has been stopped by a previous handler. The context maintains an index value that is set to a sentinel value (abortIndex, which equals math.MaxInt8 >> 1) when Abort() is called. The Next() method increments and checks this index before executing each handler, so once the index is at or above abortIndex no further handlers run.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/context.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_01"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "How does the framework optimize memory usage when handling concurrent requests, and what technique is used to pre-allocate resources?",
+    "gold_answer": "The framework uses a sync.Pool (engine.pool) to reuse Context objects across requests. In ServeHTTP it retrieves a pre-allocated Context from the pool, resets it for the new request, processes the request, and then returns it to the pool. The pool's New function (allocateContext) creates contexts with pre-allocated slices for params and skippedNodes sized by maxParams and maxSections, the maximum number of parameters and path sections seen across all registered routes.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/gin.go",
+      "/tmp/v2_corpora/c2/context.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_02"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "What is the purpose of storing both the original request path and a potentially modified version, and when is each one used during routing?",
+    "gold_answer": "The framework exposes UseRawPath, UseEscapedPath, and UnescapePathValues flags to handle different path encoding scenarios. In handleHTTPRequest it can route using url.EscapedPath() (when UseEscapedPath), the original url.RawPath (when UseRawPath and RawPath is non-empty), or the already-decoded url.Path (the default). The choice also controls whether extracted path parameter values are unescaped, letting the framework match routes and decode parameters correctly across different URL encoding styles.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/gin.go",
+      "/tmp/v2_corpora/c2/context.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_03"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "How does the framework handle situations where a request structure violates HTTP semantics, such as writing headers after the body has started?",
+    "gold_answer": "The responseWriter wraps the underlying http.ResponseWriter and tracks whether anything has been written using a size field (initialized to noWritten = -1). Written() returns size != -1. WriteHeader only applies a new status code if Written() is false; if headers/body have already been committed it logs a warning and does not override the status. WriteHeaderNow forces the header (status code) to be written if not yet done, setting size to 0.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/response_writer.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_04"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "What mechanism prevents handlers from modifying request data that has already been read and cached, and how does it support multiple attempts to parse the same body?",
+    "gold_answer": "When a handler reads the request body via ShouldBindBodyWith, the bytes are cached in the context under the BodyBytesKey. Subsequent calls check whether the body bytes are already stored (c.Get(BodyBytesKey)) and reuse them instead of re-reading from c.Request.Body. This lets multiple handlers parse the same body without stream exhaustion, with the cached bytes serving as the canonical source once read.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/context.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_05"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "How does the framework balance security concerns with operational convenience when determining which proxy headers to trust for client IP resolution?",
+    "gold_answer": "The framework lets you configure trusted proxies as CIDR ranges via SetTrustedProxies. By default it trusts all proxies (0.0.0.0/0 and ::/0), but isUnsafeTrustedProxies triggers a startup warning recommending restriction. When ForwardedByClientIP is enabled, ClientIP only parses forwarding headers (e.g. X-Forwarded-For) if the immediate remote IP is in the trusted CIDR list (isTrustedProxy); validateHeader walks X-Forwarded-For in reverse and stops at the first untrusted hop, preventing spoofing while still honoring legitimate proxy headers from known proxies.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/gin.go",
+      "/tmp/v2_corpora/c2/context.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_06"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "When a panic occurs during request handling, how does the recovery mechanism distinguish between different failure modes and respond appropriately?",
+    "gold_answer": "The recovery middleware recovers panics and checks whether the recovered error represents a broken connection (syscall.EPIPE, syscall.ECONNRESET, or http.ErrAbortHandler) via an isBrokenPipe flag. For a broken connection it does not attempt to write a 500 (the connection is dead) \u2014 it records the error and aborts. For other panics it calls the recovery handle function, which by default (defaultHandleRecovery) responds with AbortWithStatus(500). In debug mode the log includes a full stack trace; in production it logs only the panic value and stack without the request dump verbosity.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/recovery.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_07"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "How does the routing tree optimize lookup performance when handling many similar route patterns, and what principle guides the tree structure?",
+    "gold_answer": "Routes are stored in a radix/prefix tree where each node holds a shared path segment. Static children are kept ahead of the single wildcard child, which addChild keeps at the end of the children slice. Each node has a priority counter; incrementChildPrio bumps a matched child's priority and moves it toward the front so frequently-accessed routes are reached first. longestCommonPrefix is computed when inserting to split nodes and avoid redundant traversal.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/tree.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_08"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "What happens when multiple handler functions with the same purpose are registered for a single route, and in what order are they invoked?",
+    "gold_answer": "Multiple handlers passed to a route definition (e.g. router.GET(\"/path\", middleware1, middleware2, handler)) are combined into a single HandlersChain stored on the context. Next() walks this chain in order, executing each handler sequentially; the last handler in the chain is the main one (HandlersChain.Last()) while the earlier ones act as middleware.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/context.go",
+      "/tmp/v2_corpora/c2/routergroup.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_09"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "How does the framework maintain compatibility with different protocol versions and connection types, and what configuration options are available?",
+    "gold_answer": "The framework supports HTTP/1.1, HTTP/2 (including h2c cleartext), QUIC/HTTP/3, and Unix-socket / file-descriptor connections. The UseH2C flag enables HTTP/2 cleartext: Handler() wraps the engine in h2c.NewHandler when UseH2C is set, otherwise returns the engine directly. Separate Run* methods (Run, RunTLS, RunUnix, RunFd, RunListener, RunQUIC) serve the different transports for different deployment scenarios.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/gin.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_10"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c2",
+    "question": "How does the framework ensure that template loading and middleware registration do not interfere with each other in terms of routing state?",
+    "gold_answer": "SetHTMLTemplate emits a warning (debugPrintWARNINGSetHTMLTemplate) when it is called after routes already exist (len(engine.trees) > 0), since template changes affect only rendering and should not be entangled with routing. Global middleware added via Use() is applied to every request including the 404 and 405 paths: Use() calls rebuild404Handlers and rebuild405Handlers, which recombine engine.noRoute/noMethod with the global handler chain so error responses also run the registered middleware.",
+    "source_files": [
+      "/tmp/v2_corpora/c2/gin.go"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c2_11"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "How does the HTTP client distinguish between not specifying a parameter versus explicitly passing None to disable a feature, and why is this distinction important for configuration merging?",
+    "gold_answer": "The library uses a dedicated sentinel object (a UseClientDefault instance, exposed as USE_CLIENT_DEFAULT) to represent the 'unset' state, which is distinct from None. Omitting a parameter leaves it at the sentinel default, signalling 'use whatever the client was configured with', whereas explicitly passing None means 'disable this feature, overriding any client-level default'. Per-request methods like request()/get()/post() default their auth, timeout, and follow_redirects parameters to this sentinel so they can tell an omitted argument apart from an intentional None, and only fall back to the client's stored configuration when the sentinel is still present. Without this, a None default would be indistinguishable from a deliberate disable and would clobber client defaults.",
+    "source_files": [
+      "/tmp/b9_corpus/httpx/_client.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_00"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "When an authentication scheme needs to interact with the network or file system during the authentication process, what pattern does the client support to handle this properly across both synchronous and asynchronous code paths?",
+    "gold_answer": "The Auth base class exposes separate sync_auth_flow() and async_auth_flow() methods that a scheme can override (instead of the simpler auth_flow()) precisely when it performs I/O such as disk access or network calls, or uses concurrency primitives. The default implementations both drive an auth_flow generator, but they let an implementation run the right blocking-vs-awaitable variant per execution context (e.g. reading the request/response body via read() vs aread()). The flow itself uses Python's generator / async-generator protocol: it yields a request and receives the resulting response back, which is what enables multi-step challenge/response schemes like DigestAuth (which inspects a 401 + WWW-Authenticate response and re-issues an authenticated request) to work across both the sync Client and the AsyncClient.",
+    "source_files": [
+      "/tmp/b9_corpus/httpx/_auth.py",
+      "/tmp/b9_corpus/httpx/_client.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_01"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "How does the timeout configuration system handle the case where a user wants to disable timeouts for a specific operation phase (like connection establishment) while keeping timeouts active for others?",
+    "gold_answer": "The Timeout configuration class models four independent phases (connect, read, write, pool), each of which can be set to a float (a limit) or None (no limit / disabled). A user can supply a single base value that applies to all phases and then override individual phases (e.g. a base value with the connect phase set to None disables only connection-establishment timeouts while keeping the others), or pass all four phases explicitly. The class enforces that you either provide a default base value or set all four phases; you cannot leave some phases undefined with no default. This lets enabled and disabled phases be freely mixed for fine-grained control over which operations may time out.",
+    "source_files": [
+      "/tmp/b9_corpus/httpx/_config.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_02"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "What happens to a request body stream if it has been consumed once and the user attempts to read it again?",
+    "gold_answer": "For generator-based streams the library raises a StreamConsumed exception on the second iteration. The byte-stream wrappers track whether the underlying stream has already been iterated and whether it is a (one-shot) generator/async-generator; if both are true, re-iteration raises StreamConsumed rather than silently yielding nothing on a replay. File-like objects (anything exposing read()) are not flagged as generators, so they are not guarded this way and can in principle be re-read (e.g. after a seek()); only the non-replayable generator case is protected.",
+    "source_files": [
+      "/tmp/b9_corpus/httpx/_content.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_03"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "How does the web framework prevent infinite loops when streaming response bodies to clients that may disconnect, and how does it vary based on the ASGI specification version?",
+    "gold_answer": "The streaming-response implementation branches on the ASGI spec_version reported in the scope. For spec 2.4 and newer it simply streams the body inside a try/except that converts an OSError from a broken connection into a client-disconnect error. For older specs it instead runs the body-streaming coroutine and a disconnect-listener coroutine concurrently in an anyio task group, cancelling the group as soon as either one finishes. This stops the server from either hanging forever trying to push chunks to a client that has gone away, or waiting indefinitely on a disconnect message that will never arrive.",
+    "source_files": [
+      "/tmp/b9_corpus/starlette/responses.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_04"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "How does the request-response middleware handle the situation where a downstream application calls both the synchronous body reading method and the stream reading method on the same request object?",
+    "gold_answer": "The base HTTP middleware wraps the incoming request in a caching wrapper. If the dispatch code reads the full body, the wrapper caches it and later replays that cached body to the downstream app. If instead the dispatch code consumes the request as a stream, the wrapper cannot replay it, so when the downstream app reads, it returns an empty body (and then a disconnect) rather than trying to re-yield the already-consumed stream. This lets the middleware forward the request to the downstream app without knowing in advance whether the dispatch function consumed it all-at-once or iteratively, and prevents the downstream app from hanging forever waiting for body chunks that no longer exist.",
+    "source_files": [
+      "/tmp/b9_corpus/starlette/middleware/base.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_05"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "What design pattern does the authentication middleware use to determine whether a request came from an authenticated user or not, and how does it handle cases where the authentication backend cannot provide credentials?",
+    "gold_answer": "The middleware delegates to a pluggable backend's authenticate() coroutine, which returns either a (credentials, user) pair for an authenticated connection or None when it cannot authenticate. When None is returned, the middleware substitutes a default pair of empty credentials and an UnauthenticatedUser. Either way it stores both values into the ASGI scope under 'auth' and 'user'. This guarantees downstream routes always find populated auth/user attributes, so endpoint code never has to null-check them. (Backends signal a hard failure by raising an authentication error, which the middleware turns into a 4xx response via an on_error handler.)",
+    "source_files": [
+      "/tmp/b9_corpus/starlette/middleware/authentication.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_06"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "How does the HTTP client maintain connection reuse across multiple requests to the same server, and what configuration options control how long idle connections remain available?",
+    "gold_answer": "The client sends requests through a transport that wraps an httpcore connection pool, so connections to a given origin are pooled and transparently reused for later requests to that same origin. Reuse behavior is governed by a Limits configuration that is passed straight through to the pool: max_connections caps total concurrent connections, max_keepalive_connections caps how many idle connections are kept around for reuse, and keepalive_expiry sets how many seconds an idle keep-alive connection may sit before it is discarded (default 5.0). The default limits are 100 max connections and 20 keepalive connections.",
+    "source_files": [
+      "/tmp/b9_corpus/httpx/_config.py",
+      "/tmp/b9_corpus/httpx/_client.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_07"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "When a web server encounters a response whose status code indicates the body should not be sent (like 204 No Content), how does the response rendering system handle this?",
+    "gold_answer": "When building the outgoing headers, the response class suppresses the auto-generated Content-Length header for status codes that must not carry a body: any status below 200 (1xx informational) and specifically 204 and 304. For all other statuses it sets Content-Length to the body length. Skipping Content-Length for these no-body statuses avoids advertising a body length on responses that the HTTP spec says have no body, which would otherwise confuse clients.",
+    "source_files": [
+      "/tmp/b9_corpus/starlette/responses.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_08"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "How does the compression decoder handle the 'deflate' encoding type when the standard library's built-in decompressor fails on the first attempt?",
+    "gold_answer": "The deflate decoder keeps a flag marking whether the current call is the very first decompression attempt. It first tries a standard zlib decompressor (zlib-wrapped deflate). If that raises a zlib error on the first attempt, it discards that decompressor, builds a new one configured for raw/headerless deflate (zlib.decompressobj(-zlib.MAX_WBITS)), and retries the same data. This transparently handles servers that send raw deflate without a zlib header versus those that send zlib-wrapped deflate. If decompression fails again after the retry (or on any later, non-first call), it raises a DecodingError.",
+    "source_files": [
+      "/tmp/b9_corpus/httpx/_decoders.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_09"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "How does the event hook system in the HTTP client allow user code to observe and react to the lifecycle of requests and responses?",
+    "gold_answer": "The client holds an event-hooks mapping with two keys, 'request' and 'response', each mapping to an ordered list of callables. Just before a request is sent the client calls every registered 'request' hook with the outgoing request object; after a response is received it calls every 'response' hook with the response object. Multiple hooks can be registered per event and they run in registration order, letting user code inspect, log, or otherwise react to each request and response as it flows through the client (request hooks fire on each attempt, including redirected requests).",
+    "source_files": [
+      "/tmp/b9_corpus/httpx/_client.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_10"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "How does the HTTP client determine which routing path to use when multiple mount patterns could match a given URL?",
+    "gold_answer": "The client keeps an ordered mapping of URL patterns to transports (mounts). To pick a transport for a URL it iterates the mounts in order and returns the transport for the first pattern that matches, falling back to the client's standard transport (connection pool) if none match or the matched mount has no dedicated transport. Because the first match wins, ordering encodes specificity, so more specific patterns must come before broader catch-all ones. (The mounts are sorted on construction, and a matched mount with no transport defers to the default pool.)",
+    "source_files": [
+      "/tmp/b9_corpus/httpx/_client.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_11"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c1",
+    "question": "When a task needs to run synchronous blocking code from within an asynchronous context in the web framework, how is this accomplished without blocking the event loop?",
+    "gold_answer": "The framework offers a run_in_threadpool() helper that wraps the blocking callable (binding its arguments with functools.partial) and dispatches it to a worker thread via anyio.to_thread.run_sync(), returning an awaitable so the event loop stays free while the blocking work runs on the thread. It is used pervasively for sync code paths: running synchronous endpoint/route handlers, sync exception handlers, sync background tasks, and (via iterate_in_threadpool) draining synchronous iterables for streaming responses. iterate_in_threadpool additionally coerces StopIteration into a private exception type because StopIteration cannot be propagated out of a thread-pool call.",
+    "source_files": [
+      "/tmp/b9_corpus/starlette/concurrency.py",
+      "/tmp/b9_corpus/starlette/responses.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c1_12"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c3",
+    "question": "How does pydantic distinguish between fields that were explicitly provided versus those that were filled in using default values?",
+    "gold_answer": "Pydantic maintains a set named `__pydantic_fields_set__` that tracks which field names were explicitly supplied during instantiation (exposed publicly via the `model_fields_set` property). Field names absent from this set were populated from defaults, so comparing a field name against this set tells you whether the value was user-provided or defaulted.",
+    "source_files": [
+      "/tmp/v2_corpora/c3/main.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c3_00"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c3",
+    "question": "What is the ordering and sequence by which pydantic attempts to match input field names against field configurations when aliases are involved?",
+    "gold_answer": "Pydantic tries alternative input names in a fixed priority order: first the field's standard alias, then its validation alias (which may be a single string, or a set of choices / a nested path), and finally the field's own attribute name. The first lookup that finds a value in the input wins, and the remaining options are skipped for that field.",
+    "source_files": [
+      "/tmp/v2_corpora/c3/main.py",
+      "/tmp/v2_corpora/c3/aliases.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c3_01"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c3",
+    "question": "How does a wrap-style validator differ from a plain validator in terms of what functionality it preserves?",
+    "gold_answer": "A wrap-style validator receives both the raw value and a handler representing the inner/standard validation logic, so it can choose to invoke that handler (before, after, or conditionally around its own logic) to retain normal type coercion, or skip it entirely. A plain validator runs *instead of* the inner validation logic \u2014 it completely replaces the standard behavior and must perform all validation itself, with no handler to delegate to.",
+    "source_files": [
+      "/tmp/v2_corpora/c3/functional_validators.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c3_02"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c3",
+    "question": "What two separate concepts does pydantic use to control how field names are interpreted during validation versus serialization?",
+    "gold_answer": "Pydantic uses two independent, directional alias attributes on each field: a validation alias (the name accepted in the input when validating/constructing an instance) and a serialization alias (the name emitted in the output when dumping the instance to a dict or JSON). They are stored as separate FieldInfo attributes and may hold different values for the same field; an AliasGenerator can also produce each one independently.",
+    "source_files": [
+      "/tmp/v2_corpora/c3/fields.py",
+      "/tmp/v2_corpora/c3/aliases.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c3_03"
+  },
+  {
+    "tier": "semantic",
+    "corpus": "c3",
+    "question": "What is the design rationale for separating 'extra' (a model-level config) from the ability to override it during individual validation calls?",
+    "gold_answer": "The model's configuration sets a baseline policy for unrecognized input keys (ignore / allow / forbid), but the validation entry points also accept a per-call override of that policy. Separating the two lets a single model relax or tighten its handling of unknown fields for one specific validation call without subclassing the model or mutating its config, giving case-by-case flexibility on top of a stable default.",
+    "source_files": [
+      "/tmp/v2_corpora/c3/config.py",
+      "/tmp/v2_corpora/c3/main.py"
+    ],
+    "grade_mode": "judge",
+    "id": "sem_c3_04"
+  }
+]

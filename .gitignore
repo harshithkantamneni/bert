@@ -200,3 +200,12 @@ benchmarks/.b7_runs/
 benchmarks/results/ab_infra_*_partial.json
 benchmarks/results/b9_rag_pilot_*_partial.json
 benchmarks/.b7hl_runs/
+
+# benchmark: large reproducible caches + superseded raw data (regenerate via runners)
+benchmarks/results/v2/retrieval_cache.json
+benchmarks/results/v2/aider_cache.json
+benchmarks/results/v2/factorial_rows.jsonl
+benchmarks/results/v2/stats.json
+benchmarks/results/v2/multihop_gold.json
+benchmarks/results/v2/semantic_gold_c2.json
+benchmarks/results/b9_grep_pilot_*.json

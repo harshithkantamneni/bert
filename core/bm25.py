@@ -219,19 +219,24 @@ def build_index(lab_path: Path) -> dict:
     paths: dict[int, str] = {}
 
     with sqlite3.connect(db) as con:
-        # Join chunks with documents if documents table exists
-        try:
-            rows = con.execute("""
-                SELECT c.id, c.content, COALESCE(d.path, '')
-                FROM chunks c
-                LEFT JOIN documents d ON d.id = c.doc_id
-                ORDER BY c.id
-            """).fetchall()
-        except sqlite3.OperationalError:
-            # Older schema may not have documents; fall back
-            rows = con.execute(
-                "SELECT id, content, '' FROM chunks ORDER BY id"
-            ).fetchall()
+        # Resolve (id, content, path) across schema shapes, best path-source
+        # first: adapter corpora keep path on a `documents` table (chunks.doc_id
+        # → documents.path); the standard memory.py corpus keeps `path` directly
+        # on the chunks table; the last resort has no path column at all. The
+        # documents-join was previously falling through to an EMPTY path for the
+        # standard corpus, which stripped the source file from every BM25 hit.
+        rows = []
+        for _sql in (
+            "SELECT c.id, c.content, COALESCE(d.path, '') FROM chunks c "
+            "LEFT JOIN documents d ON d.id = c.doc_id ORDER BY c.id",
+            "SELECT id, content, COALESCE(path, '') FROM chunks ORDER BY id",
+            "SELECT id, content, '' FROM chunks ORDER BY id",
+        ):
+            try:
+                rows = con.execute(_sql).fetchall()
+                break
+            except sqlite3.OperationalError:
+                continue
 
     for cid, content, path in rows:
         chunk_ids.append(int(cid))

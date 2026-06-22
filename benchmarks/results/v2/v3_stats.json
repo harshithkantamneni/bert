@@ -1,0 +1,188 @@
+{
+  "code_track": {
+    "A3": {
+      "accuracy": 0.663,
+      "ci": [
+        0.606,
+        0.719
+      ],
+      "n": 249,
+      "tokens_per_q": 32582,
+      "tokens_per_correct": 49169
+    },
+    "A1": {
+      "accuracy": 0.12,
+      "ci": [
+        0.08,
+        0.161
+      ],
+      "n": 249,
+      "tokens_per_q": 45201,
+      "tokens_per_correct": 375169
+    },
+    "A0": {
+      "accuracy": 0.61,
+      "ci": [
+        0.55,
+        0.671
+      ],
+      "n": 249,
+      "tokens_per_q": 44801,
+      "tokens_per_correct": 73392
+    },
+    "A2": {
+      "accuracy": 0.177,
+      "ci": [
+        0.133,
+        0.225
+      ],
+      "n": 249,
+      "tokens_per_q": 89992,
+      "tokens_per_correct": 509272
+    },
+    "A4": {
+      "accuracy": 0.51,
+      "ci": [
+        0.45,
+        0.57
+      ],
+      "n": 249,
+      "tokens_per_q": 32391,
+      "tokens_per_correct": 63508
+    },
+    "A6": {
+      "accuracy": 0.177,
+      "ci": [
+        0.129,
+        0.225
+      ],
+      "n": 249,
+      "tokens_per_q": 32216,
+      "tokens_per_correct": 182312
+    },
+    "A5": {
+      "accuracy": 0.643,
+      "ci": [
+        0.582,
+        0.703
+      ],
+      "n": 249,
+      "tokens_per_q": 32305,
+      "tokens_per_correct": 50274
+    },
+    "A7grep": {
+      "accuracy": 0.968,
+      "ci": [
+        0.944,
+        0.988
+      ],
+      "n": 249,
+      "tokens_per_q": 70537,
+      "tokens_per_correct": 72878
+    },
+    "A_mcp": {
+      "accuracy": 0.855,
+      "ci": [
+        0.811,
+        0.9
+      ],
+      "n": 249,
+      "tokens_per_q": 149648,
+      "tokens_per_correct": 174941
+    }
+  },
+  "semantic_track": {
+    "A1": {
+      "accuracy": 0.2,
+      "ci": [
+        0.067,
+        0.367
+      ],
+      "n": 30,
+      "tokens_per_q": 38842,
+      "tokens_per_correct": 194208
+    },
+    "A2": {
+      "accuracy": 0.2,
+      "ci": [
+        0.067,
+        0.333
+      ],
+      "n": 30,
+      "tokens_per_q": 39063,
+      "tokens_per_correct": 195316
+    },
+    "A5": {
+      "accuracy": 0.6,
+      "ci": [
+        0.433,
+        0.767
+      ],
+      "n": 30,
+      "tokens_per_q": 32680,
+      "tokens_per_correct": 54466
+    },
+    "A6": {
+      "accuracy": 0.033,
+      "ci": [
+        0.0,
+        0.1
+      ],
+      "n": 30,
+      "tokens_per_q": 31016,
+      "tokens_per_correct": 930491
+    },
+    "A3": {
+      "accuracy": 0.633,
+      "ci": [
+        0.467,
+        0.8
+      ],
+      "n": 30,
+      "tokens_per_q": 32863,
+      "tokens_per_correct": 51889
+    },
+    "A4": {
+      "accuracy": 0.667,
+      "ci": [
+        0.5,
+        0.833
+      ],
+      "n": 30,
+      "tokens_per_q": 32702,
+      "tokens_per_correct": 49053
+    },
+    "A7grep": {
+      "accuracy": 0.967,
+      "ci": [
+        0.9,
+        1.0
+      ],
+      "n": 30,
+      "tokens_per_q": 218168,
+      "tokens_per_correct": 225691
+    },
+    "A0": {
+      "accuracy": 0.667,
+      "ci": [
+        0.5,
+        0.833
+      ],
+      "n": 30,
+      "tokens_per_q": 29149,
+      "tokens_per_correct": 43724
+    },
+    "A_mcp": {
+      "accuracy": 0.9,
+      "ci": [
+        0.8,
+        1.0
+      ],
+      "n": 30,
+      "tokens_per_q": 110339,
+      "tokens_per_correct": 122599
+    }
+  },
+  "model": "claude-sonnet",
+  "design": "single-model; only retrieval method varies"
+}

@@ -40,7 +40,7 @@ class _MP:
 
 class _FakeEmbedder:
     """Deterministic embedder (mem.EMBED_DIM-d) — same text → same unit vector."""
-    def encode(self, texts, normalize_embeddings=True, show_progress_bar=False):
+    def encode(self, texts, normalize_embeddings=True, show_progress_bar=False, **kwargs):
         out = []
         for t in texts:
             rng = np.random.default_rng(abs(hash(t)) % (2**32))

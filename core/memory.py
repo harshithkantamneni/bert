@@ -164,12 +164,15 @@ def _get_embedder():
         from core import config
         token = config.load().get("HF_TOKEN")  # auth → faster HF Hub access
         offline = os.environ.get("HF_HUB_OFFLINE") == "1"
+        # Optional device override (e.g. BERT_EMBED_DEVICE=mps) — default None
+        # keeps SentenceTransformer's auto-selection (unchanged behavior).
+        _dev = os.environ.get("BERT_EMBED_DEVICE") or None
         LOG.info(
-            "loading embedder %s (offline=%s; first call; ~3-5s cached, "
-            "~30-60s if model needs download)", EMBED_MODEL_NAME, offline
+            "loading embedder %s (offline=%s, device=%s; first call; ~3-5s cached, "
+            "~30-60s if model needs download)", EMBED_MODEL_NAME, offline, _dev or "auto"
         )
         try:
-            _embedder = SentenceTransformer(EMBED_MODEL_NAME, token=token)
+            _embedder = SentenceTransformer(EMBED_MODEL_NAME, token=token, device=_dev)
         except Exception as e:
             # Likely cache miss on first-ever invocation. Retry with HF
             # Hub network enabled for one-time download. Subsequent loads
@@ -181,7 +184,7 @@ def _get_embedder():
                 )
                 os.environ["HF_HUB_OFFLINE"] = "0"
                 try:
-                    _embedder = SentenceTransformer(EMBED_MODEL_NAME, token=token)
+                    _embedder = SentenceTransformer(EMBED_MODEL_NAME, token=token, device=_dev)
                 finally:
                     os.environ["HF_HUB_OFFLINE"] = "1"
             else:
@@ -200,7 +203,9 @@ def _embed_batch(texts: list[str], *, is_query: bool = False) -> list[bytes]:
     prefix = EMBED_QUERY_PREFIX if is_query else EMBED_PASSAGE_PREFIX
     if prefix:
         texts = [prefix + t for t in texts]
-    embs = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
+    _bs = int(os.environ.get("BERT_EMBED_BATCH", "32"))
+    embs = model.encode(texts, normalize_embeddings=True, show_progress_bar=False,
+                        batch_size=_bs)
     return [struct.pack(f"{EMBED_DIM}f", *e.tolist()) for e in embs]
 
 

@@ -197,7 +197,11 @@ def test_search_autoresyncs_registered_source(tmp_path):
     # change the source out of band, then search for a marker only present AFTER
     f.write_text("def beta_marker(): return 2\n")
     _bump_mtime(f)
-    res = bert_lab._t_memory_search({"lab": str(lab), "query": "beta_marker"})
+    # This suite runs with BERT_SKIP_INDEXER=1, so the embedding index is a
+    # no-op here; verify the resync RE-SHARDED via grep (literal substring over
+    # the freshly-written shard) — what this test actually asserts. (memory_search
+    # now defaults to hybrid retrieval, covered where the indexer is live.)
+    res = bert_lab._t_memory_search({"lab": str(lab), "query": "beta_marker", "mode": "grep"})
     assert res.get("results"), res  # non-empty only if the resync re-sharded
 
 

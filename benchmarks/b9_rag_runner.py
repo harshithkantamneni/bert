@@ -151,6 +151,13 @@ def retrieve_for(question: str, lab: Path, *, method: str = "hybrid",
         if method == "vector":
             hits = memory.search(question, k=top_n)
             return [(str(h.get("id") or h.get("path")), h.get("content", "")) for h in hits]
+        if method == "bm25":
+            # Real BM25-only baseline. Previously "bm25" fell through to
+            # hybrid_retrieve, making A5 a silent DUPLICATE of A3 (hybrid) —
+            # which is why their accuracies were byte-identical.
+            from core import bm25 as _bm25
+            hits = _bm25.search(question, lab_path=lab, k=top_n)
+            return [(f"bm25:{h.chunk_id}", h.content or "") for h in hits]
         from core import retrieval
         res = retrieval.hybrid_retrieve(question, top_n=top_n)
         # RetrievalResult has .id and .text; content may be an excerpt, so fall

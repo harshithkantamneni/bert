@@ -1,0 +1,39 @@
+[
+  {
+    "name": "c1",
+    "lang": "python",
+    "root": "/tmp/b9_corpus",
+    "ext": ".py",
+    "repo": null,
+    "commit": "reused-v1-corpus",
+    "n_files": 57,
+    "est_tokens": 131582
+  },
+  {
+    "name": "c2",
+    "lang": "go",
+    "root": "/tmp/v2_corpora/c2",
+    "ext": ".go",
+    "repo": "https://github.com/gin-gonic/gin.git",
+    "commit": "d75fcd4c9ab260e5225de590f1f0f8c0e0e12d11",
+    "n_files": 58,
+    "est_tokens": 55015
+  },
+  {
+    "name": "c3",
+    "lang": "python",
+    "root": "/tmp/v2_corpora/c3",
+    "ext": ".py",
+    "repo": "https://github.com/pydantic/pydantic.git",
+    "commit": "8dbb2a104f6cfa4072673ee98f713aee3b0e8cc5",
+    "n_files": 104,
+    "est_tokens": 442004
+  },
+  {
+    "name": "big",
+    "lang": "python",
+    "root": "/tmp/v2_corpora/big",
+    "n_files": 9383,
+    "est_tokens": 41884569
+  }
+]
