@@ -1,0 +1,515 @@
+{
+  "questions": [
+    {
+      "id": "m1_arch_decision_000",
+      "category": "arch_decision",
+      "question": "For the live similarity-search component, what reasoning favored the incremental-insert graph design over the cluster-rebuild layout, and what cost triggered it?",
+      "gold_answer": "The graph-navigation index was chosen over the cluster/centroid (IVF) approach because rebuild cost spiked 3x at the 50M-vector shard boundary and re-clustering on corpus growth is a non-starter for a live index, whereas the graph approach supports incremental inserts.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        71
+      ]
+    },
+    {
+      "id": "m1_experiment_result_001",
+      "category": "experiment_result",
+      "question": "How much did a two-stage scoring approach improve ranked-result relevance compared with using one model to fetch candidates?",
+      "gold_answer": "Cross-encoder reranking raised nDCG@10 by 0.09 over bi-encoder-only",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        74
+      ]
+    },
+    {
+      "id": "m1_experiment_result_002",
+      "category": "experiment_result",
+      "question": "What was the storage saving from a lower-precision representation, and did answer quality drop noticeably?",
+      "gold_answer": "int8 quantization cut memory 3.8x with under 1% recall loss at k=10",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        296
+      ]
+    },
+    {
+      "id": "m1_experiment_result_003",
+      "category": "experiment_result",
+      "question": "On rare or unusual searches, how did mixing keyword and semantic matching compare to a purely neural approach?",
+      "gold_answer": "BM25 + dense fusion beat dense-only by 11 MRR@10 points on long-tail queries",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        60
+      ]
+    },
+    {
+      "id": "m1_experiment_result_004",
+      "category": "experiment_result",
+      "question": "What efficiency gain came from processing many items at once during the encoding stage rather than one request at a time?",
+      "gold_answer": "Batch size 64 cut per-document GPU cost 2.3x compared to one-at-a-time inference",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        406
+      ]
+    },
+    {
+      "id": "m1_experiment_result_005",
+      "category": "experiment_result",
+      "question": "Did changing the scoring math used during candidate lookup reorder the results, and was anything faster?",
+      "gold_answer": "Dot-product on normalized vectors cut query latency 18% with no ranking change versus cosine",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        519
+      ]
+    },
+    {
+      "id": "m1_experiment_result_006",
+      "category": "experiment_result",
+      "question": "How did adding records to the store on the fly stack up against periodic from-scratch builds on both result quality and turnaround time?",
+      "gold_answer": "Incremental upsert kept 98% of recall vs full rebuild and was 6x faster to complete",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        38
+      ]
+    },
+    {
+      "id": "m1_experiment_result_007",
+      "category": "experiment_result",
+      "question": "What was the retrieval gain from training the model on the in-house corpus versus shipping a generic off-the-shelf release?",
+      "gold_answer": "Domain fine-tuning improved recall@5 by 14 percentage points over the base checkpoint",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        404
+      ]
+    },
+    {
+      "id": "m1_experiment_result_008",
+      "category": "experiment_result",
+      "question": "How much did storing precomputed vectors for the most-run searches lighten the load on the encoding service?",
+      "gold_answer": "Embedding cache for top-1000 queries cut embedding service load by 34%",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        96
+      ]
+    },
+    {
+      "id": "m1_experiment_result_009",
+      "category": "experiment_result",
+      "question": "What speed gain came from giving each account its own slice of data instead of pooling everyone together?",
+      "gold_answer": "Per-tenant sharding lowered P95 query latency 27% compared to the shared index",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        315
+      ]
+    },
+    {
+      "id": "m1_experiment_result_010",
+      "category": "experiment_result",
+      "question": "Did using a thinned-out computation pattern in the second-pass model cost any accuracy, and how did its speed change?",
+      "gold_answer": "Sparse attention in the reranker matched dense quality and was 2.1x faster",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        331
+      ]
+    },
+    {
+      "id": "m1_experiment_result_011",
+      "category": "experiment_result",
+      "question": "What coverage improvement came from automatically rewriting what users typed before fetching, and what speed penalty did it carry?",
+      "gold_answer": "Learned query expansion boosted recall@20 by 8 points at a cost of 55ms added median latency",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        548
+      ]
+    },
+    {
+      "id": "m1_abandoned_approach_012",
+      "category": "abandoned_approach",
+      "question": "What language was the document intake service originally written in before the team switched runtimes due to resource exhaustion under load?",
+      "gold_answer": "Python",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        50
+      ]
+    },
+    {
+      "id": "m1_abandoned_approach_013",
+      "category": "abandoned_approach",
+      "question": "Which third-party vector database did the Search team trial and ultimately turn down before building their own persistence layer?",
+      "gold_answer": "Weaviate",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        49
+      ]
+    },
+    {
+      "id": "m1_abandoned_approach_014",
+      "category": "abandoned_approach",
+      "question": "What processing model for generating vector representations was replaced because it caused the document intake pipeline to stall during a load spike?",
+      "gold_answer": "Synchronous (inline) embedding during ingestion; replaced with an asynchronous queue-based embedding architecture.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        120
+      ]
+    },
+    {
+      "id": "m1_abandoned_approach_015",
+      "category": "abandoned_approach",
+      "question": "Which query language did the team trial for the customer-facing console backend before reverting to a more conventional interface style?",
+      "gold_answer": "GraphQL",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        553
+      ]
+    },
+    {
+      "id": "m1_abandoned_approach_016",
+      "category": "abandoned_approach",
+      "question": "Which augmentation technique that synthesizes fictitious relevant passages was prototyped and then dropped from the production serving path?",
+      "gold_answer": "HyDE (Hypothetical Document Embeddings / LLM-generated hypothetical answers for query expansion)",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        59
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_017",
+      "category": "tooling_choice",
+      "question": "Which managed versus self-hosted tradeoff drove the selection of the primary embedding storage backend?",
+      "gold_answer": "Qdrant was chosen over Pinecone because self-hosting requirements and cost predictability at scale favored it.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        226
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_018",
+      "category": "tooling_choice",
+      "question": "What library and pretrained checkpoint did the team standardize on for converting text to dense vectors?",
+      "gold_answer": "sentence-transformers with all-MiniLM-L6-v2 was standardized as the default encoder.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        429
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_019",
+      "category": "tooling_choice",
+      "question": "Why did the team buy an outside service for reordering search hits rather than operating their own ranking model in-house?",
+      "gold_answer": "Cohere Rerank API was chosen to avoid the overhead of managing a self-hosted GPU fleet for cross-encoder inference.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        560
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_020",
+      "category": "tooling_choice",
+      "question": "What durable queue was placed between the page-fetching stage and the components that compute dense representations, and why over the alternative?",
+      "gold_answer": "Apache Kafka was chosen as the durable event stream between the document crawler and embedding workers, because it preserves replay semantics that SQS lacked.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        47
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_021",
+      "category": "tooling_choice",
+      "question": "What persistence solution did the team choose for recording per-request timing metrics instead of a purpose-built observability store?",
+      "gold_answer": "TimescaleDB (a PostgreSQL extension) was chosen for query-level latency telemetry instead of a dedicated time-series database.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        437
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_022",
+      "category": "tooling_choice",
+      "question": "Which framework powers the testing harness, and what made it preferable over options needing hand-labeled ground truth?",
+      "gold_answer": "Ragas was chosen for the eval harness because it computes faithfulness and answer relevancy without requiring gold labels.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        147
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_023",
+      "category": "tooling_choice",
+      "question": "Which UI framework did the customer-facing console adopt, and what fetch-pattern fit pushed the team off the more popular option?",
+      "gold_answer": "Remix was chosen over Next.js because its nested data-loading model better matched the server-side query patterns needed by the web dashboard.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        564
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_024",
+      "category": "tooling_choice",
+      "question": "What outside payments platform handles subscription and consumption charges, and what risk concern steered the team away from building it themselves?",
+      "gold_answer": "Stripe with usage-based metering was chosen over a homegrown invoicing system primarily to reduce compliance (PCI/revenue recognition) surface area.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        228
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_025",
+      "category": "tooling_choice",
+      "question": "What shared data store was introduced to make request throttling survive rollouts, and which structure inside it backs the per-customer caps?",
+      "gold_answer": "Redis sorted sets were adopted for per-tenant rate limiting after the in-process token bucket was found to lose state on pod restarts.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        210
+      ]
+    },
+    {
+      "id": "m1_tooling_choice_026",
+      "category": "tooling_choice",
+      "question": "Which open instrumentation standard did the team migrate to, and which span store replaced the costly proprietary agent they ran before?",
+      "gold_answer": "OpenTelemetry was adopted for instrumentation with Grafana Tempo as the trace backend, replacing custom Datadog APM agents.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        374
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_027",
+      "category": "incident_postmortem",
+      "question": "What caused the ranking service to go down in mid-2024 and how did the team resolve it?",
+      "gold_answer": "Memory leak in the cross-encoder tokenizer's batch processing; fixed by capping batch size to 32 and adding explicit cleanup after each request.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        154
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_028",
+      "category": "incident_postmortem",
+      "question": "Why did customers lose access to paid tiers overnight in late 2024 and what was the immediate fix?",
+      "gold_answer": "Stripe webhook signing secret was rotated without updating HELIX's secrets store; all renewal events were rejected. Fix was syncing the new secret into the secrets store.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        434
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_029",
+      "category": "incident_postmortem",
+      "question": "Why did the early-2025 data import fail in a way where records looked successfully saved but carried no usable meaning for retrieval?",
+      "gold_answer": "The object store returned HTTP 200 with empty bodies during maintenance, which the pipeline misread as valid empty documents instead of errors, producing empty embedding vectors.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        99
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_030",
+      "category": "incident_postmortem",
+      "question": "What caused partial corruption of the search index after the network event in autumn 2024?",
+      "gold_answer": "Asymmetric network partition healing caused dual-leader split-brain on four shards, producing duplicate write acknowledgments and corrupted index segments.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        88
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_031",
+      "category": "incident_postmortem",
+      "question": "When did one client's private search hits get exposed to unrelated accounts, and what was the underlying technical mistake?",
+      "gold_answer": "During a blue-green deployment in Q2'24, the query router config pointed all tenants' queries to one tenant's dedicated index pool for 22 minutes, exposing results across tenants.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        444
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_032",
+      "category": "incident_postmortem",
+      "question": "What was behind the silent accuracy drop in the vector-generation service in early 2025 that surfaced only under heavy traffic?",
+      "gold_answer": "A missing per-thread CUDA context initialization caused workers to share a single context, producing race conditions and NaN embedding vectors under concurrent load.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        381
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_033",
+      "category": "incident_postmortem",
+      "question": "How did the team discover that quality benchmarks had been giving false-green results for a month and a half in mid-2024?",
+      "gold_answer": "A cron job refreshing the golden eval dataset had been failing silently due to expired credentials for six weeks; benchmarks ran against stale data and missed real regressions.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        464
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_034",
+      "category": "incident_postmortem",
+      "question": "Why were European users unable to log into the product for several hours in autumn 2024?",
+      "gold_answer": "A CDN edge rule mis-routed EU users' authenticated traffic to the US origin, where their session tokens were rejected because JWT signing keys are scoped per region.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        64
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_035",
+      "category": "incident_postmortem",
+      "question": "Why did response times slowly worsen on the largest customers' data partitions in spring 2025 with no software release involved?",
+      "gold_answer": "The compaction job inherited a stale systemd fd limit, causing it to abort silently on shards over 40GB; unmerged tombstones accumulated, inflating per-query scan cost.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        63
+      ]
+    },
+    {
+      "id": "m1_incident_postmortem_036",
+      "category": "incident_postmortem",
+      "question": "What broke processing of non-English files in summer 2024 right after a routine library-cleanup change?",
+      "gold_answer": "A PDF parsing library was unpinned and auto-upgraded; the newer version changed text extraction encoding from UTF-8 to Latin-1, crashing the embedding service on non-ASCII characters.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        508
+      ]
+    },
+    {
+      "id": "m1_config_value_037",
+      "category": "config_value",
+      "question": "How many documents at a time does the embedding worker process in a single forward pass?",
+      "gold_answer": "64",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        185
+      ]
+    },
+    {
+      "id": "m1_config_value_038",
+      "category": "config_value",
+      "question": "What build-time exploration factor is used when constructing the approximate nearest-neighbor graph?",
+      "gold_answer": "200",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        428
+      ]
+    },
+    {
+      "id": "m1_config_value_039",
+      "category": "config_value",
+      "question": "At what daily request volume does a non-paying customer start receiving rate-limit errors?",
+      "gold_answer": "10,000 API calls per day",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        105
+      ]
+    },
+    {
+      "id": "m1_config_value_040",
+      "category": "config_value",
+      "question": "How many sub-quantizer segments are used in the compressed representation of stored vectors?",
+      "gold_answer": "96 (PQ96)",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        92
+      ]
+    },
+    {
+      "id": "m1_knowledge_update_041",
+      "category": "knowledge_update",
+      "question": "Who is currently on the hook for waking up to production pages across the entire stack?",
+      "gold_answer": "A unified SRE rotation covering all components (Search, Platform, Growth, Billing)",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        246,
+        584
+      ]
+    },
+    {
+      "id": "m1_multi_hop_042",
+      "category": "multi_hop",
+      "question": "Which group ended up responsible for the cross-encoder scoring layer after it was pulled out of the retrieval stack?",
+      "gold_answer": "Platform team",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        219,
+        596
+      ]
+    },
+    {
+      "id": "m1_multi_hop_043",
+      "category": "multi_hop",
+      "question": "After the move to a wider vector representation, what corpus-wide rebuild did the storage tier have to perform?",
+      "gold_answer": "A full re-index of the vector store was required.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        321,
+        590
+      ]
+    },
+    {
+      "id": "m1_multi_hop_044",
+      "category": "multi_hop",
+      "question": "Who authored the commit that triggered the dropped-records outage, and had that same engineer also designed the intake subsystem originally?",
+      "gold_answer": "Ben made the change that caused the incident; Ana originally architected the ingestion pipeline \u2014 they are different people.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        192,
+        577
+      ]
+    },
+    {
+      "id": "m1_multi_hop_045",
+      "category": "multi_hop",
+      "question": "What was the first live experiment run through the routing layer's split-testing mechanism, and did it become permanent?",
+      "gold_answer": "The synonym expansion experiment (Growth team) was the first live A/B experiment; it became the default after a 9% CTR lift.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        544,
+        599
+      ]
+    },
+    {
+      "id": "m1_multi_hop_046",
+      "category": "multi_hop",
+      "question": "How did the assessment framework's coverage change once the re-ranking stage joined the pipeline?",
+      "gold_answer": "The eval harness was extended from retrieval-precision-only to also include end-to-end answer faithfulness judged by an LLM.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        136,
+        570
+      ]
+    },
+    {
+      "id": "m1_multi_hop_047",
+      "category": "multi_hop",
+      "question": "After the shift to usage-based pricing, which two internal services had to start emitting metered events?",
+      "gold_answer": "The ingestion pipeline and query router both required new metering instrumentation to support consumption-based billing.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        126,
+        579
+      ]
+    },
+    {
+      "id": "m1_multi_hop_048",
+      "category": "multi_hop",
+      "question": "Did the graph-based approximate nearest-neighbor structure stay in service across every customer tier following the slowdown early in 2025?",
+      "gold_answer": "No \u2014 high-cardinality tenants were migrated to IVF-PQ after the latency regression; HNSW was not retained for that segment.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        61,
+        595
+      ]
+    },
+    {
+      "id": "m1_multi_hop_049",
+      "category": "multi_hop",
+      "question": "When the customer-facing surface added its usage-inspection view, did the team stand up fresh data plumbing or reuse a store already running for operations?",
+      "gold_answer": "They repurposed an existing ClickHouse table that Platform had already provisioned for SRE use \u2014 no new data infrastructure was built.",
+      "grade_mode": "judge",
+      "evidence_sessions": [
+        476,
+        573
+      ]
+    }
+  ],
+  "n_sessions": 606,
+  "approx_tokens": 98519
+}

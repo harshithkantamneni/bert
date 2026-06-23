@@ -1,0 +1,452 @@
+[
+  {
+    "id": "m1_arch_decision_000",
+    "category": "arch_decision",
+    "question": "For the live similarity-search component, what reasoning favored the incremental-insert graph design over the cluster-rebuild layout, and what cost triggered it?",
+    "gold_answer": "The graph-navigation index was chosen over the cluster/centroid (IVF) approach because rebuild cost spiked 3x at the 50M-vector shard boundary and re-clustering on corpus growth is a non-starter for a live index, whereas the graph approach supports incremental inserts.",
+    "evidence_prose": "2024-02-14 \u00b7 Platform design review \u2014 Dmitri: 'IVF rebuild cost spiked 3x at the 50M-vector shard boundary during load test; switched index backend to the graph-nav approach. Re-clustering on growth is a non-starter for a live index.' Filed under ADR-07.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_001",
+    "category": "experiment_result",
+    "question": "How much did a two-stage scoring approach improve ranked-result relevance compared with using one model to fetch candidates?",
+    "gold_answer": "Cross-encoder reranking raised nDCG@10 by 0.09 over bi-encoder-only",
+    "evidence_prose": "2024-03-28 | Reranker RFC outcome. Ran the standard eval suite on 2,400 judged queries. Second-pass scoring with the cross-encoder moved nDCG@10 from 0.61 to 0.70; latency cost is 38ms median which Growth says is acceptable. Shipping to prod gated on billing-tier check.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_002",
+    "category": "experiment_result",
+    "question": "What was the storage saving from a lower-precision representation, and did answer quality drop noticeably?",
+    "gold_answer": "int8 quantization cut memory 3.8x with under 1% recall loss at k=10",
+    "evidence_prose": "2024-05-06 | Platform team design doc \u2014 vector compression options. Scalar quantization at 8-bit yielded a 3.8\u00d7 footprint reduction on the 50M-embedding shard. Recall@10 delta was -0.7% against fp32 baseline \u2014 within the acceptable band Elena set in the SLA. Approved for GA rollout.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_003",
+    "category": "experiment_result",
+    "question": "On rare or unusual searches, how did mixing keyword and semantic matching compare to a purely neural approach?",
+    "gold_answer": "BM25 + dense fusion beat dense-only by 11 MRR@10 points on long-tail queries",
+    "evidence_prose": "2024-06-19 | Query router post-experiment notes. Tail-query slice (bottom 15% by monthly frequency) was where dense alone hurt us most. Reciprocal-rank fusion against the keyword scorer closed the gap \u2014 MRR@10 climbed 11 points on that slice. Ana flagged that head queries actually regressed 1.4 points; router now segments by query frequency before fusing.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_004",
+    "category": "experiment_result",
+    "question": "What efficiency gain came from processing many items at once during the encoding stage rather than one request at a time?",
+    "gold_answer": "Batch size 64 cut per-document GPU cost 2.3x compared to one-at-a-time inference",
+    "evidence_prose": "2024-07-11 | Embedding service perf run. Compared individual encode calls against bucketed micro-batches on the A10G fleet. At bucket depth 64 we hit 2.3\u00d7 the tokens-per-dollar of the singleton path. Carla updating autoscaler targets; anything above 128 shows diminishing returns due to padding overhead.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_005",
+    "category": "experiment_result",
+    "question": "Did changing the scoring math used during candidate lookup reorder the results, and was anything faster?",
+    "gold_answer": "Dot-product on normalized vectors cut query latency 18% with no ranking change versus cosine",
+    "evidence_prose": "2024-08-22 | Search team RFC \u2014 similarity kernel audit. When all vectors are unit-normalized at ingest time, cosine and inner-product rank identically. We benchmarked the kernel swap on 1k QPS replay: wall-clock per query fell 18% because the dot path avoids the magnitude division. No diff in eval metrics. Merging to main this sprint.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_006",
+    "category": "experiment_result",
+    "question": "How did adding records to the store on the fly stack up against periodic from-scratch builds on both result quality and turnaround time?",
+    "gold_answer": "Incremental upsert kept 98% of recall vs full rebuild and was 6x faster to complete",
+    "evidence_prose": "2024-09-30 | On-call postmortem follow-up. Root cause of last week's 4-hour index freeze was the nightly full rebuild blocking query traffic. Tested streaming upsert on the staging shard for two weeks: recall held at 98% of the rebuild baseline and the re-index window shrank from 3h to 28 min. Ben proposing we retire the nightly job entirely by Q1.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_007",
+    "category": "experiment_result",
+    "question": "What was the retrieval gain from training the model on the in-house corpus versus shipping a generic off-the-shelf release?",
+    "gold_answer": "Domain fine-tuning improved recall@5 by 14 percentage points over the base checkpoint",
+    "evidence_prose": "2024-11-14 | Search team experiment log \u2014 custom encoder v1. Ran contrastive fine-tuning on 220k HELIX query-passage pairs for 3 epochs. Recall@5 on our internal dev set jumped from 61% to 75% compared to the public checkpoint we were shipping. Dmitri says latency is identical; serving infra unchanged. Promoting to shadow traffic next week.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_008",
+    "category": "experiment_result",
+    "question": "How much did storing precomputed vectors for the most-run searches lighten the load on the encoding service?",
+    "gold_answer": "Embedding cache for top-1000 queries cut embedding service load by 34%",
+    "evidence_prose": "2025-01-09 | Platform standup. Elena shipped the query embedding cache to prod yesterday. Hot-path hit rate settled at 34% of total encode volume eliminated \u2014 that's roughly 340 GPU-minutes per hour reclaimed at peak. Staleness was a concern but the 1k stable head barely changes week-over-week; we'll re-seed Sundays.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_009",
+    "category": "experiment_result",
+    "question": "What speed gain came from giving each account its own slice of data instead of pooling everyone together?",
+    "gold_answer": "Per-tenant sharding lowered P95 query latency 27% compared to the shared index",
+    "evidence_prose": "2025-02-27 | Growth / Platform joint design review. The noisy-neighbor problem on the shared index was confirmed in the Q4 postmortem. We ran a 6-week shadow experiment with isolated per-customer segments on a representative set of enterprise accounts. P95 fell from 410ms to 300ms. Ana signing off on the migration plan; rollout starts with accounts >1M docs.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_010",
+    "category": "experiment_result",
+    "question": "Did using a thinned-out computation pattern in the second-pass model cost any accuracy, and how did its speed change?",
+    "gold_answer": "Sparse attention in the reranker matched dense quality and was 2.1x faster",
+    "evidence_prose": "2025-04-03 | Reranker v3 experiment summary. Tried local-window + learned top-k routing instead of full quadratic attention. On the Q1 eval set the nDCG@10 delta was -0.002 \u2014 effectively noise. Throughput at the 95th latency percentile improved by 2.1\u00d7. Carla flagging this as the path to enabling reranking on the Starter billing tier without blowing the cost model.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_experiment_result_011",
+    "category": "experiment_result",
+    "question": "What coverage improvement came from automatically rewriting what users typed before fetching, and what speed penalty did it carry?",
+    "gold_answer": "Learned query expansion boosted recall@20 by 8 points at a cost of 55ms added median latency",
+    "evidence_prose": "2025-05-20 | Query router experiment debrief \u2014 expansion module. The T5-small reformulation step added a 55ms tail to median query time but the coverage numbers were hard to ignore: recall@20 moved from 72% to 80% on the enterprise benchmark set. Ben pushing to make expansion an opt-in feature flag per tenant so latency-sensitive customers can skip it; Growth wants it on by default for the new Insight tier.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_abandoned_approach_012",
+    "category": "abandoned_approach",
+    "question": "What language was the document intake service originally written in before the team switched runtimes due to resource exhaustion under load?",
+    "gold_answer": "Python",
+    "evidence_prose": "2024-03-28 \u2014 Post-mortem P1-24-007. Root cause: CPython GC pauses and per-object overhead drove RSS past container limits during the 2 AM batch window; worker pods OOM-killed 47 times. Resolution: Platform greenlit a Go rewrite; Python service deprecated end of Q2'24.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_abandoned_approach_013",
+    "category": "abandoned_approach",
+    "question": "Which third-party vector database did the Search team trial and ultimately turn down before building their own persistence layer?",
+    "gold_answer": "Weaviate",
+    "evidence_prose": "2024-01-17 \u2014 Design doc HELIX-DD-003 addendum. Elena: Weaviate PoC completed; cluster management overhead nontrivial, and BSL license creates uncertainty for our SaaS distribution model. Recommendation: discard external vendor path, own the persistence layer.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_abandoned_approach_014",
+    "category": "abandoned_approach",
+    "question": "What processing model for generating vector representations was replaced because it caused the document intake pipeline to stall during a load spike?",
+    "gold_answer": "Synchronous (inline) embedding during ingestion; replaced with an asynchronous queue-based embedding architecture.",
+    "evidence_prose": "2024-07-11 \u2014 Platform incident review INC-0441. Ingest endpoint p99 timeout rate hit 12% during the enterprise onboarding spike; embedding service saturated inline. Resolution shipped same day: decouple via Kafka topic, embed asynchronously, surface completion via webhook.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_abandoned_approach_015",
+    "category": "abandoned_approach",
+    "question": "Which query language did the team trial for the customer-facing console backend before reverting to a more conventional interface style?",
+    "gold_answer": "GraphQL",
+    "evidence_prose": "2024-08-05 \u2014 Dashboard RFC-19 decision log. Elena: GraphQL PoC ran six weeks; frontend iteration velocity noticeably slower \u2014 schema churn, n+1 resolver issues, tooling overhead. Reverting to REST with OpenAPI spec; ship the v2 endpoints by end of sprint 34.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_abandoned_approach_016",
+    "category": "abandoned_approach",
+    "question": "Which augmentation technique that synthesizes fictitious relevant passages was prototyped and then dropped from the production serving path?",
+    "gold_answer": "HyDE (Hypothetical Document Embeddings / LLM-generated hypothetical answers for query expansion)",
+    "evidence_prose": "2025-01-09 \u2014 Query router RFC-27 closeout. Dmitri: HyDE offline evals showed +4 nDCG on long-tail queries, but the extra LLM call added 300\u2013500ms and ~$0.003 per query at our volume \u2014 burns the margin on Starter tier. Carla: tabling it; revisit if we ever gate it to Enterprise only.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_017",
+    "category": "tooling_choice",
+    "question": "Which managed versus self-hosted tradeoff drove the selection of the primary embedding storage backend?",
+    "gold_answer": "Qdrant was chosen over Pinecone because self-hosting requirements and cost predictability at scale favored it.",
+    "evidence_prose": "2024-02-14 \u2014 Platform sync: Ben ran a 3-way bake-off (Weaviate / our shortlisted managed option / Qdrant). Pinecone's per-vector pricing blew up the Q3 cost model past $40k/mo at 2B vectors; Weaviate's Rust port wasn't stable enough for prod. Went with Qdrant on bare metal \u2014 gives us the knobs we need and the bill stays flat regardless of query volume.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_018",
+    "category": "tooling_choice",
+    "question": "What library and pretrained checkpoint did the team standardize on for converting text to dense vectors?",
+    "gold_answer": "sentence-transformers with all-MiniLM-L6-v2 was standardized as the default encoder.",
+    "evidence_prose": "2024-03-07 \u2014 Carla's embedding spike wrap-up: tried instructor-xl and e5-large-v2 first \u2014 recall was marginally better but p99 blew past our 20ms SLO. Landed on the small MiniLM checkpoint via the sentence-transformers library; 6ms median on the g4dn.xlarge fleet, NDCG@10 within 3 points of the big models on our internal eval set. Shipping it.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_019",
+    "category": "tooling_choice",
+    "question": "Why did the team buy an outside service for reordering search hits rather than operating their own ranking model in-house?",
+    "gold_answer": "Cohere Rerank API was chosen to avoid the overhead of managing a self-hosted GPU fleet for cross-encoder inference.",
+    "evidence_prose": "2024-05-22 \u2014 Reranker RFC outcome (RFC-031, authors: Ana, Dmitri): proposal to self-host a cross-encoder was tabled. Search team doesn't want to own another GPU autoscaling group \u2014 we're not an ML infra shop. Cohere's rerank endpoint is sub-100ms and the pricing at our p50 query volume is negligible vs. engineer-weeks of k8s tuning. Decision: vendor API, revisit if monthly bill exceeds $8k.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_020",
+    "category": "tooling_choice",
+    "question": "What durable queue was placed between the page-fetching stage and the components that compute dense representations, and why over the alternative?",
+    "gold_answer": "Apache Kafka was chosen as the durable event stream between the document crawler and embedding workers, because it preserves replay semantics that SQS lacked.",
+    "evidence_prose": "2024-01-19 \u2014 Platform standup notes: Ben and Elena debated SQS vs. Kafka for the ingest fan-out. SQS would be fine for current load but we'd lose replay semantics \u2014 post-mortems from Q4'23 showed replay was critical when the embedding workers crashed mid-batch. Kafka on MSK it is; retention set to 72h. Topic: helix.documents.raw.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_021",
+    "category": "tooling_choice",
+    "question": "What persistence solution did the team choose for recording per-request timing metrics instead of a purpose-built observability store?",
+    "gold_answer": "TimescaleDB (a PostgreSQL extension) was chosen for query-level latency telemetry instead of a dedicated time-series database.",
+    "evidence_prose": "2024-06-10 \u2014 SRE runbook update (Dmitri): added Timescale hypertable retention policy (90 days). Background: Growth wanted InfluxDB; Platform pushed back \u2014 we already run RDS Postgres for billing, adding another datastore just for telemetry doesn't clear the ops-burden bar. Timescale extension on a separate schema gives us time-bucketing and continuous aggregates without a new fleet.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_022",
+    "category": "tooling_choice",
+    "question": "Which framework powers the testing harness, and what made it preferable over options needing hand-labeled ground truth?",
+    "gold_answer": "Ragas was chosen for the eval harness because it computes faithfulness and answer relevancy without requiring gold labels.",
+    "evidence_prose": "2024-08-03 \u2014 Eval harness design doc v2 (Ana): considered BEIR + custom LLM-judge pipeline, but standing up gold-label annotation takes weeks we don't have pre-Q3 launch. Ragas scores faithfulness and context precision reference-free using our existing LLM endpoint. Wired into CI \u2014 any PR touching retrieval logic must show delta vs. baseline on the internal 500-query seed set.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_023",
+    "category": "tooling_choice",
+    "question": "Which UI framework did the customer-facing console adopt, and what fetch-pattern fit pushed the team off the more popular option?",
+    "gold_answer": "Remix was chosen over Next.js because its nested data-loading model better matched the server-side query patterns needed by the web dashboard.",
+    "evidence_prose": "2024-04-29 \u2014 Growth eng weekly: Carla demoed the Next.js spike \u2014 RSC is still too unstable for our needs and the nested loader pattern in Remix maps cleanly onto our multi-tenant query structure (customer \u2192 project \u2192 index \u2192 stats, each needing its own fetch). Team voted Remix. Tooling: pnpm workspace, Tailwind, deployed on Railway behind Cloudflare.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_024",
+    "category": "tooling_choice",
+    "question": "What outside payments platform handles subscription and consumption charges, and what risk concern steered the team away from building it themselves?",
+    "gold_answer": "Stripe with usage-based metering was chosen over a homegrown invoicing system primarily to reduce compliance (PCI/revenue recognition) surface area.",
+    "evidence_prose": "2024-01-31 \u2014 Billing RFC-009 outcome: proposal to build invoicing in-house was rejected. Elena flagged that homegrown billing means owning PCI scope, revenue recognition edge cases, and dunning logic \u2014 none of which maps to our core competency. Stripe Billing with meter events wired to our query-count telemetry. Revenue leakage test: <0.3% on the staging load replay.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_025",
+    "category": "tooling_choice",
+    "question": "What shared data store was introduced to make request throttling survive rollouts, and which structure inside it backs the per-customer caps?",
+    "gold_answer": "Redis sorted sets were adopted for per-tenant rate limiting after the in-process token bucket was found to lose state on pod restarts.",
+    "evidence_prose": "2024-07-15 \u2014 Query router post-mortem PM-014: root cause was the in-process limiter losing its window state on every rollout, letting burst traffic hammer Qdrant. Fix shipped 2024-07-18: sliding-window counter backed by Redis sorted sets, TTL-keyed per tenant. No state lost across restarts. Ops runbook updated; Ben owns the Redis ElastiCache cluster sizing.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_tooling_choice_026",
+    "category": "tooling_choice",
+    "question": "Which open instrumentation standard did the team migrate to, and which span store replaced the costly proprietary agent they ran before?",
+    "gold_answer": "OpenTelemetry was adopted for instrumentation with Grafana Tempo as the trace backend, replacing custom Datadog APM agents.",
+    "evidence_prose": "2025-01-08 \u2014 Platform Q1 kickoff notes (Elena): Datadog APM bill hit $22k in December \u2014 unacceptable. Decision finalized before holidays: rip out dd-trace-py, instrument everything with the otel-sdk, ship spans to Tempo in our existing Grafana Cloud org. Migration target: all six services on OTel by end of January. Carla owns the embedding service leg; Dmitri owns the router + reranker.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_027",
+    "category": "incident_postmortem",
+    "question": "What caused the ranking service to go down in mid-2024 and how did the team resolve it?",
+    "gold_answer": "Memory leak in the cross-encoder tokenizer's batch processing; fixed by capping batch size to 32 and adding explicit cleanup after each request.",
+    "evidence_prose": "2024-08-14 \u00b7 Search on-call \u00b7 Dmitri\nPost-mortem closed. Heap growth traced to cross-encoder token buffer accumulation \u2014 each inference pass held references that GC wasn't clearing between requests under concurrent load. Short-term: hard ceiling at 32 inputs per pass, destructor call added in the finally block. P50 latency recovered within 10 min of deploy. Longer-term mitigation (token buffer pooling) tracked in HELIX-2201.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_028",
+    "category": "incident_postmortem",
+    "question": "Why did customers lose access to paid tiers overnight in late 2024 and what was the immediate fix?",
+    "gold_answer": "Stripe webhook signing secret was rotated without updating HELIX's secrets store; all renewal events were rejected. Fix was syncing the new secret into the secrets store.",
+    "evidence_prose": "2024-11-07 \u00b7 Billing SRE \u00b7 Elena\nIncident duration 6h 22m. Payment processor rotated the endpoint signing credential on their side as part of a quarterly key cycle \u2014 our vault copy was stale. Every inbound subscription lifecycle event returned 403 at our webhook handler, so renewals silently dropped and the entitlement worker downgraded accounts. Hotfix: synced new value into Vault, reprocessed the 14-hour backlog from the processor's event log. Action item: automate secret-rotation parity checks (HELIX-2389).",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_029",
+    "category": "incident_postmortem",
+    "question": "Why did the early-2025 data import fail in a way where records looked successfully saved but carried no usable meaning for retrieval?",
+    "gold_answer": "The object store returned HTTP 200 with empty bodies during maintenance, which the pipeline misread as valid empty documents instead of errors, producing empty embedding vectors.",
+    "evidence_prose": "2025-01-19 \u00b7 Platform on-call \u00b7 Ben\nRoot cause confirmed. Provider maintenance caused their gateway to emit 200 responses with zero-byte payloads rather than 503. Our fetch layer checked only HTTP status; content-length validation was absent. Downstream, the embedding service faithfully encoded empty strings and wrote zero-norm vectors to the index. Queries during the 3h window returned degraded results silently. Fix shipped same day: added payload length assertion before enqueue, plus alert on mean vector norm dropping below threshold.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_030",
+    "category": "incident_postmortem",
+    "question": "What caused partial corruption of the search index after the network event in autumn 2024?",
+    "gold_answer": "Asymmetric network partition healing caused dual-leader split-brain on four shards, producing duplicate write acknowledgments and corrupted index segments.",
+    "evidence_prose": "2024-09-03 \u00b7 Platform \u00b7 Carla\nPost-mortem merged. Partition lasted ~80s; when the link recovered, the lease-renewal heartbeat arrived at both replicas within the same TTL window \u2014 both asserted primary status. Concurrent segment compaction on shards 7, 12, 19, 23 wrote conflicting manifests. Recovery: forced leader stepdown via admin API, replayed WAL from last clean checkpoint. Four shards replayed ~2h of writes. Lease TTL tightened from 30s\u219210s and we added a fencing token check on every compaction lock (HELIX-1977).",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_031",
+    "category": "incident_postmortem",
+    "question": "When did one client's private search hits get exposed to unrelated accounts, and what was the underlying technical mistake?",
+    "gold_answer": "During a blue-green deployment in Q2'24, the query router config pointed all tenants' queries to one tenant's dedicated index pool for 22 minutes, exposing results across tenants.",
+    "evidence_prose": "2024-05-30 \u00b7 Search \u00b7 Ana\nSEV-1 closed, legal notified per breach protocol. Blue-green cutover script swapped the router's index-pool mapping table but a template rendering bug left the tenant-routing field hardcoded to pool-id 'enterprise-0014' across all rows. Duration: 22 min before on-call caught anomalous hit-rate spike on that pool. Affected: 9 tenants received result sets from enterprise-0014's corpus. Immediate fix: rolled router config, invalidated all active query sessions. Long-term: tenant-pool mapping now rendered per-row with a diff assertion step before any cutover proceeds (HELIX-1803).",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_032",
+    "category": "incident_postmortem",
+    "question": "What was behind the silent accuracy drop in the vector-generation service in early 2025 that surfaced only under heavy traffic?",
+    "gold_answer": "A missing per-thread CUDA context initialization caused workers to share a single context, producing race conditions and NaN embedding vectors under concurrent load.",
+    "evidence_prose": "2025-02-11 \u00b7 Search on-call \u00b7 Dmitri\nTrace finally closed. The GPU context was initialized once in the main process and inherited by forked workers \u2014 fine at low concurrency, but under the load spike from Growth's new bulk-ingest campaign, concurrent kernel dispatches from separate threads collided inside the shared context. Output tensors contained NaN at a rate correlated with request parallelism. Vectors were stored without NaN checks, so the corruption was invisible until eval harness nDCG dropped 0.12 points overnight. Fix: moved context init into each worker's startup hook, added embedding norm assertion before index write (HELIX-2541).",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_033",
+    "category": "incident_postmortem",
+    "question": "How did the team discover that quality benchmarks had been giving false-green results for a month and a half in mid-2024?",
+    "gold_answer": "A cron job refreshing the golden eval dataset had been failing silently due to expired credentials for six weeks; benchmarks ran against stale data and missed real regressions.",
+    "evidence_prose": "2024-06-18 \u00b7 Eval harness \u00b7 Ana\nRCA done. The nightly dataset sync job began failing 2024-05-05 when the read token for the annotation bucket expired; no alert was wired to that job's exit code. Harness kept running against the May 4th snapshot. Two model updates (v2.3, v2.4) were shipped with green evals that would have shown -0.07 nDCG on current annotations. Caught only when a new engineer ran a manual end-to-end check. Actions: credential expiry alerts (HELIX-1865), eval dataset manifest hash logged and diffed each run (HELIX-1866).",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_034",
+    "category": "incident_postmortem",
+    "question": "Why were European users unable to log into the product for several hours in autumn 2024?",
+    "gold_answer": "A CDN edge rule mis-routed EU users' authenticated traffic to the US origin, where their session tokens were rejected because JWT signing keys are scoped per region.",
+    "evidence_prose": "2024-10-09 \u00b7 Growth / SRE \u00b7 Elena\nPost-mortem done. Edge rule deployed as part of GDPR data-residency work used a wildcard that matched /app/* before the more-specific /app/eu/* route. All dashboard traffic landed on us-east-1 origin. Session validation there rejected tokens because Frankfurt's signing key is not in the US keyring. Users saw HTTP 401 loops. Duration: 4h 11m. Fix: corrected rule specificity order, added synthetic canary that authenticates from EU probe and asserts sub-100ms origin RTT to fra-01.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_035",
+    "category": "incident_postmortem",
+    "question": "Why did response times slowly worsen on the largest customers' data partitions in spring 2025 with no software release involved?",
+    "gold_answer": "The compaction job inherited a stale systemd fd limit, causing it to abort silently on shards over 40GB; unmerged tombstones accumulated, inflating per-query scan cost.",
+    "evidence_prose": "2025-03-06 \u00b7 Platform \u00b7 Carla\nRoot cause identified. systemd unit for `helix-compactor` still had LimitNOFILE=1024 from the pre-migration config; updated limit (65536) was in the Ansible template but the unit was never reloaded after the infra move. Shards above ~40GB hit the fd ceiling mid-compaction, job exited 0 (misleading), segment manifest was left with unmerged delete markers. Scan cost on affected shards grew linearly with tombstone count \u2014 explains the 3-week p99 latency creep on enterprise tenants. Fix: reloaded unit, ran forced compaction sweep, added post-compaction tombstone-ratio assertion to alert before next cycle (HELIX-2698).",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_incident_postmortem_036",
+    "category": "incident_postmortem",
+    "question": "What broke processing of non-English files in summer 2024 right after a routine library-cleanup change?",
+    "gold_answer": "A PDF parsing library was unpinned and auto-upgraded; the newer version changed text extraction encoding from UTF-8 to Latin-1, crashing the embedding service on non-ASCII characters.",
+    "evidence_prose": "2024-08-27 \u00b7 Platform / Search \u00b7 Ben\nCause confirmed. HELIX-1901 (dependency hygiene) removed the version cap on `pdfminer-six` to get a security patch; 20.25.0 changed the default output codec. Ingestion workers began throwing UnicodeDecodeError on any document with accented characters or CJK content \u2014 roughly 18% of the enterprise corpus. Pipeline silently dropped those jobs after 3 retry exhaustions. Embedding throughput drop wasn't caught until a tenant filed a ticket about missing Japanese-language docs. Fix: pinned library to last known-good, added charset normalization step before enqueue. Long-term: integration test suite now includes a multilingual fixture set (HELIX-1944).",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_config_value_037",
+    "category": "config_value",
+    "question": "How many documents at a time does the embedding worker process in a single forward pass?",
+    "gold_answer": "64",
+    "evidence_prose": "2024-03-12 \u2014 Platform standup: Carla landed the embed-service tuning PR. Tried 128 and 256; both tanked GPU util (PCIe was the ceiling, not compute). Settled on 64 per batch. Perf numbers in the PR description.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_config_value_038",
+    "category": "config_value",
+    "question": "What build-time exploration factor is used when constructing the approximate nearest-neighbor graph?",
+    "gold_answer": "200",
+    "evidence_prose": "2024-05-29 \u2014 Search RFC-07 outcome: we ran the recall sweep last week. At 128 the harness flagged recall@10 dipping under target (0.92 floor). Bumped to 200; build is 40% slower but recall holds at 0.95. Merging with 200 as the permanent default.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_config_value_039",
+    "category": "config_value",
+    "question": "At what daily request volume does a non-paying customer start receiving rate-limit errors?",
+    "gold_answer": "10,000 API calls per day",
+    "evidence_prose": "2025-01-08 \u2014 Growth standup: Elena confirmed the free-plan ceiling is live in prod. Set at 10 k/day; anything over returns 429. We saw one tenant hit it on launch day \u2014 working as intended. Billing-service config commit b3f9a1.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_config_value_040",
+    "category": "config_value",
+    "question": "How many sub-quantizer segments are used in the compressed representation of stored vectors?",
+    "gold_answer": "96 (PQ96)",
+    "evidence_prose": "2024-10-22 \u2014 Platform RFC-14 outcome: tested PQ32, PQ64, PQ96, PQ128 against the recall harness on the production snapshot. PQ96 was the elbow \u2014 going to 128 gave less than 0.2% lift. Memory footprint at 96 is 3\u00d7 smaller than float32. Approved; merging.",
+    "second_evidence_prose": null,
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_knowledge_update_041",
+    "category": "knowledge_update",
+    "question": "Who is currently on the hook for waking up to production pages across the entire stack?",
+    "gold_answer": "A unified SRE rotation covering all components (Search, Platform, Growth, Billing)",
+    "evidence_prose": "2025-01-07 | SRE handoff email \u2014 as of Monday the dedicated SRE pool owns the pager for all services; Growth and Billing runbooks have been migrated into PagerDuty under the HELIX-SRE schedule. The Search/Platform split schedule is deactivated. Escalation paths unchanged: P0 wakes Dmitri.",
+    "second_evidence_prose": "2024-08-19 | On-call RFC-11 outcome \u2014 Search-only rotation was a single point of failure during the index outage; Platform engineers added to the rotation starting Q3 on-call cycle; Growth and Billing remain self-on-call for now.",
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_multi_hop_042",
+    "category": "multi_hop",
+    "question": "Which group ended up responsible for the cross-encoder scoring layer after it was pulled out of the retrieval stack?",
+    "gold_answer": "Platform team",
+    "evidence_prose": "2024-07-11 \u2014 Search standup: shipping reranker v1 behind feature flag; Carla owns the rollout. Elena flagged latency tail risk, asked if this should live in infra layer long-term.\n\n2024-09-03 \u2014 Platform design doc (reranker-as-service RFC): decision to absorb reranker into Platform shared infra, effective this sprint. Carla transitioning ownership to Dmitri. Rationale: three separate teams were each planning their own re-scoring wrappers.",
+    "second_evidence_prose": "2024-09-03 \u2014 Platform design doc (reranker-as-service RFC): decision to absorb reranker into Platform shared infra, effective this sprint. Carla transitioning ownership to Dmitri. Rationale: three separate teams were each planning their own re-scoring wrappers.",
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_multi_hop_043",
+    "category": "multi_hop",
+    "question": "After the move to a wider vector representation, what corpus-wide rebuild did the storage tier have to perform?",
+    "gold_answer": "A full re-index of the vector store was required.",
+    "evidence_prose": "2024-11-19 \u2014 Embedding service RFC v2: Ben proposes migrating from all-mpnet-base-v2 (768-d) to text-embedding-3-large (1536-d); cites 6-point NDCG lift on internal eval set. Flagged: any dimension change is a hard incompatibility \u2014 index layer cannot reuse existing vectors.\n\n2025-01-14 \u2014 Platform on-call log: full re-index job kicked off at 02:00 UTC, estimated 11 hours. Triggered by embedding model cutover that shipped last Thursday. Vector store held ~2.1B vectors; job completed 13:47 UTC with 0 drops.",
+    "second_evidence_prose": "2025-01-14 \u2014 Platform on-call log: full re-index job kicked off at 02:00 UTC, estimated 11 hours. Triggered by embedding model cutover that shipped last Thursday. Vector store held ~2.1B vectors; job completed 13:47 UTC with 0 drops.",
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_multi_hop_044",
+    "category": "multi_hop",
+    "question": "Who authored the commit that triggered the dropped-records outage, and had that same engineer also designed the intake subsystem originally?",
+    "gold_answer": "Ben made the change that caused the incident; Ana originally architected the ingestion pipeline \u2014 they are different people.",
+    "evidence_prose": "2024-03-05 \u2014 Ingestion design doc v1 (author: Ana): outlines the chunking strategy, idempotency keys, and dead-letter queue. Ana signs off as DRI.\n\n2024-06-28 \u2014 Post-mortem (P0, ingestion data loss): root cause \u2014 offset commit logic modified in PR #1847 (author: Ben) dropped chunks when batch size exceeded 512. Ana's original idempotency design would have caught this, but PR #1847 bypassed the dedup path. Ana had rotated to Growth in April; Ben inherited the service without a formal handoff doc.",
+    "second_evidence_prose": "2024-06-28 \u2014 Post-mortem (P0, ingestion data loss): root cause \u2014 offset commit logic modified in PR #1847 (author: Ben) dropped chunks when batch size exceeded 512. Ana's original idempotency design would have caught this, but PR #1847 bypassed the dedup path. Ana had rotated to Growth in April; Ben inherited the service without a formal handoff doc.",
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_multi_hop_045",
+    "category": "multi_hop",
+    "question": "What was the first live experiment run through the routing layer's split-testing mechanism, and did it become permanent?",
+    "gold_answer": "The synonym expansion experiment (Growth team) was the first live A/B experiment; it became the default after a 9% CTR lift.",
+    "evidence_prose": "2024-08-22 \u2014 Query router RFC: adding A/B traffic-split capability; immediate consumer is Growth's upcoming lexical-expansion trial. Elena implemented the framework; Growth team is the first tenant. Launch target: week of Sep 9.\n\n2024-10-01 \u2014 Growth standup: synonym-expansion experiment concluded, 9.1% CTR uplift, p<0.01 on 14-day window. Ana recommending full rollout. Dmitri confirmed router config to flip default next deploy.",
+    "second_evidence_prose": "2024-10-01 \u2014 Growth standup: synonym-expansion experiment concluded, 9.1% CTR uplift, p<0.01 on 14-day window. Ana recommending full rollout. Dmitri confirmed router config to flip default next deploy.",
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_multi_hop_046",
+    "category": "multi_hop",
+    "question": "How did the assessment framework's coverage change once the re-ranking stage joined the pipeline?",
+    "gold_answer": "The eval harness was extended from retrieval-precision-only to also include end-to-end answer faithfulness judged by an LLM.",
+    "evidence_prose": "2024-02-14 \u2014 Eval harness kickoff notes: scope is retrieval metrics only \u2014 P@5, NDCG@10. Carla is DRI. Faithfulness / generation quality explicitly deferred; no LLM judge budget approved yet.\n\n2024-10-17 \u2014 Eval harness changelog (Carla): added faithfulness_score pipeline stage; uses Claude Haiku as judge, prompt template in eval/prompts/faithfulness_v1.txt. Triggered by reranker integration \u2014 Search asked whether re-scored results actually improve downstream answer quality, not just rank correlation.",
+    "second_evidence_prose": "2024-10-17 \u2014 Eval harness changelog (Carla): added faithfulness_score pipeline stage; uses Claude Haiku as judge, prompt template in eval/prompts/faithfulness_v1.txt. Triggered by reranker integration \u2014 Search asked whether re-scored results actually improve downstream answer quality, not just rank correlation.",
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_multi_hop_047",
+    "category": "multi_hop",
+    "question": "After the shift to usage-based pricing, which two internal services had to start emitting metered events?",
+    "gold_answer": "The ingestion pipeline and query router both required new metering instrumentation to support consumption-based billing.",
+    "evidence_prose": "2024-10-08 \u2014 Growth pricing RFC (Ana, author): proposes moving from per-seat to usage-based model \u2014 charge per 1K vectors ingested and per 1K queries routed. Flagged instrumentation gaps: ingestion pipeline has no per-tenant vector counter; query router logs requests but doesn't emit billable events to the billing service.\n\n2024-11-30 \u2014 Billing service deploy notes: v2.4.0 ships consumption metering. Ingestion pipeline PR #2201 (Ben) and query router PR #2209 (Elena) both merged this week; each emits `billing.event` to the metering bus. Seat-based plans deprecated for new signups.",
+    "second_evidence_prose": "2024-11-30 \u2014 Billing service deploy notes: v2.4.0 ships consumption metering. Ingestion pipeline PR #2201 (Ben) and query router PR #2209 (Elena) both merged this week; each emits `billing.event` to the metering bus. Seat-based plans deprecated for new signups.",
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_multi_hop_048",
+    "category": "multi_hop",
+    "question": "Did the graph-based approximate nearest-neighbor structure stay in service across every customer tier following the slowdown early in 2025?",
+    "gold_answer": "No \u2014 high-cardinality tenants were migrated to IVF-PQ after the latency regression; HNSW was not retained for that segment.",
+    "evidence_prose": "2024-01-09 \u2014 Vector index store design doc (Dmitri): selecting HNSW as the primary index structure. Rationale: strong recall at low-latency for expected corpus sizes; hnswlib bindings already in-house. IVF-PQ noted as a future option for very large shards.\n\n2025-02-18 \u2014 SRE post-mortem (p95 latency regression, Jan 31): HNSW graph traversal degrades super-linearly past ~50M vectors per shard; three enterprise tenants breached that threshold in January. Resolution: IVF-PQ index rebuilt for tenants >20M vectors; HNSW retained for standard tier. Dmitri and Elena co-owned the migration.",
+    "second_evidence_prose": "2025-02-18 \u2014 SRE post-mortem (p95 latency regression, Jan 31): HNSW graph traversal degrades super-linearly past ~50M vectors per shard; three enterprise tenants breached that threshold in January. Resolution: IVF-PQ index rebuilt for tenants >20M vectors; HNSW retained for standard tier. Dmitri and Elena co-owned the migration.",
+    "grade_mode": "judge"
+  },
+  {
+    "id": "m1_multi_hop_049",
+    "category": "multi_hop",
+    "question": "When the customer-facing surface added its usage-inspection view, did the team stand up fresh data plumbing or reuse a store already running for operations?",
+    "gold_answer": "They repurposed an existing ClickHouse table that Platform had already provisioned for SRE use \u2014 no new data infrastructure was built.",
+    "evidence_prose": "2024-07-30 \u2014 Growth feature request (Ana): dashboard needs a query analytics panel \u2014 tenants want to see top queries, latency distribution, zero-result rate. No current user-facing analytics surface exists.\n\n2024-11-05 \u2014 Web dashboard deploy notes (v3.1): ships QueryAnalyticsPanel. Backend reads from `sre.query_events` ClickHouse table \u2014 same table Platform stood up in March for on-call dashboards. Ben added tenant-scoped read path; no new ingestion pipeline needed. Growth signed off on the column subset exposed to customers.",
+    "second_evidence_prose": "2024-11-05 \u2014 Web dashboard deploy notes (v3.1): ships QueryAnalyticsPanel. Backend reads from `sre.query_events` ClickHouse table \u2014 same table Platform stood up in March for on-call dashboards. Ben added tenant-scoped read path; no new ingestion pipeline needed. Growth signed off on the column subset exposed to customers.",
+    "grade_mode": "judge"
+  }
+]
