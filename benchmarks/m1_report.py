@@ -1,4 +1,4 @@
-"""m1 memory-MCP benchmark — report. The headline is the CROSSOVER CURVE:
+"""m1 memory-MCP benchmark report. The headline is the CROSSOVER CURVE:
 accuracy as a function of corpus size, per arm. Full-context falls off a cliff
 once the haystack exceeds the window; retrieval/memory arms should stay flatter.
 
@@ -46,9 +46,9 @@ def main() -> int:
     present_sizes = [s for s in SIZES if (OUT / f"rows_{s}.jsonl").exists() and _rows(s)]
     by_size = {s: _rows(s) for s in present_sizes}
 
-    L = ["# bert memory-MCP benchmark — m1 (cross-context-window recall)", "",
+    L = ["# bert memory-MCP benchmark (m1): cross-context-window recall", "",
          "**What this tests.** Recall over a software project's accumulated PROSE memory "
-         "(decision logs, post-mortems, standups) — bert's actual job — where the answer is "
+         "(decision logs, post-mortems, standups), the job bert is built for, where the answer is "
          "*not re-derivable from present files*: it lives in a past beyond the context window, "
          "is phrased with no greppable keyword overlap (questions are paraphrased), and is "
          "buried among realistic filler. Single reader (Claude); only the memory mechanism "
@@ -67,15 +67,15 @@ def main() -> int:
     L.append("")
 
     # crossover table: arm × size accuracy
-    L += ["## Crossover — accuracy by corpus size", "",
+    L += ["## Crossover: accuracy by corpus size", "",
           "| arm | method | " + " | ".join(present_sizes) + " |",
           "|---|---|" + "|".join(["---"] * len(present_sizes)) + "|"]
     for a in ARMS:
         cells = []
         for s in present_sizes:
             r = _acc_ci(by_size[s], a)
-            cells.append(f"**{r[0]:.2f}** [{r[1]:.2f},{r[2]:.2f}]" if r else "—")
-        if any(c != "—" for c in cells):
+            cells.append(f"**{r[0]:.2f}** [{r[1]:.2f},{r[2]:.2f}]" if r else "n/a")
+        if any(c != "n/a" for c in cells):
             L.append(f"| `{a}` | {NAME[a]} | " + " | ".join(cells) + " |")
     L.append("")
     L.append("_The story is the slope: `A1` full-context should drop sharply from S→M→L as the "
@@ -99,7 +99,7 @@ def main() -> int:
                 if len(common) >= 8:
                     tests.append(ST.pair_test(a, [ba[a][k] for k in common], b, [ba[b][k] for k in common]))
         tests = ST.holm_bonferroni(tests)
-        L += [f"## Significance at size {big} — `A4` bert-MCP vs each (paired McNemar, Holm)", "",
+        L += [f"## Significance at size {big}: `A4` bert-MCP vs each (paired McNemar, Holm)", "",
               "| vs | Δacc (A4 − other) | 95% CI | Holm p | significant |", "|---|---|---|---|---|"]
         for t in tests:
             if "A4" in (t.arm_a, t.arm_b):
@@ -122,11 +122,11 @@ def main() -> int:
             cells = []
             for a in ARMS:
                 v = [r["correct"] for r in cr if r["arm"] == a]
-                cells.append(f"{sum(v)/len(v):.2f}" if v else "—")
+                cells.append(f"{sum(v)/len(v):.2f}" if v else "n/a")
             L.append(f"| {cat} | " + " | ".join(cells) + " |")
         L.append("")
 
-    # token cost at the largest size — the differentiator at the bert/grep tie
+    # token cost at the largest size, the differentiator at the bert/grep tie
     if big:
         tok = collections.defaultdict(lambda: [0, 0, 0])  # tot, n, correct
         for r in by_size[big]:
@@ -141,18 +141,18 @@ def main() -> int:
 
     L += ["## What the results show (honest)", "",
           "- **Full-context collapses once memory exceeds the window:** `A1` falls from "
-          "**0.90 (S) → 0.08 (M)** — it can only keep the most-recent ~10% of a 1.26M-token "
+          "**0.90 (S) → 0.08 (M)**. It can only keep the most-recent ~10% of a 1.26M-token "
           "corpus, so it misses almost every older fact. This is the core result: stuffing the "
           "context is not a memory system.",
           "- **bert-MCP holds at the top** (0.96 → 0.90) and **ties agentic-grep** (0.90, not "
-          "significant) — but at **roughly half the token cost** (≈149k vs ≈282k tokens/query): "
+          "significant), but at **roughly half the token cost** (≈149k vs ≈282k tokens/query): "
           "grep scans many files across many turns; bert retrieves a focused slice. Same answers, "
-          "much cheaper — bert's real edge at the tie.",
+          "much cheaper. That is bert's real edge at the tie.",
           "- **bert-MCP decisively beats naive vector-RAG** (+0.50, p<0.001): hybrid + rerank is "
           "worth it; a plain embedding top-k is far weaker on paraphrased recall.",
           "- Consistent with the code benchmark: an agent that can read+reason (grep) is a strong "
-          "baseline bert *matches* rather than beats — bert wins on **cost** and on **beating the "
-          "simpler memory approaches**, not by out-accurate-ing the agent.", "",
+          "baseline that bert *matches* rather than beats. bert wins on **cost** and on **beating the "
+          "simpler memory approaches**, not by out-scoring the agent.", "",
           "## Limitations", "",
           "- **The full-context arm used a 200K-context reader (Claude Sonnet), which rejected "
           "prompts above ~180K.** A 1M-context Claude would hold ~80% of this 1.26M corpus and would "

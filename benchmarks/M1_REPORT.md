@@ -1,6 +1,6 @@
-# bert memory-MCP benchmark — m1 (cross-context-window recall)
+# bert memory-MCP benchmark (m1): cross-context-window recall
 
-**What this tests.** Recall over a software project's accumulated PROSE memory (decision logs, post-mortems, standups) — bert's actual job — where the answer is *not re-derivable from present files*: it lives in a past beyond the context window, is phrased with no greppable keyword overlap (questions are paraphrased), and is buried among realistic filler. Single reader (Claude); only the memory mechanism varies. Judge-graded (3 non-Claude judges, majority).
+**What this tests.** Recall over a software project's accumulated PROSE memory (decision logs, post-mortems, standups), the job bert is built for, where the answer is *not re-derivable from present files*: it lives in a past beyond the context window, is phrased with no greppable keyword overlap (questions are paraphrased), and is buried among realistic filler. Single reader (Claude); only the memory mechanism varies. Judge-graded (3 non-Claude judges, majority).
 
 Arms: `A0` no-memory · `A1` full-context (recency-truncate to window) · `A2` agentic grep over the notes · `A3` naive vector-RAG (cosine top-k, no hybrid/rerank) · `A4` **bert via live MCP** (`memory_search`).
 
@@ -11,7 +11,7 @@ Arms: `A0` no-memory · `A1` full-context (recency-truncate to window) · `A2` a
 | S | 606 | 98,519 | yes |
 | M | 7,531 | 1,261,774 | no, exceeds |
 
-## Crossover — accuracy by corpus size
+## Crossover: accuracy by corpus size
 
 | arm | method | S | M |
 |---|---|---|---|
@@ -23,7 +23,7 @@ Arms: `A0` no-memory · `A1` full-context (recency-truncate to window) · `A2` a
 
 _The story is the slope: `A1` full-context should drop sharply from S→M→L as the needle falls outside the window, while `A4`/`A3` stay flatter (retrieval is size-insensitive) and `A2` pays in latency/turns to scan a growing haystack._
 
-## Significance at size M — `A4` bert-MCP vs each (paired McNemar, Holm)
+## Significance at size M: `A4` bert-MCP vs each (paired McNemar, Holm)
 
 | vs | Δacc (A4 − other) | 95% CI | Holm p | significant |
 |---|---|---|---|---|
@@ -57,10 +57,10 @@ _The story is the slope: `A1` full-context should drop sharply from S→M→L as
 
 ## What the results show (honest)
 
-- **Full-context collapses once memory exceeds the window:** `A1` falls from **0.90 (S) → 0.08 (M)** — it can only keep the most-recent ~10% of a 1.26M-token corpus, so it misses almost every older fact. This is the core result: stuffing the context is not a memory system.
-- **bert-MCP holds at the top** (0.96 → 0.90) and **ties agentic-grep** (0.90, not significant) — but at **roughly half the token cost** (≈149k vs ≈282k tokens/query): grep scans many files across many turns; bert retrieves a focused slice. Same answers, much cheaper — bert's real edge at the tie.
+- **Full-context collapses once memory exceeds the window:** `A1` falls from **0.90 (S) → 0.08 (M)**. It can only keep the most-recent ~10% of a 1.26M-token corpus, so it misses almost every older fact. This is the core result: stuffing the context is not a memory system.
+- **bert-MCP holds at the top** (0.96 → 0.90) and **ties agentic-grep** (0.90, not significant), but at **roughly half the token cost** (≈149k vs ≈282k tokens/query): grep scans many files across many turns; bert retrieves a focused slice. Same answers, much cheaper. That is bert's real edge at the tie.
 - **bert-MCP decisively beats naive vector-RAG** (+0.50, p<0.001): hybrid + rerank is worth it; a plain embedding top-k is far weaker on paraphrased recall.
-- Consistent with the code benchmark: an agent that can read+reason (grep) is a strong baseline bert *matches* rather than beats — bert wins on **cost** and on **beating the simpler memory approaches**, not by out-accurate-ing the agent.
+- Consistent with the code benchmark: an agent that can read+reason (grep) is a strong baseline that bert *matches* rather than beats. bert wins on **cost** and on **beating the simpler memory approaches**, not by out-scoring the agent.
 
 ## Limitations
 
