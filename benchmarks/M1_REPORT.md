@@ -6,10 +6,10 @@ Arms: `A0` no-memory · `A1` full-context (recency-truncate to window) · `A2` a
 
 ## Corpus sizes
 
-| size | sessions | ~tokens | fits Claude window? |
+| size | sessions | ~tokens | fits the 200K reader window? |
 |---|---|---|---|
 | S | 606 | 98,519 | yes |
-| M | 7,531 | 1,261,774 | NO — exceeds |
+| M | 7,531 | 1,261,774 | no, exceeds |
 
 ## Crossover — accuracy by corpus size
 
@@ -64,6 +64,7 @@ _The story is the slope: `A1` full-context should drop sharply from S→M→L as
 
 ## Limitations
 
-- **Needle placement** skews single-evidence facts toward the first half of the timeline, so full-context's recency window catches few; with uniform placement `A1` would reach ~0.10 rather than 0.08 — it collapses either way, but the exact floor is placement-dependent.
+- **The full-context arm used a 200K-context reader (Claude Sonnet), which rejected prompts above ~180K.** A 1M-context Claude would hold ~80% of this 1.26M corpus and would NOT collapse to 0.08; the over-window result is specific to a 200K window. To show the same wall for a 1M window, the corpus has to clear 1M by a wide margin (the L=4M size) with a 1M-context reader. The bert-vs-naive-vector gap and the token-cost win are window-independent.
+- **Needle placement** skews single-evidence facts toward the first half of the timeline, so full-context's recency window catches few; with uniform placement `A1` would reach ~0.10 rather than 0.08. It collapses either way, but the exact floor is placement-dependent.
 - Synthetic project memory (one fictional project); single reader (Claude); judge-graded n=50; `knowledge_update` is under-sampled (a contradiction/temporal track is future work).
 - `A2`/`A4` token costs are real but reader-specific; the ranking is what generalizes.

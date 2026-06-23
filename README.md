@@ -37,7 +37,7 @@ Here the reader's input is capped at ~15K tokens, a controlled stand-in for a co
 
 **The full-context wall** (1M-token model): at 132K (fits) full-context scores 1.00; at **3.0M (exceeds the window) full-context is INFEASIBLE**, truncation scores **0.00**, and bert-RAG holds **0.75 at a flat ~3.3K input tokens**. Retrieval is the *only* option above the window.
 
-**Single-model confirmation — memory across the window (m1).** The results above used a controlled free-tier reader; m1 repeats the test with the **same model (Claude) on every arm** — only the memory mechanism varies — over a **1.26M-token** project-memory corpus (~7× a ~180K window), questions paraphrased so keyword matching alone fails, judge-graded by 3 independent non-Claude judges (n=50):
+**Single-model confirmation — memory across the window (m1).** The results above used a controlled free-tier reader; m1 repeats the test with the **same model (Claude) on every arm** — only the memory mechanism varies — over a **1.26M-token** project-memory corpus (~6× the reader's 200K context window, Claude Sonnet), questions paraphrased so keyword matching alone fails, judge-graded by 3 independent non-Claude judges (n=50):
 
 | arm | fits window (98K) | exceeds window (1.26M) |
 |---|---|---|
@@ -46,7 +46,7 @@ Here the reader's input is capped at ~15K tokens, a controlled stand-in for a co
 | agentic grep over the notes | 0.92 | 0.90 |
 | **bert hybrid-RAG (live MCP)** | **0.96** | **0.90** |
 
-Once the corpus exceeds the window, full-context **collapses 0.90 → 0.08** (it can only keep the most-recent ~10% of the history). bert-MCP holds at **0.90**, beats naive vector-RAG by **+0.50** (p<0.001, McNemar), and **ties agentic-grep on accuracy at ~half the token cost** (149K vs 282K tokens/query). Honest tie: an agent that can read-and-reason over the raw files matches bert's accuracy — bert's edge is the **cost** and the **structural** win over context-stuffing, not out-reasoning the agent. See [`benchmarks/M1_REPORT.md`](benchmarks/M1_REPORT.md).
+Once the corpus exceeds the window, full-context **collapses 0.90 → 0.08** (it can only keep the most-recent ~10% of the history). bert-MCP holds at **0.90**, beats naive vector-RAG by **+0.50** (p<0.001, McNemar), and **ties agentic-grep on accuracy at ~half the token cost** (149K vs 282K tokens/query). Honest tie: an agent that can read-and-reason over the raw files matches bert's accuracy — bert's edge is the **cost** and the **structural** win over context-stuffing, not out-reasoning the agent. **Scope:** this wall is measured against a **200K-context reader**; a 1M-context Claude would fit most of this 1.26M corpus, so showing the same collapse at a 1M window needs a corpus well past 1M (a 4M run is tracked in the report). The naive-vector and cost results are window-independent. See [`benchmarks/M1_REPORT.md`](benchmarks/M1_REPORT.md).
 
 **Where bert does NOT win — code retrieval (v3).** Held to a single model (Claude) on exact code-fact lookup over real repos, **agentic grep wins (0.97)**; bert-via-MCP is a strong #2 (0.86), ahead of *every* one-shot retriever, and bert-hybrid (0.66) beats vector / BM25 / closed-book — but not the agent. Source code is re-derivable by reading files on demand, so memory has no structural edge there. That is the honest boundary of bert's value: it's a memory layer for accumulated project knowledge, not a code-search replacement. See [`benchmarks/RETRIEVAL_BENCHMARK.md`](benchmarks/RETRIEVAL_BENCHMARK.md).
 

@@ -58,12 +58,12 @@ def main() -> int:
          "`A4` **bert via live MCP** (`memory_search`).", ""]
 
     # corpus sizes
-    L += ["## Corpus sizes", "", "| size | sessions | ~tokens | fits Claude window? |", "|---|---|---|---|"]
+    L += ["## Corpus sizes", "", "| size | sessions | ~tokens | fits the 200K reader window? |", "|---|---|---|---|"]
     for s in present_sizes:
         m = _meta(s)
         if m:
             tok, nses = m
-            L.append(f"| {s} | {nses:,} | {tok:,} | {'yes' if tok and tok < 180_000 else 'NO — exceeds'} |")
+            L.append(f"| {s} | {nses:,} | {tok:,} | {'yes' if tok and tok < 200_000 else 'no, exceeds'} |")
     L.append("")
 
     # crossover table: arm × size accuracy
@@ -154,9 +154,15 @@ def main() -> int:
           "baseline bert *matches* rather than beats — bert wins on **cost** and on **beating the "
           "simpler memory approaches**, not by out-accurate-ing the agent.", "",
           "## Limitations", "",
+          "- **The full-context arm used a 200K-context reader (Claude Sonnet), which rejected "
+          "prompts above ~180K.** A 1M-context Claude would hold ~80% of this 1.26M corpus and would "
+          "NOT collapse to 0.08; the over-window result is specific to a 200K window. To show the "
+          "same wall for a 1M window, the corpus has to clear 1M by a wide margin (the L=4M size) "
+          "with a 1M-context reader. The bert-vs-naive-vector gap and the token-cost win are "
+          "window-independent.",
           "- **Needle placement** skews single-evidence facts toward the first half of the "
           "timeline, so full-context's recency window catches few; with uniform placement `A1` "
-          "would reach ~0.10 rather than 0.08 — it collapses either way, but the exact floor is "
+          "would reach ~0.10 rather than 0.08. It collapses either way, but the exact floor is "
           "placement-dependent.",
           "- Synthetic project memory (one fictional project); single reader (Claude); judge-graded "
           "n=50; `knowledge_update` is under-sampled (a contradiction/temporal track is future "
