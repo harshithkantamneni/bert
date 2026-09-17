@@ -6,10 +6,24 @@ Three suites (B7 infra-value, B8 efficiency, B9 long-context RAG) run to answer:
 
 | claim | test | result |
 |---|---|---|
-| orchestration improves quality on a frontier model | B7: bert-Opus vs bare-Opus | **No** — ≈0 gain (within noise), *hurts* on trivia, at 17–47× tokens |
+| orchestration improves quality on a frontier model | B7: bert-Opus vs bare-Opus | **No** — ≈0 gain (median C−B +0.007, n=11, within judge noise), *hurts* on trivia, at 1.3–5.7× tokens and 1.4–4.5× wall-clock (see correction below) |
 | the harness lets a cheaper model match the frontier | B7 harness-lift: bert-Sonnet vs bare-Opus/Sonnet | **No** — bert-Sonnet 0.79 < bare-Sonnet 0.87 < bare-Opus 0.89; harness_lift −0.077 (same sign all 3 tasks); never beat Opus (tie/tie/loss) |
 
 **Conclusion:** bert's orchestration does *not* improve single-deliverable quality at any model tier. The decomposition/verification overhead slightly *degrades* a task a capable model handles fine in one shot. bert is **not a better reasoner**.
+
+### Correction (2026-09-17): the token overhead is 1.3–5.7×, not 17–47×
+
+The 17–47× figure previously quoted here (and in the README / ARCHITECTURE) came from `C.tokens_total / A.tokens_total` in the three-arm run file (`results/b7_three_arm_20260601T190545.json`, committed with this note). Those two fields are not counted the same way: arm A's `tokens_total` is `tokens_in_net + tokens_out` (cache-exclusive; e.g. T0/i1 net 14,813 vs gross 189,443), while arm C's count is cache-inclusive per dispatch. Counting both arms cache-inclusive (`A.tokens_in_gross + A.tokens_out`), the overhead per instance is:
+
+| tier | n | C−B (median) | C−A | B−A | tokens C/A | wall-clock C/A |
+|---|---|---|---|---|---|---|
+| T0 | 3 | −0.073 | −0.073 | 0.000 | 2.0–2.8× | 2.5–3.1× |
+| T1 | 3 | +0.027 | +0.033 | 0.000 | 2.2–2.9× | 2.4–2.7× |
+| T2 | 3 | −0.017 | +0.017 | 0.000 | 1.3–1.8× | 1.4–1.5× |
+| T3 | 2 | +0.035 | +0.022 | −0.013 | 4.9–5.7× | 4.0–4.5× |
+| all | 11 | **+0.007** | +0.020 | 0.000 | **1.3–5.7×** | **1.4–4.5×** |
+
+The token and wall-clock ratios track each other, which is what a like-for-like count should do. The quality null is unchanged: no tier's orchestration gain clears the judges' own re-grade noise (median per-artifact score variance 0.047 on the five-point dimension scale). The per-row file is committed alongside this note (local artifact paths relativized) so the recomputation is reproducible; `B8_EFFICIENCY_AND_RAG_PLAN.md` documents the cache-read root cause that produced the inflated number.
 
 ## What the data CONFIRMED (bert's one real, defensible value)
 

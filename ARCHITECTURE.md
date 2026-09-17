@@ -15,7 +15,7 @@ This document describes the real subsystems as they exist in the tree. It includ
 - A program built to **falsify its own claims** and report the nulls (`benchmarks/`).
 
 **bert is NOT:**
-- **NOT a better agent / better reasoner.** B7 held the model constant: bert-Opus showed ≈0 quality gain over bare-Opus at 17–47× the tokens, and *hurt* on trivia.
+- **NOT a better agent / better reasoner.** B7 held the model constant: bert-Opus showed ≈0 quality gain over bare-Opus (median +0.007, n=11) at 1.3–5.7× the tokens and 1.4–4.5× the wall-clock, and *hurt* on trivia. (The 17–47× figure quoted earlier compared cache-inclusive orchestration tokens with a cache-exclusive baseline; see the correction in `benchmarks/BENCHMARK_SYNTHESIS.md`.)
 - **NOT "a cheaper model + harness that matches the frontier."** That was the B7 hypothesis, and the data disproved it: bert-Sonnet 0.79 < bare-Sonnet 0.87 < bare-Opus 0.89; harness lift −0.077 (same negative sign on all three tasks); never beat Opus (tie/tie/loss).
 - **NOT an autonomous lab that beats Opus.** The data supports only the long-context retrieval niche.
 - **NOT a SaaS.** It spawns subprocesses, pins a resident embedder+reranker, and writes a persistent filesystem tree under `~/.bert/labs/`. This makes it inherently a single-tenant, per-user local process. There is no remote/HTTP transport; the only transport is stdio.
@@ -155,7 +155,7 @@ What the data **DISPROVED**:
 
 | claim | test | result |
 |---|---|---|
-| orchestration improves quality on a frontier model | bert-Opus vs bare-Opus | **No.** ≈0 gain (within noise), *hurts* on trivia, at **17–47× tokens** |
+| orchestration improves quality on a frontier model | bert-Opus vs bare-Opus | **No.** ≈0 gain (within noise), *hurts* on trivia, at **1.3–5.7× tokens, 1.4–4.5× wall-clock** (cache-inclusive on both arms) |
 | the harness lets a cheaper model match the frontier | harness-lift: bert-Sonnet vs bare-Opus/Sonnet | **No** (see table below) |
 
 Harness-lift study (raw: `benchmarks/results/b7_harness_lift_20260603T004921.json`):
