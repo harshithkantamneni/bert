@@ -12,7 +12,7 @@
 - **The semantic track did NOT favor bert.** The "grep" arm is *agentic* (it reads and reasons over code), not naive keyword grep, so dense retrieval has no semantic edge on code.
 - **This benchmark tests retrieval over source CODE, not over prose or accumulated project memory** (bert's actual design target). That gap is what the next suite addresses.
 
-The defensible one-liner: **bert deployed the real way (agentically over MCP) is a strong #2 to the best agentic baseline on code QA, at lower token cost, and its hybrid retriever is a genuine IR system, not a wrapper.** It is *not* a grep-killer on code.
+The defensible one-liner: **bert deployed the real way (agentically over MCP) is a strong #2 to the best agentic baseline on code QA, at higher token cost (174,941 vs 72,878 tokens per correct answer), and its hybrid retriever is a genuine IR system, not a wrapper.** It is *not* a grep-killer on code.
 
 ---
 
@@ -95,7 +95,7 @@ One-shot RAG (`A3`/`A4`/`A5`) costs ~32k tokens/query; agentic arms cost far mor
 1. **Agentic beats one-shot retrieval, on both tracks.** Multi-turn search-and-read beats any single retrieval pass.
 2. **Among agentic methods, grep-tools edge bert-MCP** (significant on code-fact). On semantic, agentic grep also significantly beats bert's *one-shot* hybrid; grep vs bert-MCP on semantic is too close to call at n=30.
 3. **bert's hybrid retriever is a real IR system.** It beats published BM25 on BEIR and beats vector-only on code QA.
-4. **bert-via-MCP is a strong, deployable #2.** It beats all one-shot retrievers on both tracks, at lower token cost than grep.
+4. **bert-via-MCP is a strong, deployable #2.** It beats all one-shot retrievers on both tracks, at higher token cost than grep (174,941 vs 72,878 tokens per correct answer).
 5. **No semantic edge on code,** because code is re-derivable by an agent. This is the key limitation, not a bert defect.
 
 A result that showed bert winning everything would be the flawed-benchmark smell. This one names where bert loses (agentic grep on code) and ties (BM25, closed-book on famous libs), which is what makes the wins credible.

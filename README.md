@@ -1,6 +1,6 @@
 # bert
 
-> Long-context project-memory and retrieval infrastructure for Claude Code / Cursor / Codex. When a project outgrows the model's context window, bert's hybrid retrieval keeps answer quality flat at near-constant input cost, in the regime where full-context stuffing becomes infeasible and naive truncation drops to zero.
+> Long-context project-memory and retrieval infrastructure for Claude Code and other MCP hosts. When a project outgrows the model's context window, bert's hybrid retrieval keeps answer quality flat at near-constant input cost, in the regime where full-context stuffing becomes infeasible and naive truncation drops to zero.
 
 <p align="center">
   <picture>
