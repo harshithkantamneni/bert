@@ -1,6 +1,6 @@
 # bert: Architecture
 
-bert is **long-context project-memory and retrieval infrastructure** for AI coding hosts (Claude Code, Cursor, Codex, Claude Desktop). It installs as a local MCP server. It gives the host a persistent, per-project memory plus hybrid-retrieval layer and a free-tier dispatch/verification harness. The scope is deliberately narrow, and evidence sets that scope, not ambition (see *What bert is / is NOT* and *Benchmark program*).
+bert is **long-context project-memory and retrieval infrastructure** for MCP hosts, measured on Claude Code. It installs as a local MCP server. It gives the host a persistent, per-project memory plus hybrid-retrieval layer and a free-tier dispatch/verification harness. The scope is deliberately narrow, and evidence sets that scope, not ambition (see *What bert is / is NOT* and *Benchmark program*).
 
 This document describes the real subsystems as they exist in the tree. It includes a data-flow overview, the complete benchmark metrics, and a "Where to look" index that maps every topic to the actual files so a reader can verify each claim.
 
@@ -29,7 +29,7 @@ This document describes the real subsystems as they exist in the tree. It includ
 ## System overview
 
 ```
-            MCP host (Claude Code / Cursor / Codex / Claude Desktop)
+            MCP host (measured on Claude Code)
                               │  stdio, JSON-RPC 2.0 (one msg/line)
                               ▼
         ┌─────────────────────────────────────────────────────────┐

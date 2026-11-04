@@ -1,7 +1,7 @@
 [project]
 name = "bert-lab"
 version = "0.1.0"
-description = "Long-context project-memory and hybrid-retrieval MCP server for Claude Code / Cursor / Codex"
+description = "Long-context project-memory and hybrid-retrieval MCP server for MCP hosts, measured on Claude Code"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "bert-lab", email = "noreply@users.noreply.github.com" }]

@@ -58,7 +58,7 @@ _The story is the slope: `A1` full-context should drop sharply from S→M→L as
 ## What the results show (honest)
 
 - **Full-context collapses once memory exceeds the window:** `A1` falls from **0.90 (S) → 0.08 (M)**. It can only keep the most-recent ~10% of a 1.26M-token corpus, so it misses almost every older fact. This is the core result: stuffing the context is not a memory system.
-- **bert-MCP holds at the top** (0.96 → 0.90) and **ties agentic-grep** (0.90, not significant), but at **roughly half the token cost** (≈149k vs ≈282k tokens/query): grep scans many files across many turns; bert retrieves a focused slice. Same answers, much cheaper. That is bert's real edge at the tie.
+- **bert-MCP holds at the top** (0.96 → 0.90) and **ties agentic-grep** (0.90, not significant), with **lower mean token use** (≈149k vs ≈282k tokens/query, cache reads counted in full; the paired median ratio is 1.46x): grep scans many files across many turns; bert retrieves a focused slice. Same answers, much cheaper. That is bert's real edge at the tie.
 - **bert-MCP decisively beats naive vector-RAG** (+0.50, p<0.001): hybrid + rerank is worth it; a plain embedding top-k is far weaker on paraphrased recall.
 - Consistent with the code benchmark: an agent that can read+reason (grep) is a strong baseline that bert *matches* rather than beats. bert wins on **cost** and on **beating the simpler memory approaches**, not by out-scoring the agent.
 
